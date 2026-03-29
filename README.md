@@ -10,7 +10,7 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/huelsevoort/n8n-nodes-rentman)](https://github.com/huelsevoort/n8n-nodes-rentman/commits/main)
 [![GitHub issues](https://img.shields.io/github/issues/huelsevoort/n8n-nodes-rentman)](https://github.com/huelsevoort/n8n-nodes-rentman/issues)
 
-Community node for [n8n](https://n8n.io) that integrates with the [Rentman API](https://api.rentman.net) — rental management software for AV, event, and staging companies.
+Community node for [n8n](https://n8n.io) that integrates with the [Rentman API](https://api.rentman.net) — the rental management software for AV, event, and crewing companies.
 
 > **Disclaimer:** This is an independent community integration and is not officially affiliated with or endorsed by Rentman.
 

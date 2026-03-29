@@ -1,7 +1,7 @@
 {
   "name": "n8n-nodes-rentman",
   "version": "0.3.0",
-  "description": "n8n community node for the Rentman rental management API",
+  "description": "n8n community node for Rentman — the rental management software for AV, event, and crewing companies",
   "keywords": [
     "n8n-community-node-package",
     "rentman",
