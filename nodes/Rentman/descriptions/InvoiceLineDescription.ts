@@ -45,6 +45,7 @@ export const invoiceLineFields: INodeProperties[] = [
 		displayName: 'Return All',
 		name: 'returnAll',
 		type: 'boolean',
+		description: 'Whether to return all results or only up to a given limit',
 		displayOptions: { show: { resource: ['invoiceLine'], operation: ['getAll'] } },
 		default: false,
 		routing: {
@@ -64,9 +65,10 @@ export const invoiceLineFields: INodeProperties[] = [
 		displayName: 'Limit',
 		name: 'limit',
 		type: 'number',
+		description: 'Max number of results to return',
 		displayOptions: { show: { resource: ['invoiceLine'], operation: ['getAll'], returnAll: [false] } },
-		typeOptions: { minValue: 1, maxValue: 1500 },
-		default: 100,
+		typeOptions: { minValue: 1 },
+		default: 50,
 		routing: { request: { qs: { limit: '={{ $value }}' } } },
 	},
 	{

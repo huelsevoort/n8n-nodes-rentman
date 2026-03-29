@@ -141,9 +141,8 @@ export const projectFields: INodeProperties[] = [
 		},
 		typeOptions: {
 			minValue: 1,
-			maxValue: 1500,
 		},
-		default: 100,
+		default: 50,
 		description: 'Max number of results to return',
 		routing: {
 			request: {
@@ -189,119 +188,119 @@ export const projectFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
-				displayName: 'Name',
-				name: 'name',
-				type: 'string',
-				default: '',
-				description: 'Filter by project name',
-				routing: {
-					request: {
-						qs: {
-							name: '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Created After',
+			name: 'created_gt',
+			type: 'dateTime',
+			default: '',
+			description: 'Return only records created after this date',
+			routing: {
+			request: {
+			qs: {
+			'created[gt]': '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Number',
-				name: 'number',
-				type: 'number',
-				default: 0,
-				description: 'Filter by project number',
-				routing: {
-					request: {
-						qs: {
-							number: '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Fields',
+			name: 'fields',
+			type: 'string',
+			default: '',
+			placeholder: 'ID,displayname,modified',
+			description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+			routing: {
+			request: {
+			qs: {
+			fields: '={{ $value || undefined }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Sort',
-				name: 'sort',
-				type: 'string',
-				default: '+id',
-				placeholder: '+name or -modified',
-				description:
-					'Sort field with direction prefix: + for ascending, - for descending',
-				routing: {
-					request: {
-						qs: {
-							sort: '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'ID Greater Than',
+			name: 'id_gt',
+			type: 'number',
+			default: 0,
+			description: 'Return only records with ID greater than this value (useful for incremental sync)',
+			routing: {
+			request: {
+			qs: {
+			'id[gt]': '={{ $value > 0 ? $value : undefined }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Modified After',
-				name: 'modified_gt',
-				type: 'dateTime',
-				default: '',
-				description: 'Return only records modified after this date',
-				routing: {
-					request: {
-						qs: {
-							'modified[gt]': '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Modified After',
+			name: 'modified_gt',
+			type: 'dateTime',
+			default: '',
+			description: 'Return only records modified after this date',
+			routing: {
+			request: {
+			qs: {
+			'modified[gt]': '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Modified Before',
-				name: 'modified_lt',
-				type: 'dateTime',
-				default: '',
-				description: 'Return only records modified before this date',
-				routing: {
-					request: {
-						qs: {
-							'modified[lt]': '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Modified Before',
+			name: 'modified_lt',
+			type: 'dateTime',
+			default: '',
+			description: 'Return only records modified before this date',
+			routing: {
+			request: {
+			qs: {
+			'modified[lt]': '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Created After',
-				name: 'created_gt',
-				type: 'dateTime',
-				default: '',
-				description: 'Return only records created after this date',
-				routing: {
-					request: {
-						qs: {
-							'created[gt]': '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Name',
+			name: 'name',
+			type: 'string',
+			default: '',
+			description: 'Filter by project name',
+			routing: {
+			request: {
+			qs: {
+			name: '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'ID Greater Than',
-				name: 'id_gt',
-				type: 'number',
-				default: 0,
-				description: 'Return only records with ID greater than this value (useful for incremental sync)',
-				routing: {
-					request: {
-						qs: {
-							'id[gt]': '={{ $value > 0 ? $value : undefined }}',
-						},
-					},
-				},
+			displayName: 'Number',
+			name: 'number',
+			type: 'number',
+			default: 0,
+			description: 'Filter by project number',
+			routing: {
+			request: {
+			qs: {
+			number: '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Fields',
-				name: 'fields',
-				type: 'string',
-				default: '',
-				placeholder: 'id,displayname,modified',
-				description: 'Comma-separated list of fields to return. Leave empty for all fields.',
-				routing: {
-					request: {
-						qs: {
-							fields: '={{ $value || undefined }}',
-						},
-					},
-				},
+			displayName: 'Sort',
+			name: 'sort',
+			type: 'string',
+			default: '+id',
+			placeholder: '+name or -modified',
+			description:
+			'Sort field with direction prefix: + for ascending, - for descending',
+			routing: {
+			request: {
+			qs: {
+			sort: '={{ $value }}',
+			},
+			},
+			},
 			},
 		],
 	},
@@ -342,110 +341,110 @@ export const projectFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
-				displayName: 'Color',
-				name: 'color',
-				type: 'color',
-				default: '',
-				description: 'Color code for the project in the planner',
-				routing: {
-					request: {
-						body: {
-							color: '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Color',
+			name: 'color',
+			type: 'color',
+			default: '',
+			description: 'Color code for the project in the planner',
+			routing: {
+			request: {
+			body: {
+			color: '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Conditions',
-				name: 'conditions',
-				type: 'string',
-				typeOptions: {
-					rows: 4,
-				},
-				default: '',
-				description: 'Terms and conditions for the project',
-				routing: {
-					request: {
-						body: {
-							conditions: '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Conditions',
+			name: 'conditions',
+			type: 'string',
+			typeOptions: {
+			rows: 4,
+			},
+			default: '',
+			description: 'Terms and conditions for the project',
+			routing: {
+			request: {
+			body: {
+			conditions: '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Customer (Contact Path)',
-				name: 'customer',
-				type: 'string',
-				default: '',
-				placeholder: '/contacts/42',
-				description: 'Resource path of the customer contact, e.g. /contacts/42',
-				routing: {
-					request: {
-						body: {
-							customer: '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Custom Reference',
+			name: 'reference',
+			type: 'string',
+			default: '',
+			description: 'Custom reference field for the project',
+			routing: {
+			request: {
+			body: {
+			reference: '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Custom Reference',
-				name: 'reference',
-				type: 'string',
-				default: '',
-				description: 'Custom reference field for the project',
-				routing: {
-					request: {
-						body: {
-							reference: '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Customer (Contact Path)',
+			name: 'customer',
+			type: 'string',
+			default: '',
+			placeholder: '/contacts/42',
+			description: 'Resource path of the customer contact, e.g. /contacts/42',
+			routing: {
+			request: {
+			body: {
+			customer: '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Project Type (Path)',
-				name: 'project_type',
-				type: 'string',
-				default: '',
-				placeholder: '/projecttypes/1',
-				description: 'Resource path of the project type, e.g. /projecttypes/1',
-				routing: {
-					request: {
-						body: {
-							project_type: '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Project Type (Path)',
+			name: 'project_type',
+			type: 'string',
+			default: '',
+			placeholder: '/projecttypes/1',
+			description: 'Resource path of the project type, e.g. /projecttypes/1',
+			routing: {
+			request: {
+			body: {
+			project_type: '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Remark',
-				name: 'remark',
-				type: 'string',
-				typeOptions: {
-					rows: 4,
-				},
-				default: '',
-				routing: {
-					request: {
-						body: {
-							remark: '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Remark',
+			name: 'remark',
+			type: 'string',
+			typeOptions: {
+			rows: 4,
+			},
+			default: '',
+			routing: {
+			request: {
+			body: {
+			remark: '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Status (Path)',
-				name: 'status',
-				type: 'string',
-				default: '',
-				placeholder: '/statuses/1',
-				description: 'Resource path of the project status, e.g. /statuses/1',
-				routing: {
-					request: {
-						body: {
-							status: '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Status (Path)',
+			name: 'status',
+			type: 'string',
+			default: '',
+			placeholder: '/statuses/1',
+			description: 'Resource path of the project status, e.g. /statuses/1',
+			routing: {
+			request: {
+			body: {
+			status: '={{ $value }}',
+			},
+			},
+			},
 			},
 		],
 	},

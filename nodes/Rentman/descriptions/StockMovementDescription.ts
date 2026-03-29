@@ -148,9 +148,8 @@ export const stockMovementFields: INodeProperties[] = [
 		},
 		typeOptions: {
 			minValue: 1,
-			maxValue: 1500,
 		},
-		default: 100,
+		default: 50,
 		description: 'Max number of results to return',
 		routing: {
 			request: {

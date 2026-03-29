@@ -171,9 +171,8 @@ export const timeRegistrationFields: INodeProperties[] = [
 		},
 		typeOptions: {
 			minValue: 1,
-			maxValue: 1500,
 		},
-		default: 100,
+		default: 50,
 		description: 'Max number of results to return',
 		routing: {
 			request: {
@@ -349,7 +348,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 				},
 			},
 			{
-				displayName: 'Distance (km)',
+				displayName: 'Distance (Km)',
 				name: 'distance',
 				type: 'number',
 				default: 0,
@@ -424,7 +423,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 				},
 			},
 			{
-				displayName: 'Distance (km)',
+				displayName: 'Distance (Km)',
 				name: 'distance',
 				type: 'number',
 				default: 0,

@@ -118,9 +118,8 @@ export const invoiceFields: INodeProperties[] = [
 		},
 		typeOptions: {
 			minValue: 1,
-			maxValue: 1500,
 		},
-		default: 100,
+		default: 50,
 		description: 'Max number of results to return',
 		routing: {
 			request: {
@@ -166,105 +165,105 @@ export const invoiceFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
-				displayName: 'Invoice Number',
-				name: 'number',
-				type: 'string',
-				default: '',
-				description: 'Filter by invoice number',
-				routing: {
-					request: {
-						qs: {
-							number: '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Created After',
+			name: 'created_gt',
+			type: 'dateTime',
+			default: '',
+			description: 'Return only records created after this date',
+			routing: {
+			request: {
+			qs: {
+			'created[gt]': '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Sort',
-				name: 'sort',
-				type: 'string',
-				default: '-date',
-				placeholder: '+number or -date',
-				description:
-					'Sort field with direction prefix: + for ascending, - for descending',
-				routing: {
-					request: {
-						qs: {
-							sort: '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Fields',
+			name: 'fields',
+			type: 'string',
+			default: '',
+			placeholder: 'ID,displayname,modified',
+			description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+			routing: {
+			request: {
+			qs: {
+			fields: '={{ $value || undefined }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Modified After',
-				name: 'modified_gt',
-				type: 'dateTime',
-				default: '',
-				description: 'Return only records modified after this date',
-				routing: {
-					request: {
-						qs: {
-							'modified[gt]': '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'ID Greater Than',
+			name: 'id_gt',
+			type: 'number',
+			default: 0,
+			description: 'Return only records with ID greater than this value (useful for incremental sync)',
+			routing: {
+			request: {
+			qs: {
+			'id[gt]': '={{ $value > 0 ? $value : undefined }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Modified Before',
-				name: 'modified_lt',
-				type: 'dateTime',
-				default: '',
-				description: 'Return only records modified before this date',
-				routing: {
-					request: {
-						qs: {
-							'modified[lt]': '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Invoice Number',
+			name: 'number',
+			type: 'string',
+			default: '',
+			description: 'Filter by invoice number',
+			routing: {
+			request: {
+			qs: {
+			number: '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Created After',
-				name: 'created_gt',
-				type: 'dateTime',
-				default: '',
-				description: 'Return only records created after this date',
-				routing: {
-					request: {
-						qs: {
-							'created[gt]': '={{ $value }}',
-						},
-					},
-				},
+			displayName: 'Modified After',
+			name: 'modified_gt',
+			type: 'dateTime',
+			default: '',
+			description: 'Return only records modified after this date',
+			routing: {
+			request: {
+			qs: {
+			'modified[gt]': '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'ID Greater Than',
-				name: 'id_gt',
-				type: 'number',
-				default: 0,
-				description: 'Return only records with ID greater than this value (useful for incremental sync)',
-				routing: {
-					request: {
-						qs: {
-							'id[gt]': '={{ $value > 0 ? $value : undefined }}',
-						},
-					},
-				},
+			displayName: 'Modified Before',
+			name: 'modified_lt',
+			type: 'dateTime',
+			default: '',
+			description: 'Return only records modified before this date',
+			routing: {
+			request: {
+			qs: {
+			'modified[lt]': '={{ $value }}',
+			},
+			},
+			},
 			},
 			{
-				displayName: 'Fields',
-				name: 'fields',
-				type: 'string',
-				default: '',
-				placeholder: 'id,displayname,modified',
-				description: 'Comma-separated list of fields to return. Leave empty for all fields.',
-				routing: {
-					request: {
-						qs: {
-							fields: '={{ $value || undefined }}',
-						},
-					},
-				},
+			displayName: 'Sort',
+			name: 'sort',
+			type: 'string',
+			default: '-date',
+			placeholder: '+number or -date',
+			description:
+			'Sort field with direction prefix: + for ascending, - for descending',
+			routing: {
+			request: {
+			qs: {
+			sort: '={{ $value }}',
+			},
+			},
+			},
 			},
 		],
 	},

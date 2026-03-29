@@ -6,7 +6,13 @@
     "n8n-community-node-package",
     "rentman",
     "rental",
-    "equipment-rental"
+    "equipment-rental",
+    "rental-management",
+    "av-rental",
+    "event-rental",
+    "staging",
+    "crm",
+    "n8n"
   ],
   "license": "MIT",
   "homepage": "https://github.com/huelsevoort/n8n-nodes-rentman",
@@ -22,10 +28,10 @@
     "build": "tsc && gulp build:icons",
     "dev": "tsc --watch",
     "format": "prettier nodes credentials --write",
-    "lint": "eslint nodes credentials package.json",
-    "lint:fix": "eslint nodes credentials package.json --fix",
+    "lint": "eslint --ext .ts nodes credentials",
+    "lint:fix": "eslint --ext .ts --fix nodes credentials",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js"
+    "prepublishOnly": "npm run build && npm run lint"
   },
   "files": [
     "dist"
@@ -45,6 +51,9 @@
     "typescript": "^5.6.3"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.57.2",
+    "@typescript-eslint/parser": "^8.57.2",
+    "eslint": "^8.57.1",
     "eslint-plugin-n8n-nodes-base": "^1.16.1",
     "prettier": "^3.3.2"
   },
