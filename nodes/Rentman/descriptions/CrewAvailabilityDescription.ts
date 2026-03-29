@@ -1,0 +1,205 @@
+import type { INodeProperties } from 'n8n-workflow';
+
+export const crewAvailabilityOperations: INodeProperties[] = [
+	{
+		displayName: 'Operation',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['crewAvailability'] } },
+		options: [
+			{
+				name: 'Create',
+				value: 'create',
+				action: 'Create a crew availability entry',
+				routing: { request: { method: 'POST', url: '/crewavailability' } },
+			},
+			{
+				name: 'Delete',
+				value: 'delete',
+				action: 'Delete a crew availability entry',
+				routing: { request: { method: 'DELETE' } },
+			},
+			{
+				name: 'Get',
+				value: 'get',
+				action: 'Get a crew availability entry',
+				routing: { request: { method: 'GET' } },
+			},
+			{
+				name: 'Get Many',
+				value: 'getAll',
+				action: 'Get many crew availability entries',
+				routing: { request: { method: 'GET', url: '/crewavailability' } },
+			},
+			{
+				name: 'Update',
+				value: 'update',
+				action: 'Update a crew availability entry',
+				routing: { request: { method: 'PUT' } },
+			},
+		],
+		default: 'getAll',
+	},
+];
+
+export const crewAvailabilityFields: INodeProperties[] = [
+	{
+		displayName: 'Crew Availability ID',
+		name: 'crewAvailabilityId',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['crewAvailability'], operation: ['get', 'update', 'delete'] } },
+		default: '',
+		routing: { request: { url: '=/crewavailability/{{$value}}' } },
+	},
+	{
+		displayName: 'Return All',
+		name: 'returnAll',
+		type: 'boolean',
+		displayOptions: { show: { resource: ['crewAvailability'], operation: ['getAll'] } },
+		default: false,
+		routing: {
+			send: { paginate: '={{ $value }}' },
+			operations: {
+				pagination: {
+					type: 'generic',
+					properties: {
+						continue: '={{ !!$response.body?.next_page_url }}',
+						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
+					},
+				},
+			},
+		},
+	},
+	{
+		displayName: 'Limit',
+		name: 'limit',
+		type: 'number',
+		displayOptions: { show: { resource: ['crewAvailability'], operation: ['getAll'], returnAll: [false] } },
+		typeOptions: { minValue: 1, maxValue: 1500 },
+		default: 100,
+		routing: { request: { qs: { limit: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Filters',
+		name: 'filters',
+		type: 'collection',
+		placeholder: 'Add Filter',
+		displayOptions: { show: { resource: ['crewAvailability'], operation: ['getAll'] } },
+		default: {},
+		options: [
+			{
+				displayName: 'Crew Member (Path)',
+				name: 'crewmember',
+				type: 'string',
+				default: '',
+				placeholder: '/crew/42',
+				routing: { request: { qs: { crewmember: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Sort',
+				name: 'sort',
+				type: 'string',
+				default: '+id',
+				routing: { request: { qs: { sort: '={{ $value }}' } } },
+			},
+		],
+	},
+	// ─── CREATE ──────────────────────────────────────────────────────────────
+	{
+		displayName: 'Crew Member (Path)',
+		name: 'crewmember',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create'] } },
+		default: '',
+		placeholder: '/crew/42',
+		description: 'Resource path of the crew member, e.g. /crew/42',
+		routing: { request: { body: { crewmember: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Start Date/Time',
+		name: 'start',
+		type: 'dateTime',
+		required: true,
+		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create'] } },
+		default: '',
+		routing: { request: { body: { start: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'End Date/Time',
+		name: 'end',
+		type: 'dateTime',
+		required: true,
+		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create'] } },
+		default: '',
+		routing: { request: { body: { end: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create'] } },
+		default: {},
+		options: [
+			{
+				displayName: 'Available',
+				name: 'available',
+				type: 'boolean',
+				default: true,
+				description: 'Whether the crew member is available (true) or unavailable (false)',
+				routing: { request: { body: { available: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Remark',
+				name: 'remark',
+				type: 'string',
+				typeOptions: { rows: 3 },
+				default: '',
+				routing: { request: { body: { remark: '={{ $value }}' } } },
+			},
+		],
+	},
+	// ─── UPDATE ──────────────────────────────────────────────────────────────
+	{
+		displayName: 'Update Fields',
+		name: 'updateFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: { show: { resource: ['crewAvailability'], operation: ['update'] } },
+		default: {},
+		options: [
+			{
+				displayName: 'Available',
+				name: 'available',
+				type: 'boolean',
+				default: true,
+				routing: { request: { body: { available: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'End Date/Time',
+				name: 'end',
+				type: 'dateTime',
+				default: '',
+				routing: { request: { body: { end: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Remark',
+				name: 'remark',
+				type: 'string',
+				typeOptions: { rows: 3 },
+				default: '',
+				routing: { request: { body: { remark: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Start Date/Time',
+				name: 'start',
+				type: 'dateTime',
+				default: '',
+				routing: { request: { body: { start: '={{ $value }}' } } },
+			},
+		],
+	},
+];

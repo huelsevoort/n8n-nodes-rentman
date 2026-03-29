@@ -1,7 +1,8 @@
-import { NodeConnectionType } from 'n8n-workflow';
+import { NodeConnectionTypes } from 'n8n-workflow';
 import type { INodeType, INodeTypeDescription } from 'n8n-workflow';
 
 import {
+	// ── Existing ──────────────────────────────────────────────────────────────
 	appointmentFields,
 	appointmentOperations,
 	contactFields,
@@ -22,6 +23,100 @@ import {
 	subprojectOperations,
 	timeRegistrationFields,
 	timeRegistrationOperations,
+	// ── Contacts ──────────────────────────────────────────────────────────────
+	contactPersonFields,
+	contactPersonOperations,
+	// ── Crew & Scheduling ─────────────────────────────────────────────────────
+	appointmentCrewFields,
+	appointmentCrewOperations,
+	crewAvailabilityFields,
+	crewAvailabilityOperations,
+	leaveMutationFields,
+	leaveMutationOperations,
+	leaveRequestFields,
+	leaveRequestOperations,
+	leaveTypeFields,
+	leaveTypeOperations,
+	invitationFields,
+	invitationOperations,
+	timeRegistrationActivityFields,
+	timeRegistrationActivityOperations,
+	// ── Projects ──────────────────────────────────────────────────────────────
+	projectRequestFields,
+	projectRequestOperations,
+	projectRequestEquipmentFields,
+	projectRequestEquipmentOperations,
+	projectCrewFields,
+	projectCrewOperations,
+	projectEquipmentFields,
+	projectEquipmentOperations,
+	projectEquipmentGroupFields,
+	projectEquipmentGroupOperations,
+	projectFunctionFields,
+	projectFunctionOperations,
+	projectFunctionGroupFields,
+	projectFunctionGroupOperations,
+	projectTypeFields,
+	projectTypeOperations,
+	projectVehicleFields,
+	projectVehicleOperations,
+	// ── Financial ─────────────────────────────────────────────────────────────
+	contractFields,
+	contractOperations,
+	costFields,
+	costOperations,
+	paymentFields,
+	paymentOperations,
+	invoiceLineFields,
+	invoiceLineOperations,
+	// ── Equipment Extended ────────────────────────────────────────────────────
+	accessoryFields,
+	accessoryOperations,
+	actualContentFields,
+	actualContentOperations,
+	equipmentAssignedSerialFields,
+	equipmentAssignedSerialOperations,
+	equipmentSetsContentFields,
+	equipmentSetsContentOperations,
+	repairFields,
+	repairOperations,
+	serialNumberFields,
+	serialNumberOperations,
+	// ── Files ─────────────────────────────────────────────────────────────────
+	fileFields,
+	fileOperations,
+	fileFolderFields,
+	fileFolderOperations,
+	folderFields,
+	folderOperations,
+	// ── Rates & Pricing ───────────────────────────────────────────────────────
+	factorGroupFields,
+	factorGroupOperations,
+	factorFields,
+	factorOperations,
+	rateFields,
+	rateOperations,
+	rateFactorFields,
+	rateFactorOperations,
+	taxClassFields,
+	taxClassOperations,
+	ledgerCodeFields,
+	ledgerCodeOperations,
+	crewRateFields,
+	crewRateOperations,
+	// ── Lookup ────────────────────────────────────────────────────────────────
+	statusFields,
+	statusOperations,
+	stockLocationFields,
+	stockLocationOperations,
+	subRentalFields,
+	subRentalOperations,
+	subRentalEquipmentFields,
+	subRentalEquipmentOperations,
+	subRentalEquipmentGroupFields,
+	subRentalEquipmentGroupOperations,
+	vehicleFields,
+	vehicleOperations,
 } from './descriptions';
 
 export class Rentman implements INodeType {
@@ -33,18 +128,11 @@ export class Rentman implements INodeType {
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Interact with the Rentman rental management API',
-		defaults: {
-			name: 'Rentman',
-		},
+		defaults: { name: 'Rentman' },
 		usableAsTool: true,
-		inputs: [NodeConnectionType.Main],
-		outputs: [NodeConnectionType.Main],
-		credentials: [
-			{
-				name: 'rentmanApi',
-				required: true,
-			},
-		],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
+		credentials: [{ name: 'rentmanApi', required: true }],
 		requestDefaults: {
 			baseURL: 'https://api.rentman.net',
 			headers: {
@@ -53,106 +141,202 @@ export class Rentman implements INodeType {
 			},
 		},
 		properties: [
-			// ─── RESOURCE SELECTOR ───────────────────────────────────────────
+			// ─── RESOURCE SELECTOR ─────────────────────────────────────────────
 			{
 				displayName: 'Resource',
 				name: 'resource',
 				type: 'options',
 				noDataExpression: true,
 				options: [
-					{
-						name: 'Appointment',
-						value: 'appointment',
-						description: 'Manage appointments and calendar events',
-					},
-					{
-						name: 'Contact',
-						value: 'contact',
-						description: 'Manage customers, suppliers and other contacts',
-					},
-					{
-						name: 'Crew',
-						value: 'crew',
-						description: 'View crew members and their details',
-					},
-					{
-						name: 'Equipment',
-						value: 'equipment',
-						description: 'View equipment inventory',
-					},
-					{
-						name: 'Invoice',
-						value: 'invoice',
-						description: 'View invoices',
-					},
-					{
-						name: 'Project',
-						value: 'project',
-						description: 'Manage rental projects',
-					},
-					{
-						name: 'Quote',
-						value: 'quote',
-						description: 'View quotes',
-					},
-					{
-						name: 'Stock Movement',
-						value: 'stockMovement',
-						description: 'Track stock movements and adjustments',
-					},
-					{
-						name: 'Subproject',
-						value: 'subproject',
-						description: 'View project subprojects (planning periods)',
-					},
-					{
-						name: 'Time Registration',
-						value: 'timeRegistration',
-						description: 'Manage crew time registrations',
-					},
-				],
+					// Contacts
+					{ name: 'Contact', value: 'contact', description: 'Customers, suppliers and other contacts' },
+					{ name: 'Contact Person', value: 'contactPerson', description: 'Persons linked to a contact' },
+					// Projects
+					{ name: 'Project', value: 'project', description: 'Rental projects' },
+					{ name: 'Subproject', value: 'subproject', description: 'Project planning periods' },
+					{ name: 'Project Crew', value: 'projectCrew', description: 'Crew assigned to project functions' },
+					{ name: 'Project Equipment', value: 'projectEquipment', description: 'Equipment on a project' },
+					{ name: 'Project Equipment Group', value: 'projectEquipmentGroup', description: 'Equipment groups on subprojects' },
+					{ name: 'Project Function', value: 'projectFunction', description: 'Crew functions on subprojects' },
+					{ name: 'Project Function Group', value: 'projectFunctionGroup', description: 'Function groups on subprojects' },
+					{ name: 'Project Request', value: 'projectRequest', description: 'Incoming project requests' },
+					{ name: 'Project Request Equipment', value: 'projectRequestEquipment', description: 'Equipment on project requests' },
+					{ name: 'Project Type', value: 'projectType', description: 'Project type definitions' },
+					{ name: 'Project Vehicle', value: 'projectVehicle', description: 'Vehicles on projects' },
+					{ name: 'Contract', value: 'contract', description: 'Project contracts' },
+					{ name: 'Quote', value: 'quote', description: 'Project quotes' },
+					// Crew & HR
+					{ name: 'Crew', value: 'crew', description: 'Crew members' },
+					{ name: 'Crew Availability', value: 'crewAvailability', description: 'Crew availability entries' },
+					{ name: 'Crew Rate', value: 'crewRate', description: 'Crew rate definitions' },
+					{ name: 'Appointment', value: 'appointment', description: 'Calendar appointments' },
+					{ name: 'Appointment Crew', value: 'appointmentCrew', description: 'Crew on appointments' },
+					{ name: 'Invitation', value: 'invitation', description: 'Crew invitations' },
+					{ name: 'Leave Mutation', value: 'leaveMutation', description: 'Leave balance mutations' },
+					{ name: 'Leave Request', value: 'leaveRequest', description: 'Crew leave requests' },
+					{ name: 'Leave Type', value: 'leaveType', description: 'Leave type definitions' },
+					{ name: 'Time Registration', value: 'timeRegistration', description: 'Crew time registrations' },
+					{ name: 'Time Registration Activity', value: 'timeRegistrationActivity', description: 'Time registration activity categories' },
+					// Equipment & Stock
+					{ name: 'Equipment', value: 'equipment', description: 'Equipment inventory' },
+					{ name: 'Accessory', value: 'accessory', description: 'Equipment accessories' },
+					{ name: 'Actual Content', value: 'actualContent', description: 'Actual content of equipment sets' },
+					{ name: 'Equipment Assigned Serial', value: 'equipmentAssignedSerial', description: 'Assigned serial numbers' },
+					{ name: 'Equipment Sets Content', value: 'equipmentSetsContent', description: 'Default content of equipment sets' },
+					{ name: 'Repair', value: 'repair', description: 'Equipment repair records' },
+					{ name: 'Serial Number', value: 'serialNumber', description: 'Serial number records' },
+					{ name: 'Stock Location', value: 'stockLocation', description: 'Physical stock locations' },
+					{ name: 'Stock Movement', value: 'stockMovement', description: 'Stock movement records' },
+					// Financial
+					{ name: 'Cost', value: 'cost', description: 'Project costs' },
+					{ name: 'Invoice', value: 'invoice', description: 'Invoices' },
+					{ name: 'Invoice Line', value: 'invoiceLine', description: 'Individual invoice lines' },
+					{ name: 'Payment', value: 'payment', description: 'Invoice payments' },
+					// Sub-Rentals
+					{ name: 'Sub Rental', value: 'subRental', description: 'Sub-rental orders' },
+					{ name: 'Sub Rental Equipment', value: 'subRentalEquipment', description: 'Equipment on sub-rentals' },
+					{ name: 'Sub Rental Equipment Group', value: 'subRentalEquipmentGroup', description: 'Equipment groups on sub-rentals' },
+					// Files & Folders
+					{ name: 'File', value: 'file', description: 'Attached files' },
+					{ name: 'File Folder', value: 'fileFolder', description: 'File folder structure' },
+					{ name: 'Folder', value: 'folder', description: 'General folder structure' },
+					// Rates & Pricing
+					{ name: 'Factor', value: 'factor', description: 'Price factors' },
+					{ name: 'Factor Group', value: 'factorGroup', description: 'Price factor groups' },
+					{ name: 'Rate', value: 'rate', description: 'Rate definitions' },
+					{ name: 'Rate Factor', value: 'rateFactor', description: 'Rate factor combinations' },
+					{ name: 'Tax Class', value: 'taxClass', description: 'Tax class definitions' },
+					{ name: 'Ledger Code', value: 'ledgerCode', description: 'Accounting ledger codes' },
+					// Misc
+					{ name: 'Status', value: 'status', description: 'Project status definitions' },
+					{ name: 'Vehicle', value: 'vehicle', description: 'Vehicles' },
+				].sort((a, b) => a.name.localeCompare(b.name)),
 				default: 'contact',
 			},
 
-			// ─── APPOINTMENT ─────────────────────────────────────────────────
-			...appointmentOperations,
-			...appointmentFields,
-
-			// ─── CONTACT ─────────────────────────────────────────────────────
+			// ─── CONTACT ───────────────────────────────────────────────────────
 			...contactOperations,
 			...contactFields,
+			...contactPersonOperations,
+			...contactPersonFields,
 
-			// ─── CREW ────────────────────────────────────────────────────────
-			...crewOperations,
-			...crewFields,
-
-			// ─── EQUIPMENT ───────────────────────────────────────────────────
-			...equipmentOperations,
-			...equipmentFields,
-
-			// ─── INVOICE ─────────────────────────────────────────────────────
-			...invoiceOperations,
-			...invoiceFields,
-
-			// ─── PROJECT ─────────────────────────────────────────────────────
+			// ─── PROJECTS ──────────────────────────────────────────────────────
 			...projectOperations,
 			...projectFields,
-
-			// ─── QUOTE ───────────────────────────────────────────────────────
+			...subprojectOperations,
+			...subprojectFields,
+			...projectCrewOperations,
+			...projectCrewFields,
+			...projectEquipmentOperations,
+			...projectEquipmentFields,
+			...projectEquipmentGroupOperations,
+			...projectEquipmentGroupFields,
+			...projectFunctionOperations,
+			...projectFunctionFields,
+			...projectFunctionGroupOperations,
+			...projectFunctionGroupFields,
+			...projectRequestOperations,
+			...projectRequestFields,
+			...projectRequestEquipmentOperations,
+			...projectRequestEquipmentFields,
+			...projectTypeOperations,
+			...projectTypeFields,
+			...projectVehicleOperations,
+			...projectVehicleFields,
+			...contractOperations,
+			...contractFields,
 			...quoteOperations,
 			...quoteFields,
 
-			// ─── STOCK MOVEMENT ──────────────────────────────────────────────
+			// ─── CREW & HR ─────────────────────────────────────────────────────
+			...crewOperations,
+			...crewFields,
+			...crewAvailabilityOperations,
+			...crewAvailabilityFields,
+			...crewRateOperations,
+			...crewRateFields,
+			...appointmentOperations,
+			...appointmentFields,
+			...appointmentCrewOperations,
+			...appointmentCrewFields,
+			...invitationOperations,
+			...invitationFields,
+			...leaveMutationOperations,
+			...leaveMutationFields,
+			...leaveRequestOperations,
+			...leaveRequestFields,
+			...leaveTypeOperations,
+			...leaveTypeFields,
+			...timeRegistrationOperations,
+			...timeRegistrationFields,
+			...timeRegistrationActivityOperations,
+			...timeRegistrationActivityFields,
+
+			// ─── EQUIPMENT & STOCK ─────────────────────────────────────────────
+			...equipmentOperations,
+			...equipmentFields,
+			...accessoryOperations,
+			...accessoryFields,
+			...actualContentOperations,
+			...actualContentFields,
+			...equipmentAssignedSerialOperations,
+			...equipmentAssignedSerialFields,
+			...equipmentSetsContentOperations,
+			...equipmentSetsContentFields,
+			...repairOperations,
+			...repairFields,
+			...serialNumberOperations,
+			...serialNumberFields,
+			...stockLocationOperations,
+			...stockLocationFields,
 			...stockMovementOperations,
 			...stockMovementFields,
 
-			// ─── SUBPROJECT ──────────────────────────────────────────────────
-			...subprojectOperations,
-			...subprojectFields,
+			// ─── FINANCIAL ─────────────────────────────────────────────────────
+			...costOperations,
+			...costFields,
+			...invoiceOperations,
+			...invoiceFields,
+			...invoiceLineOperations,
+			...invoiceLineFields,
+			...paymentOperations,
+			...paymentFields,
 
-			// ─── TIME REGISTRATION ───────────────────────────────────────────
-			...timeRegistrationOperations,
-			...timeRegistrationFields,
+			// ─── SUB-RENTALS ───────────────────────────────────────────────────
+			...subRentalOperations,
+			...subRentalFields,
+			...subRentalEquipmentOperations,
+			...subRentalEquipmentFields,
+			...subRentalEquipmentGroupOperations,
+			...subRentalEquipmentGroupFields,
+
+			// ─── FILES ─────────────────────────────────────────────────────────
+			...fileOperations,
+			...fileFields,
+			...fileFolderOperations,
+			...fileFolderFields,
+			...folderOperations,
+			...folderFields,
+
+			// ─── RATES & PRICING ───────────────────────────────────────────────
+			...factorOperations,
+			...factorFields,
+			...factorGroupOperations,
+			...factorGroupFields,
+			...rateOperations,
+			...rateFields,
+			...rateFactorOperations,
+			...rateFactorFields,
+			...taxClassOperations,
+			...taxClassFields,
+			...ledgerCodeOperations,
+			...ledgerCodeFields,
+
+			// ─── MISC ──────────────────────────────────────────────────────────
+			...statusOperations,
+			...statusFields,
+			...vehicleOperations,
+			...vehicleFields,
 		],
 	};
 }

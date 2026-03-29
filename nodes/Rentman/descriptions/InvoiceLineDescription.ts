@@ -1,0 +1,91 @@
+import type { INodeProperties } from 'n8n-workflow';
+
+export const invoiceLineOperations: INodeProperties[] = [
+	{
+		displayName: 'Operation',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['invoiceLine'] } },
+		options: [
+			{
+				name: 'Get',
+				value: 'get',
+				action: 'Get an invoice line',
+				routing: { request: { method: 'GET' } },
+			},
+			{
+				name: 'Get Many',
+				value: 'getAll',
+				action: 'Get many invoice lines',
+				routing: { request: { method: 'GET', url: '/invoicelines' } },
+			},
+		],
+		default: 'getAll',
+	},
+];
+
+export const invoiceLineFields: INodeProperties[] = [
+	{
+		displayName: 'Invoice Line ID',
+		name: 'invoiceLineId',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['invoiceLine'], operation: ['get'] } },
+		default: '',
+		routing: { request: { url: '=/invoicelines/{{$value}}' } },
+	},
+	{
+		displayName: 'Return All',
+		name: 'returnAll',
+		type: 'boolean',
+		displayOptions: { show: { resource: ['invoiceLine'], operation: ['getAll'] } },
+		default: false,
+		routing: {
+			send: { paginate: '={{ $value }}' },
+			operations: {
+				pagination: {
+					type: 'generic',
+					properties: {
+						continue: '={{ !!$response.body?.next_page_url }}',
+						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
+					},
+				},
+			},
+		},
+	},
+	{
+		displayName: 'Limit',
+		name: 'limit',
+		type: 'number',
+		displayOptions: { show: { resource: ['invoiceLine'], operation: ['getAll'], returnAll: [false] } },
+		typeOptions: { minValue: 1, maxValue: 1500 },
+		default: 100,
+		routing: { request: { qs: { limit: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Filters',
+		name: 'filters',
+		type: 'collection',
+		placeholder: 'Add Filter',
+		displayOptions: { show: { resource: ['invoiceLine'], operation: ['getAll'] } },
+		default: {},
+		options: [
+			{
+				displayName: 'Invoice (Path)',
+				name: 'invoice',
+				type: 'string',
+				default: '',
+				placeholder: '/invoices/42',
+				routing: { request: { qs: { invoice: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Sort',
+				name: 'sort',
+				type: 'string',
+				default: '+id',
+				routing: { request: { qs: { sort: '={{ $value }}' } } },
+			},
+		],
+	},
+];
