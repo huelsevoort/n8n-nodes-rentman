@@ -32,6 +32,14 @@ export const stockMovementOperations: INodeProperties[] = [
 					request: {
 						method: 'GET',
 					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
+					},
 				},
 			},
 			{
@@ -44,6 +52,14 @@ export const stockMovementOperations: INodeProperties[] = [
 						method: 'GET',
 						url: '/stockmovements',
 					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
+					},
 				},
 			},
 			{
@@ -54,6 +70,14 @@ export const stockMovementOperations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'PUT',
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
 					},
 				},
 			},
@@ -132,6 +156,28 @@ export const stockMovementFields: INodeProperties[] = [
 			request: {
 				qs: {
 					limit: '={{ $value }}',
+				},
+			},
+		},
+	},
+	{
+		displayName: 'Offset',
+		name: 'offset',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['stockMovement'],
+				operation: ['getAll'],
+				returnAll: [false],
+			},
+		},
+		typeOptions: { minValue: 0 },
+		default: 0,
+		description: 'Number of results to skip for offset-based pagination',
+		routing: {
+			request: {
+				qs: {
+					offset: '={{ $value > 0 ? $value : undefined }}',
 				},
 			},
 		},

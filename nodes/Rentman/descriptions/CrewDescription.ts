@@ -21,6 +21,14 @@ export const crewOperations: INodeProperties[] = [
 					request: {
 						method: 'GET',
 					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
+					},
 				},
 			},
 			{
@@ -32,6 +40,14 @@ export const crewOperations: INodeProperties[] = [
 					request: {
 						method: 'GET',
 						url: '/crew',
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
 					},
 				},
 			},
@@ -110,6 +126,28 @@ export const crewFields: INodeProperties[] = [
 			request: {
 				qs: {
 					limit: '={{ $value }}',
+				},
+			},
+		},
+	},
+	{
+		displayName: 'Offset',
+		name: 'offset',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['crew'],
+				operation: ['getAll'],
+				returnAll: [false],
+			},
+		},
+		typeOptions: { minValue: 0 },
+		default: 0,
+		description: 'Number of results to skip for offset-based pagination',
+		routing: {
+			request: {
+				qs: {
+					offset: '={{ $value > 0 ? $value : undefined }}',
 				},
 			},
 		},

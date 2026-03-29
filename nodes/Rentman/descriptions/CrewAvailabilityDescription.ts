@@ -12,7 +12,10 @@ export const crewAvailabilityOperations: INodeProperties[] = [
 				name: 'Create',
 				value: 'create',
 				action: 'Create a crew availability entry',
-				routing: { request: { method: 'POST', url: '/crewavailability' } },
+				routing: {
+					request: { method: 'POST', url: '/crewavailability' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
 			},
 			{
 				name: 'Delete',
@@ -24,19 +27,28 @@ export const crewAvailabilityOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get a crew availability entry',
-				routing: { request: { method: 'GET' } },
+				routing: {
+					request: { method: 'GET' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
 			},
 			{
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many crew availability entries',
-				routing: { request: { method: 'GET', url: '/crewavailability' } },
+				routing: {
+					request: { method: 'GET', url: '/crewavailability' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
 			},
 			{
 				name: 'Update',
 				value: 'update',
 				action: 'Update a crew availability entry',
-				routing: { request: { method: 'PUT' } },
+				routing: {
+					request: { method: 'PUT' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
 			},
 		],
 		default: 'getAll',
@@ -80,6 +92,16 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		typeOptions: { minValue: 1, maxValue: 1500 },
 		default: 100,
 		routing: { request: { qs: { limit: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Offset',
+		name: 'offset',
+		type: 'number',
+		displayOptions: { show: { resource: ['crewAvailability'], operation: ['getAll'], returnAll: [false] } },
+		typeOptions: { minValue: 0 },
+		default: 0,
+		description: 'Number of results to skip for offset-based pagination',
+		routing: { request: { qs: { offset: '={{ $value > 0 ? $value : undefined }}' } } },
 	},
 	{
 		displayName: 'Filters',

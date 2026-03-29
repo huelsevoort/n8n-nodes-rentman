@@ -5,6 +5,7 @@ function buildReadOnly(
 	apiPath: string,
 	idLabel: string,
 ): { operations: INodeProperties[]; fields: INodeProperties[] } {
+	const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'data' } }];
 	return {
 		operations: [
 			{
@@ -18,13 +19,13 @@ function buildReadOnly(
 						name: 'Get',
 						value: 'get',
 						action: `Get a ${idLabel.toLowerCase()}`,
-						routing: { request: { method: 'GET' } },
+						routing: { request: { method: 'GET' }, output: { postReceive } },
 					},
 					{
 						name: 'Get Many',
 						value: 'getAll',
 						action: `Get many ${idLabel.toLowerCase()}s`,
-						routing: { request: { method: 'GET', url: `/${apiPath}` } },
+						routing: { request: { method: 'GET', url: `/${apiPath}` }, output: { postReceive } },
 					},
 				],
 				default: 'getAll',
@@ -67,6 +68,16 @@ function buildReadOnly(
 				typeOptions: { minValue: 1, maxValue: 1500 },
 				default: 100,
 				routing: { request: { qs: { limit: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Offset',
+				name: 'offset',
+				type: 'number',
+				displayOptions: { show: { resource: [resourceValue], operation: ['getAll'], returnAll: [false] } },
+				typeOptions: { minValue: 0 },
+				default: 0,
+				description: 'Number of results to skip for offset-based pagination',
+				routing: { request: { qs: { offset: '={{ $value > 0 ? $value : undefined }}' } } },
 			},
 			{
 				displayName: 'Filters',

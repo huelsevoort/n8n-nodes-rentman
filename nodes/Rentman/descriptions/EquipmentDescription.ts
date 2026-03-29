@@ -21,6 +21,14 @@ export const equipmentOperations: INodeProperties[] = [
 					request: {
 						method: 'GET',
 					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
+					},
 				},
 			},
 			{
@@ -32,6 +40,14 @@ export const equipmentOperations: INodeProperties[] = [
 					request: {
 						method: 'GET',
 						url: '/equipment',
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
 					},
 				},
 			},
@@ -110,6 +126,28 @@ export const equipmentFields: INodeProperties[] = [
 			request: {
 				qs: {
 					limit: '={{ $value }}',
+				},
+			},
+		},
+	},
+	{
+		displayName: 'Offset',
+		name: 'offset',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['equipment'],
+				operation: ['getAll'],
+				returnAll: [false],
+			},
+		},
+		typeOptions: { minValue: 0 },
+		default: 0,
+		description: 'Number of results to skip for offset-based pagination',
+		routing: {
+			request: {
+				qs: {
+					offset: '={{ $value > 0 ? $value : undefined }}',
 				},
 			},
 		},
@@ -214,6 +252,77 @@ export const equipmentFields: INodeProperties[] = [
 					request: {
 						qs: {
 							type: '={{ $value }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Modified After',
+				name: 'modified_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified after this date',
+				routing: {
+					request: {
+						qs: {
+							'modified[gt]': '={{ $value }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Modified Before',
+				name: 'modified_lt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified before this date',
+				routing: {
+					request: {
+						qs: {
+							'modified[lt]': '={{ $value }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Created After',
+				name: 'created_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records created after this date',
+				routing: {
+					request: {
+						qs: {
+							'created[gt]': '={{ $value }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'ID Greater Than',
+				name: 'id_gt',
+				type: 'number',
+				default: 0,
+				description: 'Return only records with ID greater than this value (useful for incremental sync)',
+				routing: {
+					request: {
+						qs: {
+							'id[gt]': '={{ $value > 0 ? $value : undefined }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Fields',
+				name: 'fields',
+				type: 'string',
+				default: '',
+				placeholder: 'id,displayname,modified',
+				description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+				routing: {
+					request: {
+						qs: {
+							fields: '={{ $value || undefined }}',
 						},
 					},
 				},

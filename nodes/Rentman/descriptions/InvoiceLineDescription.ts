@@ -12,13 +12,19 @@ export const invoiceLineOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get an invoice line',
-				routing: { request: { method: 'GET' } },
+				routing: {
+					request: { method: 'GET' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
 			},
 			{
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many invoice lines',
-				routing: { request: { method: 'GET', url: '/invoicelines' } },
+				routing: {
+					request: { method: 'GET', url: '/invoicelines' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
 			},
 		],
 		default: 'getAll',
@@ -62,6 +68,16 @@ export const invoiceLineFields: INodeProperties[] = [
 		typeOptions: { minValue: 1, maxValue: 1500 },
 		default: 100,
 		routing: { request: { qs: { limit: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Offset',
+		name: 'offset',
+		type: 'number',
+		displayOptions: { show: { resource: ['invoiceLine'], operation: ['getAll'], returnAll: [false] } },
+		typeOptions: { minValue: 0 },
+		default: 0,
+		description: 'Number of results to skip for offset-based pagination',
+		routing: { request: { qs: { offset: '={{ $value > 0 ? $value : undefined }}' } } },
 	},
 	{
 		displayName: 'Filters',

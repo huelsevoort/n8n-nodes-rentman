@@ -22,6 +22,14 @@ export const contactOperations: INodeProperties[] = [
 						method: 'POST',
 						url: '/contacts',
 					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
+					},
 				},
 			},
 			{
@@ -44,6 +52,14 @@ export const contactOperations: INodeProperties[] = [
 					request: {
 						method: 'GET',
 					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
+					},
 				},
 			},
 			{
@@ -56,6 +72,14 @@ export const contactOperations: INodeProperties[] = [
 						method: 'GET',
 						url: '/contacts',
 					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
+					},
 				},
 			},
 			{
@@ -66,6 +90,14 @@ export const contactOperations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'PUT',
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
 					},
 				},
 			},
@@ -152,6 +184,28 @@ export const contactFields: INodeProperties[] = [
 		},
 	},
 	{
+		displayName: 'Offset',
+		name: 'offset',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['contact'],
+				operation: ['getAll'],
+				returnAll: [false],
+			},
+		},
+		typeOptions: { minValue: 0 },
+		default: 0,
+		description: 'Number of results to skip for offset-based pagination',
+		routing: {
+			request: {
+				qs: {
+					offset: '={{ $value > 0 ? $value : undefined }}',
+				},
+			},
+		},
+	},
+	{
 		displayName: 'Filters',
 		name: 'filters',
 		type: 'collection',
@@ -183,11 +237,11 @@ export const contactFields: INodeProperties[] = [
 				name: 'type',
 				type: 'options',
 				options: [
-					{ name: 'Customer', value: 'customer' },
-					{ name: 'Supplier', value: 'supplier' },
+					{ name: 'Company', value: 'company' },
+					{ name: 'Private', value: 'private' },
 					{ name: 'Other', value: 'other' },
 				],
-				default: 'customer',
+				default: 'company',
 				routing: {
 					request: {
 						qs: {
@@ -222,6 +276,77 @@ export const contactFields: INodeProperties[] = [
 					request: {
 						qs: {
 							sort: '={{ $value }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Modified After',
+				name: 'modified_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified after this date',
+				routing: {
+					request: {
+						qs: {
+							'modified[gt]': '={{ $value }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Modified Before',
+				name: 'modified_lt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified before this date',
+				routing: {
+					request: {
+						qs: {
+							'modified[lt]': '={{ $value }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Created After',
+				name: 'created_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records created after this date',
+				routing: {
+					request: {
+						qs: {
+							'created[gt]': '={{ $value }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'ID Greater Than',
+				name: 'id_gt',
+				type: 'number',
+				default: 0,
+				description: 'Return only records with ID greater than this value (useful for incremental sync)',
+				routing: {
+					request: {
+						qs: {
+							'id[gt]': '={{ $value > 0 ? $value : undefined }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Fields',
+				name: 'fields',
+				type: 'string',
+				default: '',
+				placeholder: 'id,displayname,modified',
+				description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+				routing: {
+					request: {
+						qs: {
+							fields: '={{ $value || undefined }}',
 						},
 					},
 				},
@@ -494,11 +619,11 @@ export const contactFields: INodeProperties[] = [
 				name: 'type',
 				type: 'options',
 				options: [
-					{ name: 'Customer', value: 'customer' },
-					{ name: 'Supplier', value: 'supplier' },
+					{ name: 'Company', value: 'company' },
+					{ name: 'Private', value: 'private' },
 					{ name: 'Other', value: 'other' },
 				],
-				default: 'customer',
+				default: 'company',
 				routing: {
 					request: {
 						body: {
@@ -715,11 +840,11 @@ export const contactFields: INodeProperties[] = [
 				name: 'type',
 				type: 'options',
 				options: [
-					{ name: 'Customer', value: 'customer' },
-					{ name: 'Supplier', value: 'supplier' },
+					{ name: 'Company', value: 'company' },
+					{ name: 'Private', value: 'private' },
 					{ name: 'Other', value: 'other' },
 				],
-				default: 'customer',
+				default: 'company',
 				routing: {
 					request: {
 						body: {

@@ -12,19 +12,28 @@ export const paymentOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get a payment',
-				routing: { request: { method: 'GET' } },
+				routing: {
+					request: { method: 'GET' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
 			},
 			{
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many payments',
-				routing: { request: { method: 'GET', url: '/payments' } },
+				routing: {
+					request: { method: 'GET', url: '/payments' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
 			},
 			{
 				name: 'Update',
 				value: 'update',
 				action: 'Update a payment',
-				routing: { request: { method: 'PUT' } },
+				routing: {
+					request: { method: 'PUT' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
 			},
 		],
 		default: 'getAll',
@@ -68,6 +77,16 @@ export const paymentFields: INodeProperties[] = [
 		typeOptions: { minValue: 1, maxValue: 1500 },
 		default: 100,
 		routing: { request: { qs: { limit: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Offset',
+		name: 'offset',
+		type: 'number',
+		displayOptions: { show: { resource: ['payment'], operation: ['getAll'], returnAll: [false] } },
+		typeOptions: { minValue: 0 },
+		default: 0,
+		description: 'Number of results to skip for offset-based pagination',
+		routing: { request: { qs: { offset: '={{ $value > 0 ? $value : undefined }}' } } },
 	},
 	{
 		displayName: 'Filters',
