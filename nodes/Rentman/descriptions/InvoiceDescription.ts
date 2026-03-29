@@ -32,9 +32,9 @@ export const invoiceOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Many',
+				name: 'Get Collection',
 				value: 'getAll',
-				action: 'Get many invoices',
+				action: 'Get collection of invoices',
 				description: 'Get a list of invoices',
 				routing: {
 					request: {

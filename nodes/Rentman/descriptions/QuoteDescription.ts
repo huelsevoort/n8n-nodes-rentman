@@ -32,9 +32,9 @@ export const quoteOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Many',
+				name: 'Get Collection',
 				value: 'getAll',
-				action: 'Get many quotes',
+				action: 'Get collection of quotes',
 				description: 'Get a list of quotes',
 				routing: {
 					request: {

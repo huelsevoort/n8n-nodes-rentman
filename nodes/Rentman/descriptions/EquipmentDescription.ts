@@ -32,9 +32,9 @@ export const equipmentOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Many',
+				name: 'Get Collection',
 				value: 'getAll',
-				action: 'Get many equipment items',
+				action: 'Get collection of equipment items',
 				description: 'Get a list of equipment',
 				routing: {
 					request: {

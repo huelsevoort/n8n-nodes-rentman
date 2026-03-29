@@ -63,9 +63,9 @@ export const appointmentOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Many',
+				name: 'Get Collection',
 				value: 'getAll',
-				action: 'Get many appointments',
+				action: 'Get collection of appointments',
 				description: 'Get a list of appointments',
 				routing: {
 					request: {

@@ -1,7 +1,7 @@
 import type { INodeProperties } from 'n8n-workflow';
 
 /**
- * Helper to build a minimal read-only (Get + Get Many) resource description.
+ * Helper to build a minimal read-only (Get + Get Collection) resource description.
  * Used for equipment sub-resources that are GET-only.
  */
 function buildReadOnly(
@@ -27,9 +27,9 @@ function buildReadOnly(
 					routing: { request: { method: 'GET' }, output: { postReceive } },
 				},
 				{
-					name: 'Get Many',
+					name: 'Get Collection',
 					value: 'getAll',
-					action: `Get many ${idLabel.toLowerCase()}s`,
+					action: `Get collection of ${idLabel.toLowerCase()}s`,
 					routing: { request: { method: 'GET', url: `/${apiPath}` }, output: { postReceive } },
 				},
 			],

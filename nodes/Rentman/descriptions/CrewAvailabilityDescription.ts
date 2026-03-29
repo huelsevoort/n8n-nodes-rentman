@@ -36,9 +36,9 @@ export const crewAvailabilityOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Many',
+				name: 'Get Collection',
 				value: 'getAll',
-				action: 'Get many crew availability entries',
+				action: 'Get collection of crew availability entries',
 				description: 'Get a list of crew availability entries',
 				routing: {
 					request: { method: 'GET', url: '/crewavailability' },

@@ -26,9 +26,9 @@ export const costOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Many',
+				name: 'Get Collection',
 				value: 'getAll',
-				action: 'Get many costs',
+				action: 'Get collection of costs',
 				description: 'Get a list of costs',
 				routing: {
 					request: { method: 'GET', url: '/costs' },

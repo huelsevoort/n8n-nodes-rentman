@@ -52,9 +52,9 @@ export const projectOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Many',
+				name: 'Get Collection',
 				value: 'getAll',
-				action: 'Get many projects',
+				action: 'Get collection of projects',
 				description: 'Get a list of projects',
 				routing: {
 					request: {

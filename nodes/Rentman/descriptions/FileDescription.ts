@@ -22,9 +22,9 @@ function buildReadOnly(
 						routing: { request: { method: 'GET' }, output: { postReceive } },
 					},
 					{
-						name: 'Get Many',
+						name: 'Get Collection',
 						value: 'getAll',
-						action: `Get many ${idLabel.toLowerCase()}s`,
+						action: `Get collection of ${idLabel.toLowerCase()}s`,
 						routing: { request: { method: 'GET', url: `/${apiPath}` }, output: { postReceive } },
 					},
 				],

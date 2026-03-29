@@ -19,9 +19,9 @@ export const paymentOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Many',
+				name: 'Get Collection',
 				value: 'getAll',
-				action: 'Get many payments',
+				action: 'Get collection of payments',
 				description: 'Get a list of payments',
 				routing: {
 					request: { method: 'GET', url: '/payments' },

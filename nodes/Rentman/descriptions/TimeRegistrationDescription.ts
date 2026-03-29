@@ -63,9 +63,9 @@ export const timeRegistrationOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Many',
+				name: 'Get Collection',
 				value: 'getAll',
-				action: 'Get many time registrations',
+				action: 'Get collection of time registrations',
 				description: 'Get a list of time registrations',
 				routing: {
 					request: {

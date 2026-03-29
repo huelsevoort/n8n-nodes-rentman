@@ -43,9 +43,9 @@ export const stockMovementOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Many',
+				name: 'Get Collection',
 				value: 'getAll',
-				action: 'Get many stock movements',
+				action: 'Get collection of stock movements',
 				description: 'Get a list of stock movements',
 				routing: {
 					request: {
