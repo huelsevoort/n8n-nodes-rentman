@@ -1,0 +1,10 @@
+export { appointmentOperations, appointmentFields } from './AppointmentDescription';
+export { contactOperations, contactFields } from './ContactDescription';
+export { crewOperations, crewFields } from './CrewDescription';
+export { equipmentOperations, equipmentFields } from './EquipmentDescription';
+export { invoiceOperations, invoiceFields } from './InvoiceDescription';
+export { projectOperations, projectFields } from './ProjectDescription';
+export { quoteOperations, quoteFields } from './QuoteDescription';
+export { stockMovementOperations, stockMovementFields } from './StockMovementDescription';
+export { subprojectOperations, subprojectFields } from './SubprojectDescription';
+export { timeRegistrationOperations, timeRegistrationFields } from './TimeRegistrationDescription';
