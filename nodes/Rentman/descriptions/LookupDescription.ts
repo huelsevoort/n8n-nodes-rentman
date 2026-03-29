@@ -59,12 +59,12 @@ function buildReadOnly(
 			displayOptions: { show: { resource: [resourceValue], operation: ['getAll'] } },
 			default: false,
 			routing: {
-				send: { paginate: '={{ $value }}' },
+				send: { paginate: true },
 				operations: {
 					pagination: {
 						type: 'generic',
 						properties: {
-							continue: '={{ !!$response.body?.next_page_url }}',
+							continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
 							request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
 						},
 					},

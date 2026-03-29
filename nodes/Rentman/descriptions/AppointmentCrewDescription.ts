@@ -69,12 +69,12 @@ export const appointmentCrewFields: INodeProperties[] = [
 		default: false,
 		description: 'Whether to return all results or only up to a given limit.',
 		routing: {
-			send: { paginate: '={{ $value }}' },
+			send: { paginate: true },
 			operations: {
 				pagination: {
 					type: 'generic',
 					properties: {
-						continue: '={{ !!$response.body?.next_page_url }}',
+						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
 						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
 					},
 				},
