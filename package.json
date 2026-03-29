@@ -9,14 +9,13 @@
     "equipment-rental"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/your-org/n8n-nodes-rentman",
+  "homepage": "https://github.com/huelsevoort/n8n-nodes-rentman",
   "author": {
-    "name": "Your Name",
-    "email": "your@email.com"
+    "name": "Maurice Huelsevoort"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/n8n-nodes-rentman.git"
+    "url": "https://github.com/huelsevoort/n8n-nodes-rentman.git"
   },
   "main": "index.js",
   "scripts": {
@@ -25,6 +24,7 @@
     "format": "prettier nodes credentials --write",
     "lint": "eslint nodes credentials package.json",
     "lint:fix": "eslint nodes credentials package.json --fix",
+    "prepare": "npm run build",
     "prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js"
   },
   "files": [
@@ -39,13 +39,14 @@
       "dist/nodes/Rentman/Rentman.node.js"
     ]
   },
-  "devDependencies": {
+  "dependencies": {
     "@types/node": "^20.0.0",
-    "eslint-plugin-n8n-nodes-base": "^1.16.1",
     "gulp": "^4.0.0",
-    "n8n-workflow": "*",
-    "prettier": "^3.3.2",
     "typescript": "^5.6.3"
+  },
+  "devDependencies": {
+    "eslint-plugin-n8n-nodes-base": "^1.16.1",
+    "prettier": "^3.3.2"
   },
   "peerDependencies": {
     "n8n-workflow": "*"
