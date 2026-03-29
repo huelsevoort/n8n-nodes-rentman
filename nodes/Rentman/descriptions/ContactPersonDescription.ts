@@ -12,12 +12,14 @@ export const contactPersonOperations: INodeProperties[] = [
 				name: 'Delete',
 				value: 'delete',
 				action: 'Delete a contact person',
+				description: 'Delete a contact person by ID',
 				routing: { request: { method: 'DELETE' } },
 			},
 			{
 				name: 'Get',
 				value: 'get',
 				action: 'Get a contact person',
+				description: 'Get a single contact person by ID',
 				routing: {
 					request: { method: 'GET' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -27,6 +29,7 @@ export const contactPersonOperations: INodeProperties[] = [
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many contact persons',
+				description: 'Get a list of contact persons',
 				routing: {
 					request: { method: 'GET', url: '/contactpersons' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -36,6 +39,7 @@ export const contactPersonOperations: INodeProperties[] = [
 				name: 'Update',
 				value: 'update',
 				action: 'Update a contact person',
+				description: 'Update an existing contact person',
 				routing: {
 					request: { method: 'PUT' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -54,6 +58,7 @@ export const contactPersonFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['contactPerson'], operation: ['get', 'update', 'delete'] } },
 		default: '',
+		description: 'The ID of the contact person',
 		routing: { request: { url: '=/contactpersons/{{$value}}' } },
 	},
 	{
@@ -62,6 +67,7 @@ export const contactPersonFields: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: { resource: ['contactPerson'], operation: ['getAll'] } },
 		default: false,
+		description: 'Whether to return all results or only up to a given limit',
 		routing: {
 			send: { paginate: '={{ $value }}' },
 			operations: {
@@ -82,6 +88,7 @@ export const contactPersonFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['contactPerson'], operation: ['getAll'], returnAll: [false] } },
 		typeOptions: { minValue: 1, maxValue: 1500 },
 		default: 100,
+		description: 'Max number of results to return',
 		routing: { request: { qs: { limit: '={{ $value }}' } } },
 	},
 	{
@@ -115,6 +122,8 @@ export const contactPersonFields: INodeProperties[] = [
 				name: 'sort',
 				type: 'string',
 				default: '+id',
+				placeholder: '+id or -modified',
+				description: 'Sort field with direction prefix: + for ascending, - for descending',
 				routing: { request: { qs: { sort: '={{ $value }}' } } },
 			},
 			{

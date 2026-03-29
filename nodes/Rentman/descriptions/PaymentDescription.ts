@@ -12,6 +12,7 @@ export const paymentOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get a payment',
+				description: 'Get a single payment by ID',
 				routing: {
 					request: { method: 'GET' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -21,6 +22,7 @@ export const paymentOperations: INodeProperties[] = [
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many payments',
+				description: 'Get a list of payments',
 				routing: {
 					request: { method: 'GET', url: '/payments' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -30,6 +32,7 @@ export const paymentOperations: INodeProperties[] = [
 				name: 'Update',
 				value: 'update',
 				action: 'Update a payment',
+				description: 'Update an existing payment',
 				routing: {
 					request: { method: 'PUT' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -48,6 +51,7 @@ export const paymentFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['payment'], operation: ['get', 'update'] } },
 		default: '',
+		description: 'The ID of the payment',
 		routing: { request: { url: '=/payments/{{$value}}' } },
 	},
 	{
@@ -56,6 +60,7 @@ export const paymentFields: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: { resource: ['payment'], operation: ['getAll'] } },
 		default: false,
+		description: 'Whether to return all results or only up to a given limit',
 		routing: {
 			send: { paginate: '={{ $value }}' },
 			operations: {
@@ -76,6 +81,7 @@ export const paymentFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['payment'], operation: ['getAll'], returnAll: [false] } },
 		typeOptions: { minValue: 1, maxValue: 1500 },
 		default: 100,
+		description: 'Max number of results to return',
 		routing: { request: { qs: { limit: '={{ $value }}' } } },
 	},
 	{
@@ -101,7 +107,50 @@ export const paymentFields: INodeProperties[] = [
 				name: 'sort',
 				type: 'string',
 				default: '-created',
+				placeholder: '+id or -created',
+				description: 'Sort field with direction prefix: + for ascending, - for descending',
 				routing: { request: { qs: { sort: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Modified After',
+				name: 'modified_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified after this date',
+				routing: { request: { qs: { 'modified[gt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Modified Before',
+				name: 'modified_lt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified before this date',
+				routing: { request: { qs: { 'modified[lt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Created After',
+				name: 'created_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records created after this date',
+				routing: { request: { qs: { 'created[gt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'ID Greater Than',
+				name: 'id_gt',
+				type: 'number',
+				default: 0,
+				description: 'Return only records with ID greater than this value (useful for incremental sync)',
+				routing: { request: { qs: { 'id[gt]': '={{ $value > 0 ? $value : undefined }}' } } },
+			},
+			{
+				displayName: 'Fields',
+				name: 'fields',
+				type: 'string',
+				default: '',
+				placeholder: 'id,displayname,modified',
+				description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+				routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 		],
 	},

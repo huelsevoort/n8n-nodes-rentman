@@ -573,7 +573,7 @@ export const contactFields: INodeProperties[] = [
 				},
 			},
 			{
-				displayName: 'Remarks',
+				displayName: 'Remark',
 				name: 'remark',
 				type: 'string',
 				typeOptions: {
@@ -807,7 +807,7 @@ export const contactFields: INodeProperties[] = [
 				},
 			},
 			{
-				displayName: 'Remarks',
+				displayName: 'Remark',
 				name: 'remark',
 				type: 'string',
 				typeOptions: {

@@ -12,6 +12,7 @@ export const crewAvailabilityOperations: INodeProperties[] = [
 				name: 'Create',
 				value: 'create',
 				action: 'Create a crew availability entry',
+				description: 'Create a new crew availability entry',
 				routing: {
 					request: { method: 'POST', url: '/crewavailability' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -21,12 +22,14 @@ export const crewAvailabilityOperations: INodeProperties[] = [
 				name: 'Delete',
 				value: 'delete',
 				action: 'Delete a crew availability entry',
+				description: 'Delete a crew availability entry by ID',
 				routing: { request: { method: 'DELETE' } },
 			},
 			{
 				name: 'Get',
 				value: 'get',
 				action: 'Get a crew availability entry',
+				description: 'Get a single crew availability entry by ID',
 				routing: {
 					request: { method: 'GET' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -36,6 +39,7 @@ export const crewAvailabilityOperations: INodeProperties[] = [
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many crew availability entries',
+				description: 'Get a list of crew availability entries',
 				routing: {
 					request: { method: 'GET', url: '/crewavailability' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -45,6 +49,7 @@ export const crewAvailabilityOperations: INodeProperties[] = [
 				name: 'Update',
 				value: 'update',
 				action: 'Update a crew availability entry',
+				description: 'Update an existing crew availability entry',
 				routing: {
 					request: { method: 'PUT' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -63,6 +68,7 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['crewAvailability'], operation: ['get', 'update', 'delete'] } },
 		default: '',
+		description: 'The ID of the crew availability entry',
 		routing: { request: { url: '=/crewavailability/{{$value}}' } },
 	},
 	{
@@ -71,6 +77,7 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: { resource: ['crewAvailability'], operation: ['getAll'] } },
 		default: false,
+		description: 'Whether to return all results or only up to a given limit',
 		routing: {
 			send: { paginate: '={{ $value }}' },
 			operations: {
@@ -91,6 +98,7 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['crewAvailability'], operation: ['getAll'], returnAll: [false] } },
 		typeOptions: { minValue: 1, maxValue: 1500 },
 		default: 100,
+		description: 'Max number of results to return',
 		routing: { request: { qs: { limit: '={{ $value }}' } } },
 	},
 	{
@@ -117,6 +125,7 @@ export const crewAvailabilityFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: '/crew/42',
+				description: 'Filter by crew member resource path',
 				routing: { request: { qs: { crewmember: '={{ $value }}' } } },
 			},
 			{
@@ -124,7 +133,50 @@ export const crewAvailabilityFields: INodeProperties[] = [
 				name: 'sort',
 				type: 'string',
 				default: '+id',
+				placeholder: '+id or -modified',
+				description: 'Sort field with direction prefix: + for ascending, - for descending',
 				routing: { request: { qs: { sort: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Modified After',
+				name: 'modified_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified after this date',
+				routing: { request: { qs: { 'modified[gt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Modified Before',
+				name: 'modified_lt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified before this date',
+				routing: { request: { qs: { 'modified[lt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Created After',
+				name: 'created_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records created after this date',
+				routing: { request: { qs: { 'created[gt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'ID Greater Than',
+				name: 'id_gt',
+				type: 'number',
+				default: 0,
+				description: 'Return only records with ID greater than this value (useful for incremental sync)',
+				routing: { request: { qs: { 'id[gt]': '={{ $value > 0 ? $value : undefined }}' } } },
+			},
+			{
+				displayName: 'Fields',
+				name: 'fields',
+				type: 'string',
+				default: '',
+				placeholder: 'id,displayname,modified',
+				description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+				routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 		],
 	},
@@ -147,6 +199,7 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create'] } },
 		default: '',
+		description: 'Start of the availability period',
 		routing: { request: { body: { start: '={{ $value }}' } } },
 	},
 	{
@@ -156,6 +209,7 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create'] } },
 		default: '',
+		description: 'End of the availability period',
 		routing: { request: { body: { end: '={{ $value }}' } } },
 	},
 	{
@@ -198,6 +252,7 @@ export const crewAvailabilityFields: INodeProperties[] = [
 				name: 'available',
 				type: 'boolean',
 				default: true,
+				description: 'Whether the crew member is available (true) or unavailable (false)',
 				routing: { request: { body: { available: '={{ $value }}' } } },
 			},
 			{

@@ -14,6 +14,7 @@ export const projectRequestOperations: INodeProperties[] = [
 				name: 'Create',
 				value: 'create',
 				action: 'Create a project request',
+				description: 'Create a new project request',
 				routing: {
 					request: { method: 'POST', url: '/projectrequests' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -23,12 +24,14 @@ export const projectRequestOperations: INodeProperties[] = [
 				name: 'Delete',
 				value: 'delete',
 				action: 'Delete a project request',
+				description: 'Delete a project request by ID',
 				routing: { request: { method: 'DELETE' } },
 			},
 			{
 				name: 'Get',
 				value: 'get',
 				action: 'Get a project request',
+				description: 'Get a single project request by ID',
 				routing: {
 					request: { method: 'GET' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -38,6 +41,7 @@ export const projectRequestOperations: INodeProperties[] = [
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many project requests',
+				description: 'Get a list of project requests',
 				routing: {
 					request: { method: 'GET', url: '/projectrequests' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -47,6 +51,7 @@ export const projectRequestOperations: INodeProperties[] = [
 				name: 'Update',
 				value: 'update',
 				action: 'Update a project request',
+				description: 'Update an existing project request',
 				routing: {
 					request: { method: 'PUT' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -65,6 +70,7 @@ export const projectRequestFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['projectRequest'], operation: ['get', 'update', 'delete'] } },
 		default: '',
+		description: 'The ID of the project request',
 		routing: { request: { url: '=/projectrequests/{{$value}}' } },
 	},
 	{
@@ -73,6 +79,7 @@ export const projectRequestFields: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: { resource: ['projectRequest'], operation: ['getAll'] } },
 		default: false,
+		description: 'Whether to return all results or only up to a given limit',
 		routing: {
 			send: { paginate: '={{ $value }}' },
 			operations: {
@@ -93,6 +100,7 @@ export const projectRequestFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['projectRequest'], operation: ['getAll'], returnAll: [false] } },
 		typeOptions: { minValue: 1, maxValue: 1500 },
 		default: 100,
+		description: 'Max number of results to return',
 		routing: { request: { qs: { limit: '={{ $value }}' } } },
 	},
 	{
@@ -118,7 +126,50 @@ export const projectRequestFields: INodeProperties[] = [
 				name: 'sort',
 				type: 'string',
 				default: '+id',
+				placeholder: '+id or -modified',
+				description: 'Sort field with direction prefix: + for ascending, - for descending',
 				routing: { request: { qs: { sort: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Modified After',
+				name: 'modified_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified after this date',
+				routing: { request: { qs: { 'modified[gt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Modified Before',
+				name: 'modified_lt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified before this date',
+				routing: { request: { qs: { 'modified[lt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Created After',
+				name: 'created_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records created after this date',
+				routing: { request: { qs: { 'created[gt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'ID Greater Than',
+				name: 'id_gt',
+				type: 'number',
+				default: 0,
+				description: 'Return only records with ID greater than this value (useful for incremental sync)',
+				routing: { request: { qs: { 'id[gt]': '={{ $value > 0 ? $value : undefined }}' } } },
+			},
+			{
+				displayName: 'Fields',
+				name: 'fields',
+				type: 'string',
+				default: '',
+				placeholder: 'id,displayname,modified',
+				description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+				routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 		],
 	},
@@ -129,6 +180,7 @@ export const projectRequestFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['projectRequest'], operation: ['create'] } },
 		default: '',
+		description: 'Name of the project request',
 		routing: { request: { body: { name: '={{ $value }}' } } },
 	},
 	{
@@ -145,6 +197,7 @@ export const projectRequestFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: '/contacts/42',
+				description: 'Resource path of the customer contact, e.g. /contacts/42',
 				routing: { request: { body: { customer: '={{ $value }}' } } },
 			},
 			{
@@ -198,12 +251,14 @@ export const projectRequestEquipmentOperations: INodeProperties[] = [
 				name: 'Delete',
 				value: 'delete',
 				action: 'Delete a project request equipment entry',
+				description: 'Delete a project request equipment entry by ID',
 				routing: { request: { method: 'DELETE' } },
 			},
 			{
 				name: 'Get',
 				value: 'get',
 				action: 'Get a project request equipment entry',
+				description: 'Get a single project request equipment entry by ID',
 				routing: {
 					request: { method: 'GET' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -213,6 +268,7 @@ export const projectRequestEquipmentOperations: INodeProperties[] = [
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many project request equipment entries',
+				description: 'Get a list of project request equipment entries',
 				routing: {
 					request: { method: 'GET', url: '/projectrequestequipment' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -222,6 +278,7 @@ export const projectRequestEquipmentOperations: INodeProperties[] = [
 				name: 'Update',
 				value: 'update',
 				action: 'Update a project request equipment entry',
+				description: 'Update an existing project request equipment entry',
 				routing: {
 					request: { method: 'PUT' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -240,6 +297,7 @@ export const projectRequestEquipmentFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['projectRequestEquipment'], operation: ['get', 'update', 'delete'] } },
 		default: '',
+		description: 'The ID of the project request equipment entry',
 		routing: { request: { url: '=/projectrequestequipment/{{$value}}' } },
 	},
 	{
@@ -248,6 +306,7 @@ export const projectRequestEquipmentFields: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: { resource: ['projectRequestEquipment'], operation: ['getAll'] } },
 		default: false,
+		description: 'Whether to return all results or only up to a given limit',
 		routing: {
 			send: { paginate: '={{ $value }}' },
 			operations: {
@@ -268,6 +327,7 @@ export const projectRequestEquipmentFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['projectRequestEquipment'], operation: ['getAll'], returnAll: [false] } },
 		typeOptions: { minValue: 1, maxValue: 1500 },
 		default: 100,
+		description: 'Max number of results to return',
 		routing: { request: { qs: { limit: '={{ $value }}' } } },
 	},
 	{
@@ -294,6 +354,7 @@ export const projectRequestEquipmentFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: '/projectrequests/42',
+				description: 'Filter by project request resource path',
 				routing: { request: { qs: { projectrequest: '={{ $value }}' } } },
 			},
 			{
@@ -301,7 +362,50 @@ export const projectRequestEquipmentFields: INodeProperties[] = [
 				name: 'sort',
 				type: 'string',
 				default: '+id',
+				placeholder: '+id or -modified',
+				description: 'Sort field with direction prefix: + for ascending, - for descending',
 				routing: { request: { qs: { sort: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Modified After',
+				name: 'modified_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified after this date',
+				routing: { request: { qs: { 'modified[gt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Modified Before',
+				name: 'modified_lt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified before this date',
+				routing: { request: { qs: { 'modified[lt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Created After',
+				name: 'created_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records created after this date',
+				routing: { request: { qs: { 'created[gt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'ID Greater Than',
+				name: 'id_gt',
+				type: 'number',
+				default: 0,
+				description: 'Return only records with ID greater than this value (useful for incremental sync)',
+				routing: { request: { qs: { 'id[gt]': '={{ $value > 0 ? $value : undefined }}' } } },
+			},
+			{
+				displayName: 'Fields',
+				name: 'fields',
+				type: 'string',
+				default: '',
+				placeholder: 'id,displayname,modified',
+				description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+				routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 		],
 	},

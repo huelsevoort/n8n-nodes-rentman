@@ -14,6 +14,7 @@ export const leaveMutationOperations: INodeProperties[] = [
 				name: 'Create',
 				value: 'create',
 				action: 'Create a leave mutation',
+				description: 'Create a new leave balance mutation',
 				routing: {
 					request: { method: 'POST', url: '/leavemutation' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -23,6 +24,7 @@ export const leaveMutationOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get a leave mutation',
+				description: 'Get a single leave mutation by ID',
 				routing: {
 					request: { method: 'GET' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -32,6 +34,7 @@ export const leaveMutationOperations: INodeProperties[] = [
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many leave mutations',
+				description: 'Get a list of leave mutations',
 				routing: {
 					request: { method: 'GET', url: '/leavemutation' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -50,6 +53,7 @@ export const leaveMutationFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['leaveMutation'], operation: ['get'] } },
 		default: '',
+		description: 'The ID of the leave mutation',
 		routing: { request: { url: '=/leavemutation/{{$value}}' } },
 	},
 	{
@@ -58,6 +62,7 @@ export const leaveMutationFields: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: { resource: ['leaveMutation'], operation: ['getAll'] } },
 		default: false,
+		description: 'Whether to return all results or only up to a given limit',
 		routing: {
 			send: { paginate: '={{ $value }}' },
 			operations: {
@@ -78,6 +83,7 @@ export const leaveMutationFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['leaveMutation'], operation: ['getAll'], returnAll: [false] } },
 		typeOptions: { minValue: 1, maxValue: 1500 },
 		default: 100,
+		description: 'Max number of results to return',
 		routing: { request: { qs: { limit: '={{ $value }}' } } },
 	},
 	{
@@ -99,11 +105,63 @@ export const leaveMutationFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
+				displayName: 'Crew Member (Path)',
+				name: 'crewmember',
+				type: 'string',
+				default: '',
+				placeholder: '/crew/42',
+				description: 'Filter by crew member resource path',
+				routing: { request: { qs: { crewmember: '={{ $value }}' } } },
+			},
+			{
 				displayName: 'Sort',
 				name: 'sort',
 				type: 'string',
 				default: '-created',
+				placeholder: '+id or -created',
+				description: 'Sort field with direction prefix: + for ascending, - for descending',
 				routing: { request: { qs: { sort: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Modified After',
+				name: 'modified_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified after this date',
+				routing: { request: { qs: { 'modified[gt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Modified Before',
+				name: 'modified_lt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified before this date',
+				routing: { request: { qs: { 'modified[lt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Created After',
+				name: 'created_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records created after this date',
+				routing: { request: { qs: { 'created[gt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'ID Greater Than',
+				name: 'id_gt',
+				type: 'number',
+				default: 0,
+				description: 'Return only records with ID greater than this value (useful for incremental sync)',
+				routing: { request: { qs: { 'id[gt]': '={{ $value > 0 ? $value : undefined }}' } } },
+			},
+			{
+				displayName: 'Fields',
+				name: 'fields',
+				type: 'string',
+				default: '',
+				placeholder: 'id,displayname,modified',
+				description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+				routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 		],
 	},
@@ -115,6 +173,7 @@ export const leaveMutationFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['leaveMutation'], operation: ['create'] } },
 		default: '',
 		placeholder: '/crew/42',
+		description: 'Resource path of the crew member, e.g. /crew/42',
 		routing: { request: { body: { crewmember: '={{ $value }}' } } },
 	},
 	{
@@ -125,6 +184,7 @@ export const leaveMutationFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['leaveMutation'], operation: ['create'] } },
 		default: '',
 		placeholder: '/leavetypes/1',
+		description: 'Resource path of the leave type, e.g. /leavetypes/1',
 		routing: { request: { body: { leavetype: '={{ $value }}' } } },
 	},
 	{
@@ -134,6 +194,7 @@ export const leaveMutationFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['leaveMutation'], operation: ['create'] } },
 		default: 0,
+		description: 'Number of hours to add (positive) or subtract (negative) from the leave balance',
 		routing: { request: { body: { hours: '={{ $value }}' } } },
 	},
 	{
@@ -170,6 +231,7 @@ export const leaveRequestOperations: INodeProperties[] = [
 				name: 'Create',
 				value: 'create',
 				action: 'Create a leave request',
+				description: 'Create a new leave request',
 				routing: {
 					request: { method: 'POST', url: '/leaverequest' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -179,6 +241,7 @@ export const leaveRequestOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get a leave request',
+				description: 'Get a single leave request by ID',
 				routing: {
 					request: { method: 'GET' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -188,6 +251,7 @@ export const leaveRequestOperations: INodeProperties[] = [
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many leave requests',
+				description: 'Get a list of leave requests',
 				routing: {
 					request: { method: 'GET', url: '/leaverequest' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -197,6 +261,7 @@ export const leaveRequestOperations: INodeProperties[] = [
 				name: 'Update',
 				value: 'update',
 				action: 'Update a leave request',
+				description: 'Update an existing leave request',
 				routing: {
 					request: { method: 'PUT' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -215,6 +280,7 @@ export const leaveRequestFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['leaveRequest'], operation: ['get', 'update'] } },
 		default: '',
+		description: 'The ID of the leave request',
 		routing: { request: { url: '=/leaverequest/{{$value}}' } },
 	},
 	{
@@ -223,6 +289,7 @@ export const leaveRequestFields: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: { resource: ['leaveRequest'], operation: ['getAll'] } },
 		default: false,
+		description: 'Whether to return all results or only up to a given limit',
 		routing: {
 			send: { paginate: '={{ $value }}' },
 			operations: {
@@ -243,6 +310,7 @@ export const leaveRequestFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['leaveRequest'], operation: ['getAll'], returnAll: [false] } },
 		typeOptions: { minValue: 1, maxValue: 1500 },
 		default: 100,
+		description: 'Max number of results to return',
 		routing: { request: { qs: { limit: '={{ $value }}' } } },
 	},
 	{
@@ -269,6 +337,7 @@ export const leaveRequestFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: '/crew/42',
+				description: 'Filter by crew member resource path',
 				routing: { request: { qs: { crewmember: '={{ $value }}' } } },
 			},
 			{
@@ -276,6 +345,8 @@ export const leaveRequestFields: INodeProperties[] = [
 				name: 'sort',
 				type: 'string',
 				default: '-created',
+				placeholder: '+id or -created',
+				description: 'Sort field with direction prefix: + for ascending, - for descending',
 				routing: { request: { qs: { sort: '={{ $value }}' } } },
 			},
 			{
@@ -288,7 +359,49 @@ export const leaveRequestFields: INodeProperties[] = [
 					{ name: 'Rejected', value: 'rejected' },
 				],
 				default: 'pending',
+				description: 'Filter by request status',
 				routing: { request: { qs: { status: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Modified After',
+				name: 'modified_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified after this date',
+				routing: { request: { qs: { 'modified[gt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Modified Before',
+				name: 'modified_lt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified before this date',
+				routing: { request: { qs: { 'modified[lt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Created After',
+				name: 'created_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records created after this date',
+				routing: { request: { qs: { 'created[gt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'ID Greater Than',
+				name: 'id_gt',
+				type: 'number',
+				default: 0,
+				description: 'Return only records with ID greater than this value (useful for incremental sync)',
+				routing: { request: { qs: { 'id[gt]': '={{ $value > 0 ? $value : undefined }}' } } },
+			},
+			{
+				displayName: 'Fields',
+				name: 'fields',
+				type: 'string',
+				default: '',
+				placeholder: 'id,displayname,modified',
+				description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+				routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 		],
 	},
@@ -300,6 +413,7 @@ export const leaveRequestFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['leaveRequest'], operation: ['create'] } },
 		default: '',
 		placeholder: '/crew/42',
+		description: 'Resource path of the crew member, e.g. /crew/42',
 		routing: { request: { body: { crewmember: '={{ $value }}' } } },
 	},
 	{
@@ -310,6 +424,7 @@ export const leaveRequestFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['leaveRequest'], operation: ['create'] } },
 		default: '',
 		placeholder: '/leavetypes/1',
+		description: 'Resource path of the leave type, e.g. /leavetypes/1',
 		routing: { request: { body: { leavetype: '={{ $value }}' } } },
 	},
 	{
@@ -319,6 +434,7 @@ export const leaveRequestFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['leaveRequest'], operation: ['create'] } },
 		default: '',
+		description: 'Start date of the leave request',
 		routing: { request: { body: { start: '={{ $value }}' } } },
 	},
 	{
@@ -328,6 +444,7 @@ export const leaveRequestFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['leaveRequest'], operation: ['create'] } },
 		default: '',
+		description: 'End date of the leave request',
 		routing: { request: { body: { end: '={{ $value }}' } } },
 	},
 	{
@@ -388,6 +505,7 @@ export const leaveRequestFields: INodeProperties[] = [
 					{ name: 'Rejected', value: 'rejected' },
 				],
 				default: 'pending',
+				description: 'Approval status of the leave request',
 				routing: { request: { body: { status: '={{ $value }}' } } },
 			},
 		],

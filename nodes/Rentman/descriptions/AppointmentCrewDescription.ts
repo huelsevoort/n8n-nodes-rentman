@@ -12,12 +12,14 @@ export const appointmentCrewOperations: INodeProperties[] = [
 				name: 'Delete',
 				value: 'delete',
 				action: 'Delete an appointment crew entry',
+				description: 'Delete an appointment crew entry by ID',
 				routing: { request: { method: 'DELETE' } },
 			},
 			{
 				name: 'Get',
 				value: 'get',
 				action: 'Get an appointment crew entry',
+				description: 'Get a single appointment crew entry by ID',
 				routing: {
 					request: { method: 'GET' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -27,6 +29,7 @@ export const appointmentCrewOperations: INodeProperties[] = [
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many appointment crew entries',
+				description: 'Get a list of appointment crew entries',
 				routing: {
 					request: { method: 'GET', url: '/appointmentcrew' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -36,6 +39,7 @@ export const appointmentCrewOperations: INodeProperties[] = [
 				name: 'Update',
 				value: 'update',
 				action: 'Update an appointment crew entry',
+				description: 'Update an existing appointment crew entry',
 				routing: {
 					request: { method: 'PUT' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -54,6 +58,7 @@ export const appointmentCrewFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['appointmentCrew'], operation: ['get', 'update', 'delete'] } },
 		default: '',
+		description: 'The ID of the appointment crew entry',
 		routing: { request: { url: '=/appointmentcrew/{{$value}}' } },
 	},
 	{
@@ -62,6 +67,7 @@ export const appointmentCrewFields: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: { resource: ['appointmentCrew'], operation: ['getAll'] } },
 		default: false,
+		description: 'Whether to return all results or only up to a given limit',
 		routing: {
 			send: { paginate: '={{ $value }}' },
 			operations: {
@@ -82,6 +88,7 @@ export const appointmentCrewFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['appointmentCrew'], operation: ['getAll'], returnAll: [false] } },
 		typeOptions: { minValue: 1, maxValue: 1500 },
 		default: 100,
+		description: 'Max number of results to return',
 		routing: { request: { qs: { limit: '={{ $value }}' } } },
 	},
 	{
@@ -108,6 +115,7 @@ export const appointmentCrewFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: '/appointments/42',
+				description: 'Filter by appointment resource path',
 				routing: { request: { qs: { appointment: '={{ $value }}' } } },
 			},
 			{
@@ -115,7 +123,50 @@ export const appointmentCrewFields: INodeProperties[] = [
 				name: 'sort',
 				type: 'string',
 				default: '+id',
+				placeholder: '+id or -modified',
+				description: 'Sort field with direction prefix: + for ascending, - for descending',
 				routing: { request: { qs: { sort: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Modified After',
+				name: 'modified_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified after this date',
+				routing: { request: { qs: { 'modified[gt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Modified Before',
+				name: 'modified_lt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified before this date',
+				routing: { request: { qs: { 'modified[lt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Created After',
+				name: 'created_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records created after this date',
+				routing: { request: { qs: { 'created[gt]': '={{ $value }}' } } },
+			},
+			{
+				displayName: 'ID Greater Than',
+				name: 'id_gt',
+				type: 'number',
+				default: 0,
+				description: 'Return only records with ID greater than this value (useful for incremental sync)',
+				routing: { request: { qs: { 'id[gt]': '={{ $value > 0 ? $value : undefined }}' } } },
+			},
+			{
+				displayName: 'Fields',
+				name: 'fields',
+				type: 'string',
+				default: '',
+				placeholder: 'id,displayname,modified',
+				description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+				routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 		],
 	},
