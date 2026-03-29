@@ -2,6 +2,9 @@
 
 A community node for [n8n](https://n8n.io) that integrates with the [Rentman API](https://api.rentman.net) — a rental management platform for AV, event, and staging companies.
 
+> **API Version:** This node is built against **Rentman API v1.8.1** (released 2026-03-17).
+> The OpenAPI spec is available at `https://api.rentman.net`.
+
 ---
 
 ## Features
