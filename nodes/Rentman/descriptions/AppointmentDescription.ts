@@ -16,7 +16,7 @@ export const appointmentOperations: INodeProperties[] = [
 				name: 'Create',
 				value: 'create',
 				action: 'Create an appointment',
-				description: 'Create a new appointment',
+				description: 'Create a new appointment.',
 				routing: {
 					request: {
 						method: 'POST',
@@ -36,10 +36,20 @@ export const appointmentOperations: INodeProperties[] = [
 				name: 'Delete',
 				value: 'delete',
 				action: 'Delete an appointment',
-				description: 'Delete an appointment by ID',
+				description: 'Delete an appointment by ID.',
 				routing: {
 					request: {
 						method: 'DELETE',
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'set',
+								properties: {
+									value: '={{ { "deleted": true } }}',
+								},
+							},
+						],
 					},
 				},
 			},
@@ -47,7 +57,7 @@ export const appointmentOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get an appointment',
-				description: 'Get a single appointment by ID',
+				description: 'Get a single appointment by ID.',
 				routing: {
 					request: {
 						method: 'GET',
@@ -66,7 +76,7 @@ export const appointmentOperations: INodeProperties[] = [
 				name: 'Get Collection',
 				value: 'getAll',
 				action: 'Get collection of appointments',
-				description: 'Get a list of appointments',
+				description: 'Get a list of appointments.',
 				routing: {
 					request: {
 						method: 'GET',
@@ -86,7 +96,7 @@ export const appointmentOperations: INodeProperties[] = [
 				name: 'Update',
 				value: 'update',
 				action: 'Update an appointment',
-				description: 'Update an existing appointment',
+				description: 'Update an existing appointment.',
 				routing: {
 					request: {
 						method: 'PUT',
@@ -120,7 +130,7 @@ export const appointmentFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The ID of the appointment',
+		description: 'The ID of the appointment.',
 		routing: {
 			request: {
 				url: '=/appointments/{{$value}}',
@@ -140,7 +150,7 @@ export const appointmentFields: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Whether to return all results or only up to a given limit',
+		description: 'Whether to return all results or only up to a given limit.',
 		routing: {
 			send: {
 				paginate: '={{ $value }}',
@@ -171,9 +181,10 @@ export const appointmentFields: INodeProperties[] = [
 		},
 		typeOptions: {
 			minValue: 1,
+			maxValue: 1500,
 		},
 		default: 50,
-		description: 'Max number of results to return',
+		description: 'Max number of results to return.',
 		routing: {
 			request: {
 				qs: {
@@ -195,7 +206,7 @@ export const appointmentFields: INodeProperties[] = [
 		},
 		typeOptions: { minValue: 0 },
 		default: 0,
-		description: 'Number of results to skip for offset-based pagination',
+		description: 'Number of results to skip for offset-based pagination.',
 		routing: {
 			request: {
 				qs: {
@@ -222,7 +233,7 @@ export const appointmentFields: INodeProperties[] = [
 			name: 'created_gt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records created after this date',
+			description: 'Return only records created after this date.',
 			routing: {
 			request: {
 			qs: {
@@ -251,7 +262,7 @@ export const appointmentFields: INodeProperties[] = [
 			name: 'id_gt',
 			type: 'number',
 			default: 0,
-			description: 'Return only records with ID greater than this value (useful for incremental sync)',
+			description: 'Return only records with ID greater than this value (useful for incremental sync).',
 			routing: {
 			request: {
 			qs: {
@@ -265,7 +276,7 @@ export const appointmentFields: INodeProperties[] = [
 			name: 'modified_gt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records modified after this date',
+			description: 'Return only records modified after this date.',
 			routing: {
 			request: {
 			qs: {
@@ -279,7 +290,7 @@ export const appointmentFields: INodeProperties[] = [
 			name: 'modified_lt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records modified before this date',
+			description: 'Return only records modified before this date.',
 			routing: {
 			request: {
 			qs: {
@@ -320,7 +331,7 @@ export const appointmentFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Start date and time of the appointment',
+		description: 'Start date and time of the appointment.',
 		routing: {
 			request: {
 				body: {
@@ -341,7 +352,7 @@ export const appointmentFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'End date and time of the appointment',
+		description: 'End date and time of the appointment.',
 		routing: {
 			request: {
 				body: {
@@ -368,7 +379,7 @@ export const appointmentFields: INodeProperties[] = [
 				name: 'name',
 				type: 'string',
 				default: '',
-				description: 'Name/title of the appointment',
+				description: 'Name/title of the appointment.',
 				routing: {
 					request: {
 						body: {

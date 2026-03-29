@@ -16,7 +16,7 @@ export const quoteOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get a quote',
-				description: 'Get a single quote by ID',
+				description: 'Get a single quote by ID.',
 				routing: {
 					request: {
 						method: 'GET',
@@ -35,7 +35,7 @@ export const quoteOperations: INodeProperties[] = [
 				name: 'Get Collection',
 				value: 'getAll',
 				action: 'Get collection of quotes',
-				description: 'Get a list of quotes',
+				description: 'Get a list of quotes.',
 				routing: {
 					request: {
 						method: 'GET',
@@ -69,7 +69,7 @@ export const quoteFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The ID of the quote',
+		description: 'The ID of the quote.',
 		routing: {
 			request: {
 				url: '=/quotes/{{$value}}',
@@ -87,7 +87,7 @@ export const quoteFields: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Whether to return all results or only up to a given limit',
+		description: 'Whether to return all results or only up to a given limit.',
 		routing: {
 			send: {
 				paginate: '={{ $value }}',
@@ -118,9 +118,10 @@ export const quoteFields: INodeProperties[] = [
 		},
 		typeOptions: {
 			minValue: 1,
+			maxValue: 1500,
 		},
 		default: 50,
-		description: 'Max number of results to return',
+		description: 'Max number of results to return.',
 		routing: {
 			request: {
 				qs: {
@@ -142,7 +143,7 @@ export const quoteFields: INodeProperties[] = [
 		},
 		typeOptions: { minValue: 0 },
 		default: 0,
-		description: 'Number of results to skip for offset-based pagination',
+		description: 'Number of results to skip for offset-based pagination.',
 		routing: {
 			request: {
 				qs: {

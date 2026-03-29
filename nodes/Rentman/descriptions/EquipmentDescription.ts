@@ -16,7 +16,7 @@ export const equipmentOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get a piece of equipment',
-				description: 'Get a single equipment item by ID',
+				description: 'Get a single equipment item by ID.',
 				routing: {
 					request: {
 						method: 'GET',
@@ -35,7 +35,7 @@ export const equipmentOperations: INodeProperties[] = [
 				name: 'Get Collection',
 				value: 'getAll',
 				action: 'Get collection of equipment items',
-				description: 'Get a list of equipment',
+				description: 'Get a list of equipment.',
 				routing: {
 					request: {
 						method: 'GET',
@@ -69,7 +69,7 @@ export const equipmentFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The ID of the equipment item',
+		description: 'The ID of the equipment item.',
 		routing: {
 			request: {
 				url: '=/equipment/{{$value}}',
@@ -87,7 +87,7 @@ export const equipmentFields: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Whether to return all results or only up to a given limit',
+		description: 'Whether to return all results or only up to a given limit.',
 		routing: {
 			send: {
 				paginate: '={{ $value }}',
@@ -118,9 +118,10 @@ export const equipmentFields: INodeProperties[] = [
 		},
 		typeOptions: {
 			minValue: 1,
+			maxValue: 1500,
 		},
 		default: 50,
-		description: 'Max number of results to return',
+		description: 'Max number of results to return.',
 		routing: {
 			request: {
 				qs: {
@@ -142,7 +143,7 @@ export const equipmentFields: INodeProperties[] = [
 		},
 		typeOptions: { minValue: 0 },
 		default: 0,
-		description: 'Number of results to skip for offset-based pagination',
+		description: 'Number of results to skip for offset-based pagination.',
 		routing: {
 			request: {
 				qs: {
@@ -169,7 +170,7 @@ export const equipmentFields: INodeProperties[] = [
 			name: 'code',
 			type: 'string',
 			default: '',
-			description: 'Filter by equipment code',
+			description: 'Filter by equipment code.',
 			routing: {
 			request: {
 			qs: {
@@ -183,7 +184,7 @@ export const equipmentFields: INodeProperties[] = [
 			name: 'created_gt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records created after this date',
+			description: 'Return only records created after this date.',
 			routing: {
 			request: {
 			qs: {
@@ -212,7 +213,7 @@ export const equipmentFields: INodeProperties[] = [
 			name: 'id_gt',
 			type: 'number',
 			default: 0,
-			description: 'Return only records with ID greater than this value (useful for incremental sync)',
+			description: 'Return only records with ID greater than this value (useful for incremental sync).',
 			routing: {
 			request: {
 			qs: {
@@ -226,7 +227,7 @@ export const equipmentFields: INodeProperties[] = [
 			name: 'in_archive',
 			type: 'boolean',
 			default: false,
-			description: 'Whether to include archived items',
+			description: 'Whether to include archived items.',
 			routing: {
 			request: {
 			qs: {
@@ -240,7 +241,7 @@ export const equipmentFields: INodeProperties[] = [
 			name: 'in_planner',
 			type: 'boolean',
 			default: true,
-			description: 'Whether to filter items visible in the planner',
+			description: 'Whether to filter items visible in the planner.',
 			routing: {
 			request: {
 			qs: {
@@ -254,7 +255,7 @@ export const equipmentFields: INodeProperties[] = [
 			name: 'modified_gt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records modified after this date',
+			description: 'Return only records modified after this date.',
 			routing: {
 			request: {
 			qs: {
@@ -268,7 +269,7 @@ export const equipmentFields: INodeProperties[] = [
 			name: 'modified_lt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records modified before this date',
+			description: 'Return only records modified before this date.',
 			routing: {
 			request: {
 			qs: {
@@ -282,7 +283,7 @@ export const equipmentFields: INodeProperties[] = [
 			name: 'name',
 			type: 'string',
 			default: '',
-			description: 'Filter by equipment name',
+			description: 'Filter by equipment name.',
 			routing: {
 			request: {
 			qs: {
@@ -317,7 +318,7 @@ export const equipmentFields: INodeProperties[] = [
 			{ name: 'Consumable', value: 'consumable' },
 			],
 			default: 'normal',
-			description: 'Filter by equipment type',
+			description: 'Filter by equipment type.',
 			routing: {
 			request: {
 			qs: {

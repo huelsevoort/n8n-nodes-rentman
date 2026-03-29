@@ -12,14 +12,14 @@ export const contactPersonOperations: INodeProperties[] = [
 				name: 'Delete',
 				value: 'delete',
 				action: 'Delete a contact person',
-				description: 'Delete a contact person by ID',
+				description: 'Delete a contact person by ID.',
 				routing: { request: { method: 'DELETE' } },
 			},
 			{
 				name: 'Get',
 				value: 'get',
 				action: 'Get a contact person',
-				description: 'Get a single contact person by ID',
+				description: 'Get a single contact person by ID.',
 				routing: {
 					request: { method: 'GET' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -29,7 +29,7 @@ export const contactPersonOperations: INodeProperties[] = [
 				name: 'Get Collection',
 				value: 'getAll',
 				action: 'Get collection of contact persons',
-				description: 'Get a list of contact persons',
+				description: 'Get a list of contact persons.',
 				routing: {
 					request: { method: 'GET', url: '/contactpersons' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -39,7 +39,7 @@ export const contactPersonOperations: INodeProperties[] = [
 				name: 'Update',
 				value: 'update',
 				action: 'Update a contact person',
-				description: 'Update an existing contact person',
+				description: 'Update an existing contact person.',
 				routing: {
 					request: { method: 'PUT' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -58,7 +58,7 @@ export const contactPersonFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['contactPerson'], operation: ['get', 'update', 'delete'] } },
 		default: '',
-		description: 'The ID of the contact person',
+		description: 'The ID of the contact person.',
 		routing: { request: { url: '=/contactpersons/{{$value}}' } },
 	},
 	{
@@ -67,7 +67,7 @@ export const contactPersonFields: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: { resource: ['contactPerson'], operation: ['getAll'] } },
 		default: false,
-		description: 'Whether to return all results or only up to a given limit',
+		description: 'Whether to return all results or only up to a given limit.',
 		routing: {
 			send: { paginate: '={{ $value }}' },
 			operations: {
@@ -86,9 +86,9 @@ export const contactPersonFields: INodeProperties[] = [
 		name: 'limit',
 		type: 'number',
 		displayOptions: { show: { resource: ['contactPerson'], operation: ['getAll'], returnAll: [false] } },
-		typeOptions: { minValue: 1 },
+		typeOptions: { minValue: 1, maxValue: 1500 },
 		default: 50,
-		description: 'Max number of results to return',
+		description: 'Max number of results to return.',
 		routing: { request: { qs: { limit: '={{ $value }}' } } },
 	},
 	{
@@ -98,7 +98,7 @@ export const contactPersonFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['contactPerson'], operation: ['getAll'], returnAll: [false] } },
 		typeOptions: { minValue: 0 },
 		default: 0,
-		description: 'Number of results to skip for offset-based pagination',
+		description: 'Number of results to skip for offset-based pagination.',
 		routing: { request: { qs: { offset: '={{ $value > 0 ? $value : undefined }}' } } },
 	},
 	{
@@ -122,7 +122,7 @@ export const contactPersonFields: INodeProperties[] = [
 			name: 'created_gt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records created after this date',
+			description: 'Return only records created after this date.',
 			routing: { request: { qs: { 'created[gt]': '={{ $value }}' } } },
 			},
 			{
@@ -139,7 +139,7 @@ export const contactPersonFields: INodeProperties[] = [
 			name: 'id_gt',
 			type: 'number',
 			default: 0,
-			description: 'Return only records with ID greater than this value (useful for incremental sync)',
+			description: 'Return only records with ID greater than this value (useful for incremental sync).',
 			routing: { request: { qs: { 'id[gt]': '={{ $value > 0 ? $value : undefined }}' } } },
 			},
 			{
@@ -147,7 +147,7 @@ export const contactPersonFields: INodeProperties[] = [
 			name: 'modified_gt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records modified after this date',
+			description: 'Return only records modified after this date.',
 			routing: { request: { qs: { 'modified[gt]': '={{ $value }}' } } },
 			},
 			{
@@ -155,7 +155,7 @@ export const contactPersonFields: INodeProperties[] = [
 			name: 'modified_lt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records modified before this date',
+			description: 'Return only records modified before this date.',
 			routing: { request: { qs: { 'modified[lt]': '={{ $value }}' } } },
 			},
 			{
@@ -164,7 +164,7 @@ export const contactPersonFields: INodeProperties[] = [
 			type: 'string',
 			default: '+id',
 			placeholder: '+ID or -modified',
-			description: 'Sort field with direction prefix: + for ascending, - for descending',
+			description: 'Sort field with direction prefix: + for ascending, - for descending.',
 			routing: { request: { qs: { sort: '={{ $value }}' } } },
 			},
 		],

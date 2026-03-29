@@ -16,7 +16,7 @@ export const projectOperations: INodeProperties[] = [
 				name: 'Create',
 				value: 'create',
 				action: 'Create a project',
-				description: 'Create a new project',
+				description: 'Create a new project.',
 				routing: {
 					request: {
 						method: 'POST',
@@ -36,7 +36,7 @@ export const projectOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get a project',
-				description: 'Get a single project by ID',
+				description: 'Get a single project by ID.',
 				routing: {
 					request: {
 						method: 'GET',
@@ -55,7 +55,7 @@ export const projectOperations: INodeProperties[] = [
 				name: 'Get Collection',
 				value: 'getAll',
 				action: 'Get collection of projects',
-				description: 'Get a list of projects',
+				description: 'Get a list of projects.',
 				routing: {
 					request: {
 						method: 'GET',
@@ -90,7 +90,7 @@ export const projectFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The ID of the project',
+		description: 'The ID of the project.',
 		routing: {
 			request: {
 				url: '=/projects/{{$value}}',
@@ -110,7 +110,7 @@ export const projectFields: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Whether to return all results or only up to a given limit',
+		description: 'Whether to return all results or only up to a given limit.',
 		routing: {
 			send: {
 				paginate: '={{ $value }}',
@@ -141,9 +141,10 @@ export const projectFields: INodeProperties[] = [
 		},
 		typeOptions: {
 			minValue: 1,
+			maxValue: 1500,
 		},
 		default: 50,
-		description: 'Max number of results to return',
+		description: 'Max number of results to return.',
 		routing: {
 			request: {
 				qs: {
@@ -165,7 +166,7 @@ export const projectFields: INodeProperties[] = [
 		},
 		typeOptions: { minValue: 0 },
 		default: 0,
-		description: 'Number of results to skip for offset-based pagination',
+		description: 'Number of results to skip for offset-based pagination.',
 		routing: {
 			request: {
 				qs: {
@@ -192,7 +193,7 @@ export const projectFields: INodeProperties[] = [
 			name: 'created_gt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records created after this date',
+			description: 'Return only records created after this date.',
 			routing: {
 			request: {
 			qs: {
@@ -221,7 +222,7 @@ export const projectFields: INodeProperties[] = [
 			name: 'id_gt',
 			type: 'number',
 			default: 0,
-			description: 'Return only records with ID greater than this value (useful for incremental sync)',
+			description: 'Return only records with ID greater than this value (useful for incremental sync).',
 			routing: {
 			request: {
 			qs: {
@@ -235,7 +236,7 @@ export const projectFields: INodeProperties[] = [
 			name: 'modified_gt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records modified after this date',
+			description: 'Return only records modified after this date.',
 			routing: {
 			request: {
 			qs: {
@@ -249,7 +250,7 @@ export const projectFields: INodeProperties[] = [
 			name: 'modified_lt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records modified before this date',
+			description: 'Return only records modified before this date.',
 			routing: {
 			request: {
 			qs: {
@@ -263,7 +264,7 @@ export const projectFields: INodeProperties[] = [
 			name: 'name',
 			type: 'string',
 			default: '',
-			description: 'Filter by project name',
+			description: 'Filter by project name.',
 			routing: {
 			request: {
 			qs: {
@@ -277,7 +278,7 @@ export const projectFields: INodeProperties[] = [
 			name: 'number',
 			type: 'number',
 			default: 0,
-			description: 'Filter by project number',
+			description: 'Filter by project number.',
 			routing: {
 			request: {
 			qs: {
@@ -318,7 +319,7 @@ export const projectFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Name of the new project',
+		description: 'Name of the new project.',
 		routing: {
 			request: {
 				body: {
@@ -345,7 +346,7 @@ export const projectFields: INodeProperties[] = [
 			name: 'color',
 			type: 'color',
 			default: '',
-			description: 'Color code for the project in the planner',
+			description: 'Color code for the project in the planner.',
 			routing: {
 			request: {
 			body: {
@@ -362,7 +363,7 @@ export const projectFields: INodeProperties[] = [
 			rows: 4,
 			},
 			default: '',
-			description: 'Terms and conditions for the project',
+			description: 'Terms and conditions for the project.',
 			routing: {
 			request: {
 			body: {
@@ -376,7 +377,7 @@ export const projectFields: INodeProperties[] = [
 			name: 'reference',
 			type: 'string',
 			default: '',
-			description: 'Custom reference field for the project',
+			description: 'Custom reference field for the project.',
 			routing: {
 			request: {
 			body: {
@@ -391,7 +392,7 @@ export const projectFields: INodeProperties[] = [
 			type: 'string',
 			default: '',
 			placeholder: '/contacts/42',
-			description: 'Resource path of the customer contact, e.g. /contacts/42',
+			description: 'Resource path of the customer contact, e.g. /contacts/42.',
 			routing: {
 			request: {
 			body: {
@@ -406,7 +407,7 @@ export const projectFields: INodeProperties[] = [
 			type: 'string',
 			default: '',
 			placeholder: '/projecttypes/1',
-			description: 'Resource path of the project type, e.g. /projecttypes/1',
+			description: 'Resource path of the project type, e.g. /projecttypes/1.',
 			routing: {
 			request: {
 			body: {
@@ -437,7 +438,7 @@ export const projectFields: INodeProperties[] = [
 			type: 'string',
 			default: '',
 			placeholder: '/statuses/1',
-			description: 'Resource path of the project status, e.g. /statuses/1',
+			description: 'Resource path of the project status, e.g. /statuses/1.',
 			routing: {
 			request: {
 			body: {

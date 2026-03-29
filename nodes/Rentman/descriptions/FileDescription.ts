@@ -6,6 +6,7 @@ function buildReadOnly(
 	idLabel: string,
 ): { operations: INodeProperties[]; fields: INodeProperties[] } {
 	const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'data' } }];
+	const label = idLabel.toLowerCase();
 	return {
 		operations: [
 			{
@@ -18,13 +19,15 @@ function buildReadOnly(
 					{
 						name: 'Get',
 						value: 'get',
-						action: `Get a ${idLabel.toLowerCase()}`,
+						action: `Get a ${label}`,
+						description: `Get a single ${label} by ID.`,
 						routing: { request: { method: 'GET' }, output: { postReceive } },
 					},
 					{
 						name: 'Get Collection',
 						value: 'getAll',
-						action: `Get collection of ${idLabel.toLowerCase()}s`,
+						action: `Get collection of ${label}s`,
+						description: `Get a list of ${label}s.`,
 						routing: { request: { method: 'GET', url: `/${apiPath}` }, output: { postReceive } },
 					},
 				],
@@ -39,13 +42,14 @@ function buildReadOnly(
 				required: true,
 				displayOptions: { show: { resource: [resourceValue], operation: ['get'] } },
 				default: '',
+				description: `The ID of the ${label}.`,
 				routing: { request: { url: `=/${apiPath}/{{$value}}` } },
 			},
 			{
 				displayName: 'Return All',
 				name: 'returnAll',
 				type: 'boolean',
-				description: 'Whether to return all results or only up to a given limit',
+				description: 'Whether to return all results or only up to a given limit.',
 				displayOptions: { show: { resource: [resourceValue], operation: ['getAll'] } },
 				default: false,
 				routing: {
@@ -65,9 +69,9 @@ function buildReadOnly(
 				displayName: 'Limit',
 				name: 'limit',
 				type: 'number',
-				description: 'Max number of results to return',
+				description: 'Max number of results to return.',
 				displayOptions: { show: { resource: [resourceValue], operation: ['getAll'], returnAll: [false] } },
-				typeOptions: { minValue: 1 },
+				typeOptions: { minValue: 1, maxValue: 1500 },
 				default: 50,
 				routing: { request: { qs: { limit: '={{ $value }}' } } },
 			},
@@ -78,7 +82,7 @@ function buildReadOnly(
 				displayOptions: { show: { resource: [resourceValue], operation: ['getAll'], returnAll: [false] } },
 				typeOptions: { minValue: 0 },
 				default: 0,
-				description: 'Number of results to skip for offset-based pagination',
+				description: 'Number of results to skip for offset-based pagination.',
 				routing: { request: { qs: { offset: '={{ $value > 0 ? $value : undefined }}' } } },
 			},
 			{
@@ -94,6 +98,8 @@ function buildReadOnly(
 						name: 'sort',
 						type: 'string',
 						default: '+id',
+						placeholder: '+id or -modified',
+						description: 'Sort field with direction prefix: + for ascending, - for descending.',
 						routing: { request: { qs: { sort: '={{ $value }}' } } },
 					},
 				],

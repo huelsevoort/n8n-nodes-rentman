@@ -10,7 +10,7 @@ export class RentmanApi implements ICredentialType {
 
 	displayName = 'Rentman API';
 
-	documentationUrl = 'https://api.rentman.net';
+	documentationUrl = 'https://api.rentman.net/#section/Authentication';
 
 	properties: INodeProperties[] = [
 		{
@@ -22,7 +22,7 @@ export class RentmanApi implements ICredentialType {
 			},
 			default: '',
 			description:
-				'JWT token generated in the Rentman app under Configuration > Integrations. Note: regenerating the token invalidates the previous one.',
+				'JWT token generated in the Rentman app under Configuration > Integrations. Regenerating a token invalidates the previous one.',
 		},
 	];
 

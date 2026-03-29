@@ -126,7 +126,7 @@ export class Rentman implements INodeType {
 		group: ['input'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Interact with the Rentman rental management API',
+		description: 'Interact with the Rentman rental management API.',
 		defaults: { name: 'Rentman' },
 		usableAsTool: true,
 		inputs: ['main'],
