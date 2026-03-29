@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/huelsevoort/n8n-nodes-rentman/main/nodes/Rentman/rentman.svg" width="80" alt="Rentman" />
+</p>
+
 # n8n-nodes-rentman
 
 [![npm version](https://img.shields.io/npm/v/n8n-nodes-rentman.svg)](https://www.npmjs.com/package/n8n-nodes-rentman)
@@ -7,6 +11,8 @@
 [![GitHub issues](https://img.shields.io/github/issues/huelsevoort/n8n-nodes-rentman)](https://github.com/huelsevoort/n8n-nodes-rentman/issues)
 
 Community node for [n8n](https://n8n.io) that integrates with the [Rentman API](https://api.rentman.net) — rental management software for AV, event, and staging companies.
+
+> **Disclaimer:** This is an independent community integration and is not officially affiliated with or endorsed by Rentman.
 
 ---
 
@@ -120,20 +126,6 @@ All **Get Many** operations support:
 
 ---
 
-## Resource References
-
-Rentman links records via URI-style paths. Use this format when referencing related resources:
-
-```
-/contacts/42          → customer on a project or project request
-/crew/10              → crew member on a time registration or leave request
-/leavetypes/3         → leave type on a leave request or time registration
-/statuses/1           → status on a project
-/subprojects/42       → subproject on equipment or function groups
-```
-
----
-
 ## API Limits
 
 | Limit | Value |
@@ -142,39 +134,6 @@ Rentman links records via URI-style paths. Use this format when referencing rela
 | Requests per second | 10 |
 | Max concurrent requests | 20 |
 | Max items per page | 1,500 |
-
----
-
-## Development
-
-```bash
-npm install       # install dependencies
-npm run build     # compile TypeScript → dist/
-npm run dev       # watch mode
-npm run lint      # run ESLint
-npm run lint:fix  # auto-fix lint errors
-npm run format    # run Prettier
-```
-
-**Project structure**
-
-```
-n8n-nodes-rentman/
-├── credentials/
-│   └── RentmanApi.credentials.ts
-└── nodes/Rentman/
-    ├── Rentman.node.ts              # declarative node entry point
-    ├── rentman.svg                  # official Rentman icon
-    └── descriptions/               # one file per resource group
-        ├── AppointmentDescription.ts
-        ├── ContactDescription.ts
-        ├── EquipmentDescription.ts
-        ├── LeaveDescription.ts
-        ├── LookupDescription.ts     # all read-only resources
-        ├── ProjectDescription.ts
-        ├── ProjectRequestDescription.ts
-        └── ...
-```
 
 ---
 
