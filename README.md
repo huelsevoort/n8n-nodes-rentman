@@ -9,25 +9,115 @@ A community node for [n8n](https://n8n.io) that integrates with the [Rentman API
 
 ## Features
 
+53 resources with full coverage of the Rentman API. Operations marked with ✏️ support write access (create/update/delete).
+
+### Contacts
+
 | Resource | Operations |
 |---|---|
-| **Appointment** | Create, Delete, Get, Get Many, Update |
-| **Contact** | Create, Delete, Get, Get Many, Update |
-| **Crew** | Get, Get Many |
-| **Equipment** | Get, Get Many |
-| **Invoice** | Get, Get Many |
-| **Project** | Create, Get, Get Many |
-| **Quote** | Get, Get Many |
-| **Stock Movement** | Delete, Get, Get Many, Update |
-| **Subproject** | Get, Get Many |
-| **Time Registration** | Create, Delete, Get, Get Many, Update |
+| **Contact** ✏️ | Create, Delete, Get, Get Many, Update |
+| **Contact Person** ✏️ | Delete, Get, Get Many, Update |
 
-All list operations support:
-- **Cursor-based pagination** — follow `next_page_url` automatically
-- **Return All** toggle to fetch all pages
-- **Limit** (1–1500 items per page)
-- **Sort** with `+field` / `-field` syntax
-- **Filters** per resource (name, code, status, etc.)
+### Projects
+
+| Resource | Operations |
+|---|---|
+| **Project** ✏️ | Create, Get, Get Many |
+| **Subproject** | Get, Get Many |
+| **Contract** | Get, Get Many |
+| **Quote** | Get, Get Many |
+| **Project Crew** | Get, Get Many |
+| **Project Equipment** | Get, Get Many |
+| **Project Equipment Group** | Get, Get Many |
+| **Project Function** | Get, Get Many |
+| **Project Function Group** | Get, Get Many |
+| **Project Request** ✏️ | Create, Delete, Get, Get Many, Update |
+| **Project Request Equipment** ✏️ | Delete, Get, Get Many, Update |
+| **Project Type** | Get, Get Many |
+| **Project Vehicle** | Get, Get Many |
+
+### Crew & HR
+
+| Resource | Operations |
+|---|---|
+| **Crew** | Get, Get Many |
+| **Crew Availability** ✏️ | Create, Delete, Get, Get Many, Update |
+| **Crew Rate** | Get, Get Many |
+| **Appointment** ✏️ | Create, Delete, Get, Get Many, Update |
+| **Appointment Crew** ✏️ | Delete, Get, Get Many, Update |
+| **Invitation** | Get, Get Many |
+| **Leave Mutation** ✏️ | Create, Get, Get Many |
+| **Leave Request** ✏️ | Create, Get, Get Many, Update |
+| **Leave Type** | Get, Get Many |
+| **Time Registration** ✏️ | Create, Delete, Get, Get Many, Update |
+| **Time Registration Activity** | Get, Get Many |
+
+### Equipment & Stock
+
+| Resource | Operations |
+|---|---|
+| **Equipment** | Get, Get Many |
+| **Accessory** | Get, Get Many |
+| **Actual Content** | Get, Get Many |
+| **Equipment Assigned Serial** | Get, Get Many |
+| **Equipment Sets Content** | Get, Get Many |
+| **Repair** | Get, Get Many |
+| **Serial Number** | Get, Get Many |
+| **Stock Location** | Get, Get Many |
+| **Stock Movement** ✏️ | Delete, Get, Get Many, Update |
+
+### Financial
+
+| Resource | Operations |
+|---|---|
+| **Invoice** | Get, Get Many |
+| **Invoice Line** | Get, Get Many |
+| **Payment** ✏️ | Get, Get Many, Update |
+| **Cost** ✏️ | Delete, Get, Get Many, Update |
+
+### Sub-Rentals
+
+| Resource | Operations |
+|---|---|
+| **Sub Rental** | Get, Get Many |
+| **Sub Rental Equipment** | Get, Get Many |
+| **Sub Rental Equipment Group** | Get, Get Many |
+
+### Files & Folders
+
+| Resource | Operations |
+|---|---|
+| **File** | Get, Get Many |
+| **File Folder** | Get, Get Many |
+| **Folder** | Get, Get Many |
+
+### Rates & Pricing
+
+| Resource | Operations |
+|---|---|
+| **Factor** | Get, Get Many |
+| **Factor Group** | Get, Get Many |
+| **Rate** | Get, Get Many |
+| **Rate Factor** | Get, Get Many |
+| **Tax Class** | Get, Get Many |
+| **Ledger Code** | Get, Get Many |
+
+### Misc
+
+| Resource | Operations |
+|---|---|
+| **Status** | Get, Get Many |
+| **Vehicle** | Get, Get Many |
+
+---
+
+### All list operations support
+
+- **Cursor-based pagination** — follows `next_page_url` automatically
+- **Return All** toggle to fetch all pages in one run
+- **Limit** (1–1,500 items per page)
+- **Sort** with `+field` / `-field` syntax (e.g. `+name`, `-modified`)
+- **Filters** per resource (name, code, status, path references, etc.)
 
 ---
 
@@ -83,16 +173,18 @@ In n8n:
 Rentman uses URI-style resource paths to link records. When creating or updating records that reference other resources, use the path format:
 
 ```
-/contacts/42        → customer on a project
-/statuses/1         → status on a project
-/crew/10            → crew member on a time registration
-/leavetypes/3       → leave type on a time registration
+/contacts/42            → customer on a project
+/statuses/1             → status on a project
+/crew/10                → crew member on a time registration
+/leavetypes/3           → leave type on a time registration / leave request
+/projectfunctions/42    → project function on a project crew entry
+/subprojects/42         → subproject on equipment/function groups
 ```
 
 ### Read-only resources
 
 The following resources are read-only in the Rentman API (GET only):
-- Crew, Equipment, Invoice, Quote, Subproject
+Accessory, Actual Content, Contract, Crew, Crew Rate, Equipment, Equipment Assigned Serial, Equipment Sets Content, Factor, Factor Group, File, File Folder, Folder, Invitation, Invoice, Leave Type, Ledger Code, Project Crew, Project Equipment, Project Equipment Group, Project Function, Project Function Group, Project Type, Project Vehicle, Quote, Rate, Rate Factor, Repair, Serial Number, Status, Stock Location, Sub Rental, Sub Rental Equipment, Sub Rental Equipment Group, Tax Class, Time Registration Activity, Vehicle
 
 ### Pagination
 
@@ -125,19 +217,30 @@ npm run lint:fix
 ```
 n8n-nodes-rentman/
 ├── credentials/
-│   └── RentmanApi.credentials.ts     # JWT auth + credential test
+│   └── RentmanApi.credentials.ts          # JWT auth + credential test
 ├── nodes/
 │   └── Rentman/
-│       ├── Rentman.node.ts            # Main declarative node
-│       ├── Rentman.node.json          # Codex metadata
-│       ├── rentman.svg                # Node icon
-│       └── descriptions/             # Per-resource operation & field defs
+│       ├── Rentman.node.ts                # Main declarative node
+│       ├── Rentman.node.json              # Codex metadata
+│       ├── rentman.svg                    # Node icon
+│       └── descriptions/                 # Per-resource operation & field defs
 │           ├── AppointmentDescription.ts
+│           ├── AppointmentCrewDescription.ts
 │           ├── ContactDescription.ts
+│           ├── ContactPersonDescription.ts
+│           ├── CostDescription.ts
 │           ├── CrewDescription.ts
+│           ├── CrewAvailabilityDescription.ts
 │           ├── EquipmentDescription.ts
+│           ├── EquipmentExtendedDescription.ts  # Accessories, Serials, Repairs, …
+│           ├── FileDescription.ts               # Files, File Folders, Folders
 │           ├── InvoiceDescription.ts
+│           ├── InvoiceLineDescription.ts
+│           ├── LeaveDescription.ts              # LeaveMutation, LeaveRequest
+│           ├── LookupDescription.ts             # All remaining read-only resources
+│           ├── PaymentDescription.ts
 │           ├── ProjectDescription.ts
+│           ├── ProjectRequestDescription.ts     # ProjectRequest + Equipment
 │           ├── QuoteDescription.ts
 │           ├── StockMovementDescription.ts
 │           ├── SubprojectDescription.ts
