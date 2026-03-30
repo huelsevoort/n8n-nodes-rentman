@@ -16,7 +16,7 @@ export const crewOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get a crew member',
-				description: 'Get a single crew member by ID.',
+				description: 'Get a single crew member by ID',
 				routing: {
 					request: {
 						method: 'GET',
@@ -35,7 +35,7 @@ export const crewOperations: INodeProperties[] = [
 				name: 'Get Collection',
 				value: 'getAll',
 				action: 'Get collection of crew members',
-				description: 'Get a list of crew members.',
+				description: 'Get a list of crew members',
 				routing: {
 					request: {
 						method: 'GET',
@@ -69,7 +69,7 @@ export const crewFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The ID of the crew member.',
+		description: 'The ID of the crew member',
 		routing: {
 			request: {
 				url: '=/crew/{{$value}}',
@@ -87,7 +87,7 @@ export const crewFields: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Whether to return all results or only up to a given limit.',
+		description: 'Whether to return all results or only up to a given limit',
 		routing: {
 			send: {
 				paginate: true,
@@ -118,10 +118,9 @@ export const crewFields: INodeProperties[] = [
 		},
 		typeOptions: {
 			minValue: 1,
-			maxValue: 1500,
 		},
 		default: 50,
-		description: 'Max number of results to return.',
+		description: 'Max number of results to return',
 		routing: {
 			request: {
 				qs: {
@@ -143,7 +142,7 @@ export const crewFields: INodeProperties[] = [
 		},
 		typeOptions: { minValue: 0 },
 		default: 0,
-		description: 'Number of results to skip for offset-based pagination.',
+		description: 'Number of results to skip for offset-based pagination',
 		routing: {
 			request: {
 				qs: {
@@ -170,7 +169,7 @@ export const crewFields: INodeProperties[] = [
 				name: 'active',
 				type: 'boolean',
 				default: true,
-				description: 'Whether to filter by active crew members.',
+				description: 'Whether to filter by active crew members',
 				routing: {
 					request: {
 						qs: {
@@ -185,7 +184,7 @@ export const crewFields: INodeProperties[] = [
 				type: 'string',
 				placeholder: 'name@email.com',
 				default: '',
-				description: 'Filter by email address.',
+				description: 'Filter by email address',
 				routing: {
 					request: {
 						qs: {

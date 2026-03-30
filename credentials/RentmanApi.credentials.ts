@@ -21,8 +21,7 @@ export class RentmanApi implements ICredentialType {
 				password: true,
 			},
 			default: '',
-			description:
-				'JWT token generated in the Rentman app under Configuration > Integrations. Regenerating a token invalidates the previous one.',
+			description: 'JWT token generated in the Rentman app under Configuration > Integrations. Regenerating a token invalidates the previous one.',
 		},
 	];
 

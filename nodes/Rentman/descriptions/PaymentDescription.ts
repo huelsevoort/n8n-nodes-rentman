@@ -12,7 +12,7 @@ export const paymentOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get a payment',
-				description: 'Get a single payment by ID.',
+				description: 'Get a single payment by ID',
 				routing: {
 					request: { method: 'GET' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -22,7 +22,7 @@ export const paymentOperations: INodeProperties[] = [
 				name: 'Get Collection',
 				value: 'getAll',
 				action: 'Get collection of payments',
-				description: 'Get a list of payments.',
+				description: 'Get a list of payments',
 				routing: {
 					request: { method: 'GET', url: '/payments' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -32,7 +32,7 @@ export const paymentOperations: INodeProperties[] = [
 				name: 'Update',
 				value: 'update',
 				action: 'Update a payment',
-				description: 'Update an existing payment.',
+				description: 'Update an existing payment',
 				routing: {
 					request: { method: 'PUT' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -51,7 +51,7 @@ export const paymentFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['payment'], operation: ['get', 'update'] } },
 		default: '',
-		description: 'The ID of the payment.',
+		description: 'The ID of the payment',
 		routing: { request: { url: '=/payments/{{$value}}' } },
 	},
 	{
@@ -60,7 +60,7 @@ export const paymentFields: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: { resource: ['payment'], operation: ['getAll'] } },
 		default: false,
-		description: 'Whether to return all results or only up to a given limit.',
+		description: 'Whether to return all results or only up to a given limit',
 		routing: {
 			send: { paginate: true },
 			operations: {
@@ -79,9 +79,9 @@ export const paymentFields: INodeProperties[] = [
 		name: 'limit',
 		type: 'number',
 		displayOptions: { show: { resource: ['payment'], operation: ['getAll'], returnAll: [false] } },
-		typeOptions: { minValue: 1, maxValue: 1500 },
+		typeOptions: { minValue: 1 },
 		default: 50,
-		description: 'Max number of results to return.',
+		description: 'Max number of results to return',
 		routing: { request: { qs: { limit: '={{ $value }}' } } },
 	},
 	{
@@ -91,7 +91,7 @@ export const paymentFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['payment'], operation: ['getAll'], returnAll: [false] } },
 		typeOptions: { minValue: 0 },
 		default: 0,
-		description: 'Number of results to skip for offset-based pagination.',
+		description: 'Number of results to skip for offset-based pagination',
 		routing: { request: { qs: { offset: '={{ $value > 0 ? $value : undefined }}' } } },
 	},
 	{
@@ -107,7 +107,7 @@ export const paymentFields: INodeProperties[] = [
 			name: 'created_gt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records created after this date.',
+			description: 'Return only records created after this date',
 			routing: { request: { qs: { 'created[gt]': '={{ $value }}' } } },
 			},
 			{
@@ -124,7 +124,7 @@ export const paymentFields: INodeProperties[] = [
 			name: 'id_gt',
 			type: 'number',
 			default: 0,
-			description: 'Return only records with ID greater than this value (useful for incremental sync).',
+			description: 'Return only records with ID greater than this value (useful for incremental sync)',
 			routing: { request: { qs: { 'id[gt]': '={{ $value > 0 ? $value : undefined }}' } } },
 			},
 			{
@@ -132,7 +132,7 @@ export const paymentFields: INodeProperties[] = [
 			name: 'modified_gt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records modified after this date.',
+			description: 'Return only records modified after this date',
 			routing: { request: { qs: { 'modified[gt]': '={{ $value }}' } } },
 			},
 			{
@@ -140,7 +140,7 @@ export const paymentFields: INodeProperties[] = [
 			name: 'modified_lt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records modified before this date.',
+			description: 'Return only records modified before this date',
 			routing: { request: { qs: { 'modified[lt]': '={{ $value }}' } } },
 			},
 			{
@@ -149,7 +149,7 @@ export const paymentFields: INodeProperties[] = [
 			type: 'string',
 			default: '-created',
 			placeholder: '+ID or -created',
-			description: 'Sort field with direction prefix: + for ascending, - for descending.',
+			description: 'Sort field with direction prefix: + for ascending, - for descending',
 			routing: { request: { qs: { sort: '={{ $value }}' } } },
 			},
 		],

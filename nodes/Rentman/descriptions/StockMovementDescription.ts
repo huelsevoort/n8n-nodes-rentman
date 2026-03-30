@@ -16,7 +16,7 @@ export const stockMovementOperations: INodeProperties[] = [
 				name: 'Delete',
 				value: 'delete',
 				action: 'Delete a stock movement',
-				description: 'Delete a stock movement by ID.',
+				description: 'Delete a stock movement by ID',
 				routing: {
 					request: {
 						method: 'DELETE',
@@ -37,7 +37,7 @@ export const stockMovementOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get a stock movement',
-				description: 'Get a single stock movement by ID.',
+				description: 'Get a single stock movement by ID',
 				routing: {
 					request: {
 						method: 'GET',
@@ -56,7 +56,7 @@ export const stockMovementOperations: INodeProperties[] = [
 				name: 'Get Collection',
 				value: 'getAll',
 				action: 'Get collection of stock movements',
-				description: 'Get a list of stock movements.',
+				description: 'Get a list of stock movements',
 				routing: {
 					request: {
 						method: 'GET',
@@ -76,7 +76,7 @@ export const stockMovementOperations: INodeProperties[] = [
 				name: 'Update',
 				value: 'update',
 				action: 'Update a stock movement',
-				description: 'Update an existing stock movement.',
+				description: 'Update an existing stock movement',
 				routing: {
 					request: {
 						method: 'PUT',
@@ -109,7 +109,7 @@ export const stockMovementFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The ID of the stock movement.',
+		description: 'The ID of the stock movement',
 		routing: {
 			request: {
 				url: '=/stockmovements/{{$value}}',
@@ -127,7 +127,7 @@ export const stockMovementFields: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Whether to return all results or only up to a given limit.',
+		description: 'Whether to return all results or only up to a given limit',
 		routing: {
 			send: {
 				paginate: true,
@@ -158,10 +158,9 @@ export const stockMovementFields: INodeProperties[] = [
 		},
 		typeOptions: {
 			minValue: 1,
-			maxValue: 1500,
 		},
 		default: 50,
-		description: 'Max number of results to return.',
+		description: 'Max number of results to return',
 		routing: {
 			request: {
 				qs: {
@@ -183,7 +182,7 @@ export const stockMovementFields: INodeProperties[] = [
 		},
 		typeOptions: { minValue: 0 },
 		default: 0,
-		description: 'Number of results to skip for offset-based pagination.',
+		description: 'Number of results to skip for offset-based pagination',
 		routing: {
 			request: {
 				qs: {

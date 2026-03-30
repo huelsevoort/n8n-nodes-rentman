@@ -16,7 +16,7 @@ export const timeRegistrationOperations: INodeProperties[] = [
 				name: 'Create',
 				value: 'create',
 				action: 'Create a time registration',
-				description: 'Create a new time registration entry.',
+				description: 'Create a new time registration entry',
 				routing: {
 					request: {
 						method: 'POST',
@@ -36,7 +36,7 @@ export const timeRegistrationOperations: INodeProperties[] = [
 				name: 'Delete',
 				value: 'delete',
 				action: 'Delete a time registration',
-				description: 'Delete a time registration by ID.',
+				description: 'Delete a time registration by ID',
 				routing: {
 					request: {
 						method: 'DELETE',
@@ -57,7 +57,7 @@ export const timeRegistrationOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get a time registration',
-				description: 'Get a single time registration by ID.',
+				description: 'Get a single time registration by ID',
 				routing: {
 					request: {
 						method: 'GET',
@@ -76,7 +76,7 @@ export const timeRegistrationOperations: INodeProperties[] = [
 				name: 'Get Collection',
 				value: 'getAll',
 				action: 'Get collection of time registrations',
-				description: 'Get a list of time registrations.',
+				description: 'Get a list of time registrations',
 				routing: {
 					request: {
 						method: 'GET',
@@ -96,7 +96,7 @@ export const timeRegistrationOperations: INodeProperties[] = [
 				name: 'Update',
 				value: 'update',
 				action: 'Update a time registration',
-				description: 'Update an existing time registration.',
+				description: 'Update an existing time registration',
 				routing: {
 					request: {
 						method: 'PUT',
@@ -130,7 +130,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The ID of the time registration entry.',
+		description: 'The ID of the time registration entry',
 		routing: {
 			request: {
 				url: '=/timeregistration/{{$value}}',
@@ -150,7 +150,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Whether to return all results or only up to a given limit.',
+		description: 'Whether to return all results or only up to a given limit',
 		routing: {
 			send: {
 				paginate: true,
@@ -181,10 +181,9 @@ export const timeRegistrationFields: INodeProperties[] = [
 		},
 		typeOptions: {
 			minValue: 1,
-			maxValue: 1500,
 		},
 		default: 50,
-		description: 'Max number of results to return.',
+		description: 'Max number of results to return',
 		routing: {
 			request: {
 				qs: {
@@ -206,7 +205,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 		},
 		typeOptions: { minValue: 0 },
 		default: 0,
-		description: 'Number of results to skip for offset-based pagination.',
+		description: 'Number of results to skip for offset-based pagination',
 		routing: {
 			request: {
 				qs: {
@@ -254,7 +253,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 					{ name: 'Rejected', value: 'rejected' },
 				],
 				default: 'open',
-				description: 'Filter by approval status.',
+				description: 'Filter by approval status',
 				routing: {
 					request: {
 						qs: {
@@ -280,7 +279,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: '/crew/42',
-		description: 'Resource path of the crew member, e.g. /crew/42.',
+		description: 'Resource path of the crew member, e.g. /crew/42',
 		routing: {
 			request: {
 				body: {
@@ -301,7 +300,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Start of the time registration period.',
+		description: 'Start of the time registration period',
 		routing: {
 			request: {
 				body: {
@@ -322,7 +321,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'End of the time registration period.',
+		description: 'End of the time registration period',
 		routing: {
 			request: {
 				body: {
@@ -349,7 +348,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 				name: 'break_duration',
 				type: 'number',
 				default: 0,
-				description: 'Break duration in minutes.',
+				description: 'Break duration in minutes',
 				routing: {
 					request: {
 						body: {
@@ -363,7 +362,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 				name: 'distance',
 				type: 'number',
 				default: 0,
-				description: 'Distance traveled in km.',
+				description: 'Distance traveled in km',
 				routing: {
 					request: {
 						body: {
@@ -378,7 +377,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: '/leavetypes/1',
-				description: 'Resource path of the leave type if applicable.',
+				description: 'Resource path of the leave type if applicable',
 				routing: {
 					request: {
 						body: {

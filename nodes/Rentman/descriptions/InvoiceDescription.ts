@@ -16,7 +16,7 @@ export const invoiceOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get an invoice',
-				description: 'Get a single invoice by ID.',
+				description: 'Get a single invoice by ID',
 				routing: {
 					request: {
 						method: 'GET',
@@ -35,7 +35,7 @@ export const invoiceOperations: INodeProperties[] = [
 				name: 'Get Collection',
 				value: 'getAll',
 				action: 'Get collection of invoices',
-				description: 'Get a list of invoices.',
+				description: 'Get a list of invoices',
 				routing: {
 					request: {
 						method: 'GET',
@@ -69,7 +69,7 @@ export const invoiceFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The ID of the invoice.',
+		description: 'The ID of the invoice',
 		routing: {
 			request: {
 				url: '=/invoices/{{$value}}',
@@ -87,7 +87,7 @@ export const invoiceFields: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Whether to return all results or only up to a given limit.',
+		description: 'Whether to return all results or only up to a given limit',
 		routing: {
 			send: {
 				paginate: true,
@@ -118,10 +118,9 @@ export const invoiceFields: INodeProperties[] = [
 		},
 		typeOptions: {
 			minValue: 1,
-			maxValue: 1500,
 		},
 		default: 50,
-		description: 'Max number of results to return.',
+		description: 'Max number of results to return',
 		routing: {
 			request: {
 				qs: {
@@ -143,7 +142,7 @@ export const invoiceFields: INodeProperties[] = [
 		},
 		typeOptions: { minValue: 0 },
 		default: 0,
-		description: 'Number of results to skip for offset-based pagination.',
+		description: 'Number of results to skip for offset-based pagination',
 		routing: {
 			request: {
 				qs: {
@@ -170,7 +169,7 @@ export const invoiceFields: INodeProperties[] = [
 			name: 'created_gt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records created after this date.',
+			description: 'Return only records created after this date',
 			routing: {
 			request: {
 			qs: {
@@ -199,7 +198,7 @@ export const invoiceFields: INodeProperties[] = [
 			name: 'id_gt',
 			type: 'number',
 			default: 0,
-			description: 'Return only records with ID greater than this value (useful for incremental sync).',
+			description: 'Return only records with ID greater than this value (useful for incremental sync)',
 			routing: {
 			request: {
 			qs: {
@@ -213,7 +212,7 @@ export const invoiceFields: INodeProperties[] = [
 			name: 'number',
 			type: 'string',
 			default: '',
-			description: 'Filter by invoice number.',
+			description: 'Filter by invoice number',
 			routing: {
 			request: {
 			qs: {
@@ -227,7 +226,7 @@ export const invoiceFields: INodeProperties[] = [
 			name: 'modified_gt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records modified after this date.',
+			description: 'Return only records modified after this date',
 			routing: {
 			request: {
 			qs: {
@@ -241,7 +240,7 @@ export const invoiceFields: INodeProperties[] = [
 			name: 'modified_lt',
 			type: 'dateTime',
 			default: '',
-			description: 'Return only records modified before this date.',
+			description: 'Return only records modified before this date',
 			routing: {
 			request: {
 			qs: {

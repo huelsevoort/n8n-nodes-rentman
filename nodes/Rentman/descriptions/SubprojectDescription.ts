@@ -16,7 +16,7 @@ export const subprojectOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get a subproject',
-				description: 'Get a single subproject by ID.',
+				description: 'Get a single subproject by ID',
 				routing: {
 					request: {
 						method: 'GET',
@@ -35,7 +35,7 @@ export const subprojectOperations: INodeProperties[] = [
 				name: 'Get Collection',
 				value: 'getAll',
 				action: 'Get collection of subprojects',
-				description: 'Get a list of subprojects.',
+				description: 'Get a list of subprojects',
 				routing: {
 					request: {
 						method: 'GET',
@@ -69,7 +69,7 @@ export const subprojectFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The ID of the subproject.',
+		description: 'The ID of the subproject',
 		routing: {
 			request: {
 				url: '=/subprojects/{{$value}}',
@@ -87,7 +87,7 @@ export const subprojectFields: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Whether to return all results or only up to a given limit.',
+		description: 'Whether to return all results or only up to a given limit',
 		routing: {
 			send: {
 				paginate: true,
@@ -118,10 +118,9 @@ export const subprojectFields: INodeProperties[] = [
 		},
 		typeOptions: {
 			minValue: 1,
-			maxValue: 1500,
 		},
 		default: 50,
-		description: 'Max number of results to return.',
+		description: 'Max number of results to return',
 		routing: {
 			request: {
 				qs: {
@@ -143,7 +142,7 @@ export const subprojectFields: INodeProperties[] = [
 		},
 		typeOptions: { minValue: 0 },
 		default: 0,
-		description: 'Number of results to skip for offset-based pagination.',
+		description: 'Number of results to skip for offset-based pagination',
 		routing: {
 			request: {
 				qs: {
@@ -171,7 +170,7 @@ export const subprojectFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: '/projects/42',
-				description: 'Filter by parent project path, e.g. /projects/42.',
+				description: 'Filter by parent project path, e.g. /projects/42',
 				routing: {
 					request: {
 						qs: {
