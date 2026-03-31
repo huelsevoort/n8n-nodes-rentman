@@ -408,6 +408,48 @@ export const appointmentFields: INodeProperties[] = [
 
 	// ─── UPDATE ───────────────────────────────────────────────────────────────
 	{
+		displayName: 'Start Date/Time',
+		name: 'start',
+		type: 'dateTime',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['appointment'],
+				operation: ['update'],
+			},
+		},
+		default: '',
+		description: 'Start date and time of the appointment (required by the API for updates)',
+		routing: {
+			request: {
+				body: {
+					start: '={{ $value }}',
+				},
+			},
+		},
+	},
+	{
+		displayName: 'End Date/Time',
+		name: 'end',
+		type: 'dateTime',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['appointment'],
+				operation: ['update'],
+			},
+		},
+		default: '',
+		description: 'End date and time of the appointment (required by the API for updates)',
+		routing: {
+			request: {
+				body: {
+					end: '={{ $value }}',
+				},
+			},
+		},
+	},
+	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
 		type: 'collection',
@@ -420,19 +462,6 @@ export const appointmentFields: INodeProperties[] = [
 		},
 		default: {},
 		options: [
-			{
-				displayName: 'End Date/Time',
-				name: 'end',
-				type: 'dateTime',
-				default: '',
-				routing: {
-					request: {
-						body: {
-							end: '={{ $value }}',
-						},
-					},
-				},
-			},
 			{
 				displayName: 'Name',
 				name: 'name',
@@ -458,19 +487,6 @@ export const appointmentFields: INodeProperties[] = [
 					request: {
 						body: {
 							remark: '={{ $value }}',
-						},
-					},
-				},
-			},
-			{
-				displayName: 'Start Date/Time',
-				name: 'start',
-				type: 'dateTime',
-				default: '',
-				routing: {
-					request: {
-						body: {
-							start: '={{ $value }}',
 						},
 					},
 				},

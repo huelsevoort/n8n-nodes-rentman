@@ -13,7 +13,19 @@ export const appointmentCrewOperations: INodeProperties[] = [
 				value: 'delete',
 				action: 'Delete an appointment crew entry',
 				description: 'Delete an appointment crew entry by ID',
-				routing: { request: { method: 'DELETE' } },
+				routing: {
+					request: { method: 'DELETE' },
+					output: {
+						postReceive: [
+							{
+								type: 'set',
+								properties: {
+									value: '={{ { "deleted": true } }}',
+								},
+							},
+						],
+					},
+				},
 			},
 			{
 				name: 'Get',

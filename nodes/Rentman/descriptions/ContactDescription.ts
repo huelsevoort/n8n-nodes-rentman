@@ -478,27 +478,14 @@ export const contactFields: INodeProperties[] = [
 			},
 			{
 				displayName: 'Email',
-				name: 'email',
+				name: 'email_1',
 				type: 'string',
 				placeholder: 'name@email.com',
 				default: '',
 				routing: {
 					request: {
 						body: {
-							email: '={{ $value }}',
-						},
-					},
-				},
-			},
-			{
-				displayName: 'Fax',
-				name: 'fax',
-				type: 'string',
-				default: '',
-				routing: {
-					request: {
-						body: {
-							fax: '={{ $value }}',
+							email_1: '={{ $value }}',
 						},
 					},
 				},
@@ -530,27 +517,27 @@ export const contactFields: INodeProperties[] = [
 				},
 			},
 			{
-				displayName: 'Mobile',
-				name: 'mobile',
+				displayName: 'Phone',
+				name: 'phone_1',
 				type: 'string',
 				default: '',
 				routing: {
 					request: {
 						body: {
-							mobile: '={{ $value }}',
+							phone_1: '={{ $value }}',
 						},
 					},
 				},
 			},
 			{
-				displayName: 'Phone',
-				name: 'phone',
+				displayName: 'Phone 2',
+				name: 'phone_2',
 				type: 'string',
 				default: '',
 				routing: {
 					request: {
 						body: {
-							phone: '={{ $value }}',
+							phone_2: '={{ $value }}',
 						},
 					},
 				},
@@ -582,8 +569,8 @@ export const contactFields: INodeProperties[] = [
 				},
 			},
 			{
-				displayName: 'Remark',
-				name: 'remark',
+				displayName: 'Project Note',
+				name: 'projectnote',
 				type: 'string',
 				typeOptions: {
 					rows: 4,
@@ -592,7 +579,7 @@ export const contactFields: INodeProperties[] = [
 				routing: {
 					request: {
 						body: {
-							remark: '={{ $value }}',
+							projectnote: '={{ $value }}',
 						},
 					},
 				},
@@ -630,7 +617,6 @@ export const contactFields: INodeProperties[] = [
 				options: [
 					{ name: 'Company', value: 'company' },
 					{ name: 'Private', value: 'private' },
-					{ name: 'Other', value: 'other' },
 				],
 				default: 'company',
 				routing: {
@@ -643,13 +629,13 @@ export const contactFields: INodeProperties[] = [
 			},
 			{
 				displayName: 'VAT Code',
-				name: 'vat_code',
+				name: 'VAT_code',
 				type: 'string',
 				default: '',
 				routing: {
 					request: {
 						body: {
-							vat_code: '={{ $value }}',
+							VAT_code: '={{ $value }}',
 						},
 					},
 				},
@@ -738,14 +724,14 @@ export const contactFields: INodeProperties[] = [
 			},
 			{
 				displayName: 'Email',
-				name: 'email',
+				name: 'email_1',
 				type: 'string',
 				placeholder: 'name@email.com',
 				default: '',
 				routing: {
 					request: {
 						body: {
-							email: '={{ $value }}',
+							email_1: '={{ $value }}',
 						},
 					},
 				},
@@ -777,19 +763,6 @@ export const contactFields: INodeProperties[] = [
 				},
 			},
 			{
-				displayName: 'Mobile',
-				name: 'mobile',
-				type: 'string',
-				default: '',
-				routing: {
-					request: {
-						body: {
-							mobile: '={{ $value }}',
-						},
-					},
-				},
-			},
-			{
 				displayName: 'Name',
 				name: 'name',
 				type: 'string',
@@ -804,20 +777,33 @@ export const contactFields: INodeProperties[] = [
 			},
 			{
 				displayName: 'Phone',
-				name: 'phone',
+				name: 'phone_1',
 				type: 'string',
 				default: '',
 				routing: {
 					request: {
 						body: {
-							phone: '={{ $value }}',
+							phone_1: '={{ $value }}',
 						},
 					},
 				},
 			},
 			{
-				displayName: 'Remark',
-				name: 'remark',
+				displayName: 'Phone 2',
+				name: 'phone_2',
+				type: 'string',
+				default: '',
+				routing: {
+					request: {
+						body: {
+							phone_2: '={{ $value }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Project Note',
+				name: 'projectnote',
 				type: 'string',
 				typeOptions: {
 					rows: 4,
@@ -826,7 +812,7 @@ export const contactFields: INodeProperties[] = [
 				routing: {
 					request: {
 						body: {
-							remark: '={{ $value }}',
+							projectnote: '={{ $value }}',
 						},
 					},
 				},
@@ -851,7 +837,6 @@ export const contactFields: INodeProperties[] = [
 				options: [
 					{ name: 'Company', value: 'company' },
 					{ name: 'Private', value: 'private' },
-					{ name: 'Other', value: 'other' },
 				],
 				default: 'company',
 				routing: {
@@ -864,13 +849,13 @@ export const contactFields: INodeProperties[] = [
 			},
 			{
 				displayName: 'VAT Code',
-				name: 'vat_code',
+				name: 'VAT_code',
 				type: 'string',
 				default: '',
 				routing: {
 					request: {
 						body: {
-							vat_code: '={{ $value }}',
+							VAT_code: '={{ $value }}',
 						},
 					},
 				},

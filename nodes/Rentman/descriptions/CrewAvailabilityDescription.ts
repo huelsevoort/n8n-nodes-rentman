@@ -23,7 +23,19 @@ export const crewAvailabilityOperations: INodeProperties[] = [
 				value: 'delete',
 				action: 'Delete a crew availability entry',
 				description: 'Delete a crew availability entry by ID',
-				routing: { request: { method: 'DELETE' } },
+				routing: {
+					request: { method: 'DELETE' },
+					output: {
+						postReceive: [
+							{
+								type: 'set',
+								properties: {
+									value: '={{ { "deleted": true } }}',
+								},
+							},
+						],
+					},
+				},
 			},
 			{
 				name: 'Get',
@@ -221,20 +233,24 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
-				displayName: 'Available',
-				name: 'available',
-				type: 'boolean',
-				default: true,
-				description: 'Whether the crew member is available (true) or unavailable (false)',
-				routing: { request: { body: { available: '={{ $value }}' } } },
-			},
-			{
 				displayName: 'Remark',
 				name: 'remark',
 				type: 'string',
 				typeOptions: { rows: 3 },
 				default: '',
 				routing: { request: { body: { remark: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Status',
+				name: 'status',
+				type: 'options',
+				options: [
+					{ name: 'Not Available', value: 'N' },
+					{ name: 'Available', value: 'Y' },
+				],
+				default: 'N',
+				description: 'Availability status of the crew member',
+				routing: { request: { body: { status: '={{ $value }}' } } },
 			},
 		],
 	},
@@ -247,14 +263,6 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['crewAvailability'], operation: ['update'] } },
 		default: {},
 		options: [
-			{
-				displayName: 'Available',
-				name: 'available',
-				type: 'boolean',
-				default: true,
-				description: 'Whether the crew member is available (true) or unavailable (false)',
-				routing: { request: { body: { available: '={{ $value }}' } } },
-			},
 			{
 				displayName: 'End Date/Time',
 				name: 'end',
@@ -276,6 +284,18 @@ export const crewAvailabilityFields: INodeProperties[] = [
 				type: 'dateTime',
 				default: '',
 				routing: { request: { body: { start: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Status',
+				name: 'status',
+				type: 'options',
+				options: [
+					{ name: 'Not Available', value: 'N' },
+					{ name: 'Available', value: 'Y' },
+				],
+				default: 'N',
+				description: 'Availability status of the crew member',
+				routing: { request: { body: { status: '={{ $value }}' } } },
 			},
 		],
 	},

@@ -13,7 +13,19 @@ export const costOperations: INodeProperties[] = [
 				value: 'delete',
 				action: 'Delete a cost',
 				description: 'Delete a cost by ID',
-				routing: { request: { method: 'DELETE' } },
+				routing: {
+					request: { method: 'DELETE' },
+					output: {
+						postReceive: [
+							{
+								type: 'set',
+								properties: {
+									value: '={{ { "deleted": true } }}',
+								},
+							},
+						],
+					},
+				},
 			},
 			{
 				name: 'Get',
@@ -162,6 +174,17 @@ export const costFields: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: 'Subproject (Path)',
+		name: 'subproject',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['cost'], operation: ['update'] } },
+		default: '',
+		placeholder: '/subprojects/155',
+		description: 'Resource path of the subproject (required by the API for updates)',
+		routing: { request: { body: { subproject: '={{ $value }}' } } },
+	},
+	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
 		type: 'collection',
@@ -169,13 +192,6 @@ export const costFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['cost'], operation: ['update'] } },
 		default: {},
 		options: [
-			{
-				displayName: 'Amount',
-				name: 'amount',
-				type: 'number',
-				default: 0,
-				routing: { request: { body: { amount: '={{ $value }}' } } },
-			},
 			{
 				displayName: 'Name',
 				name: 'name',

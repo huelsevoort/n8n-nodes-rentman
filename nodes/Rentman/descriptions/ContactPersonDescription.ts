@@ -13,7 +13,19 @@ export const contactPersonOperations: INodeProperties[] = [
 				value: 'delete',
 				action: 'Delete a contact person',
 				description: 'Delete a contact person by ID',
-				routing: { request: { method: 'DELETE' } },
+				routing: {
+					request: { method: 'DELETE' },
+					output: {
+						postReceive: [
+							{
+								type: 'set',
+								properties: {
+									value: '={{ { "deleted": true } }}',
+								},
+							},
+						],
+					},
+				},
 			},
 			{
 				name: 'Get',

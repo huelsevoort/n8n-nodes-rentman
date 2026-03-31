@@ -25,7 +25,19 @@ export const projectRequestOperations: INodeProperties[] = [
 				value: 'delete',
 				action: 'Delete a project request',
 				description: 'Delete a project request by ID',
-				routing: { request: { method: 'DELETE' } },
+				routing: {
+					request: { method: 'DELETE' },
+					output: {
+						postReceive: [
+							{
+								type: 'set',
+								properties: {
+									value: '={{ { "deleted": true } }}',
+								},
+							},
+						],
+					},
+				},
 			},
 			{
 				name: 'Get',
@@ -211,6 +223,26 @@ export const projectRequestFields: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: 'Plan Period Start',
+		name: 'planperiod_start',
+		type: 'dateTime',
+		required: true,
+		displayOptions: { show: { resource: ['projectRequest'], operation: ['update'] } },
+		default: '',
+		description: 'Start of the planning period (required by the API for updates)',
+		routing: { request: { body: { planperiod_start: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Plan Period End',
+		name: 'planperiod_end',
+		type: 'dateTime',
+		required: true,
+		displayOptions: { show: { resource: ['projectRequest'], operation: ['update'] } },
+		default: '',
+		description: 'End of the planning period (required by the API for updates)',
+		routing: { request: { body: { planperiod_end: '={{ $value }}' } } },
+	},
+	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
 		type: 'collection',
@@ -252,7 +284,19 @@ export const projectRequestEquipmentOperations: INodeProperties[] = [
 				value: 'delete',
 				action: 'Delete a project request equipment entry',
 				description: 'Delete a project request equipment entry by ID',
-				routing: { request: { method: 'DELETE' } },
+				routing: {
+					request: { method: 'DELETE' },
+					output: {
+						postReceive: [
+							{
+								type: 'set',
+								properties: {
+									value: '={{ { "deleted": true } }}',
+								},
+							},
+						],
+					},
+				},
 			},
 			{
 				name: 'Get',
