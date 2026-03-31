@@ -12,6 +12,7 @@ export const invoiceLineOperations: INodeProperties[] = [
 				name: 'Get',
 				value: 'get',
 				action: 'Get an invoice line',
+				description: 'Get a single invoice line by ID',
 				routing: {
 					request: { method: 'GET' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -21,6 +22,7 @@ export const invoiceLineOperations: INodeProperties[] = [
 				name: 'Get Collection',
 				value: 'getAll',
 				action: 'Get collection of invoice lines',
+				description: 'Get a list of invoice lines',
 				routing: {
 					request: { method: 'GET', url: '/invoicelines' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },

@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-rentman",
-  "version": "26.1.4-1.8.1",
+  "version": "26.1.5-1.8.1",
   "description": "n8n community node for Rentman — the rental management software for AV, event, and crewing companies",
   "keywords": [
     "n8n-community-node-package",
@@ -45,17 +45,15 @@
       "dist/nodes/Rentman/Rentman.node.js"
     ]
   },
-  "dependencies": {
-    "@types/node": "^20.0.0",
-    "gulp": "^5.0.1",
-    "typescript": "^5.6.3"
-  },
   "devDependencies": {
+    "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^8.57.2",
     "@typescript-eslint/parser": "^8.57.2",
     "eslint": "^8.57.1",
     "eslint-plugin-n8n-nodes-base": "^1.16.1",
-    "prettier": "^3.3.2"
+    "gulp": "^5.0.1",
+    "prettier": "^3.3.2",
+    "typescript": "^5.6.3"
   },
   "peerDependencies": {
     "n8n-workflow": "*"
