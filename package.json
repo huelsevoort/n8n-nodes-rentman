@@ -14,7 +14,7 @@
     "crm",
     "n8n"
   ],
-  "license": "Apache-2.0",
+  "license": "MIT",
   "homepage": "https://github.com/huelsevoort/n8n-nodes-rentman",
   "author": {
     "name": "Maurice Huelsevoort"

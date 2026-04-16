@@ -6,7 +6,7 @@
 
 [![npm version](https://img.shields.io/npm/v/n8n-nodes-rentman.svg)](https://www.npmjs.com/package/n8n-nodes-rentman)
 [![npm downloads](https://img.shields.io/npm/dm/n8n-nodes-rentman)](https://www.npmjs.com/package/n8n-nodes-rentman)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub last commit](https://img.shields.io/github/last-commit/huelsevoort/n8n-nodes-rentman)](https://github.com/huelsevoort/n8n-nodes-rentman/commits/main)
 [![GitHub issues](https://img.shields.io/github/issues/huelsevoort/n8n-nodes-rentman)](https://github.com/huelsevoort/n8n-nodes-rentman/issues)
 
@@ -163,6 +163,4 @@ All **Get Collection** operations support:
 
 ## License
 
-[Apache 2.0](LICENSE)
-
-Apache 2.0 was chosen over MIT because it includes an explicit patent grant, making it safer for enterprise and commercial use while remaining fully open source.
+[MIT](LICENSE)
