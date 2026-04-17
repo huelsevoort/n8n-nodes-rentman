@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { customQueryParamsField } from './shared';
 
 export const costOperations: INodeProperties[] = [
 	{
@@ -209,4 +210,5 @@ export const costFields: INodeProperties[] = [
 			},
 		],
 	},
+	customQueryParamsField('cost'),
 ];

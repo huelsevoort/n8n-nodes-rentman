@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { customQueryParamsField } from './shared';
 
 export const stockMovementOperations: INodeProperties[] = [
 	{
@@ -266,4 +267,5 @@ export const stockMovementFields: INodeProperties[] = [
 			},
 		],
 	},
+	customQueryParamsField('stockMovement'),
 ];

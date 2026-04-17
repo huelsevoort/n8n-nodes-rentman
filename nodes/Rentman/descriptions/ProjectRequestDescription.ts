@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { customQueryParamsField } from './shared';
 
 // ─── PROJECT REQUESTS ─────────────────────────────────────────────────────────
 
@@ -478,4 +479,6 @@ export const projectRequestEquipmentFields: INodeProperties[] = [
 			},
 		],
 	},
+	customQueryParamsField('projectRequest'),
+	customQueryParamsField('projectRequestEquipment'),
 ];

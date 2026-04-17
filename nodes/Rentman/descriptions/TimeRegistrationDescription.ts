@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { customQueryParamsField } from './shared';
 
 export const timeRegistrationOperations: INodeProperties[] = [
 	{
@@ -507,4 +508,5 @@ export const timeRegistrationFields: INodeProperties[] = [
 			},
 		],
 	},
+	customQueryParamsField('timeRegistration'),
 ];

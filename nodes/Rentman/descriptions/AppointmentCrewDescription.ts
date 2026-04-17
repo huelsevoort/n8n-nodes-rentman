@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { customQueryParamsField } from './shared';
 
 export const appointmentCrewOperations: INodeProperties[] = [
 	{
@@ -200,4 +201,5 @@ export const appointmentCrewFields: INodeProperties[] = [
 			},
 		],
 	},
+	customQueryParamsField('appointmentCrew'),
 ];

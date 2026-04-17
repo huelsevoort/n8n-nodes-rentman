@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { customQueryParamsField } from './shared';
 
 // ─── LEAVE MUTATION ───────────────────────────────────────────────────────────
 
@@ -486,4 +487,6 @@ export const leaveRequestFields: INodeProperties[] = [
 			},
 		],
 	},
+	customQueryParamsField('leaveMutation'),
+	customQueryParamsField('leaveRequest'),
 ];
