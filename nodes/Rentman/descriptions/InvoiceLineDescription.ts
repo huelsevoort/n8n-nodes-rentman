@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { customQueryParamsField } from './shared';
 
 export const invoiceLineOperations: INodeProperties[] = [
 	{
@@ -22,7 +23,7 @@ export const invoiceLineOperations: INodeProperties[] = [
 				name: 'Get Collection',
 				value: 'getAll',
 				action: 'Get collection of invoice lines',
-				description: 'Get a list of invoice lines',
+				description: 'Get a list of invoice lines. Lines are generated based on tax rates and ledgers and sum up to the invoice total.',
 				routing: {
 					request: { method: 'GET', url: '/invoicelines' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
@@ -108,4 +109,5 @@ export const invoiceLineFields: INodeProperties[] = [
 			},
 		],
 	},
+	customQueryParamsField('invoiceLine'),
 ];

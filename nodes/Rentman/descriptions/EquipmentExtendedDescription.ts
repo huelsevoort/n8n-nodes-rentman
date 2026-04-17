@@ -120,7 +120,21 @@ const accessories = buildReadOnly('accessory', 'accessories', 'Accessory');
 const actualContent = buildReadOnly('actualContent', 'actualcontent', 'Actual Content');
 const equipmentAssignedSerials = buildReadOnly('equipmentAssignedSerial', 'equipmentassignedserials', 'Equipment Assigned Serial');
 const equipmentSetsContent = buildReadOnly('equipmentSetsContent', 'equipmentsetscontent', 'Equipment Sets Content');
-const repairs = buildReadOnly('repair', 'repairs', 'Repair');
+const repairs = buildReadOnly('repair', 'repairs', 'Repair', [
+	{
+		displayName: 'Repair Status',
+		name: 'repair_status',
+		type: 'options',
+		default: 'in-progress',
+		options: [
+			{ name: 'In Progress', value: 'in-progress' },
+			{ name: 'Completed', value: 'completed' },
+			{ name: 'Unrepairable', value: 'unrepairable' },
+		],
+		description: 'Filter by repair status',
+		routing: { request: { qs: { repair_status: '={{ $value }}' } } },
+	},
+]);
 const serialNumbers = buildReadOnly('serialNumber', 'serialnumbers', 'Serial Number');
 
 export const accessoryOperations = accessories.operations;
