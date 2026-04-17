@@ -93,6 +93,49 @@ export const invoiceLineFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
+				displayName: 'Created After',
+				name: 'created_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records created after this date',
+				routing: {
+					request: {
+						qs: {
+							'created[gt]': '={{ $value }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Fields',
+				name: 'fields',
+				type: 'string',
+				default: '',
+				placeholder: 'ID,displayname,modified',
+				description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+				routing: {
+					request: {
+						qs: {
+							fields: '={{ $value || undefined }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'ID Greater Than',
+				name: 'id_gt',
+				type: 'number',
+				default: 0,
+				description: 'Return only records with ID greater than this value. Useful for incremental sync.',
+				routing: {
+					request: {
+						qs: {
+							'id[gt]': '={{ $value > 0 ? $value : undefined }}',
+						},
+					},
+				},
+			},
+			{
 				displayName: 'Invoice (Path)',
 				name: 'invoice',
 				type: 'string',
@@ -101,13 +144,41 @@ export const invoiceLineFields: INodeProperties[] = [
 				routing: { request: { qs: { invoice: '={{ $value }}' } } },
 			},
 			{
+				displayName: 'Modified After',
+				name: 'modified_gt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified after this date',
+				routing: {
+					request: {
+						qs: {
+							'modified[gt]': '={{ $value }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Modified Before',
+				name: 'modified_lt',
+				type: 'dateTime',
+				default: '',
+				description: 'Return only records modified before this date',
+				routing: {
+					request: {
+						qs: {
+							'modified[lt]': '={{ $value }}',
+						},
+					},
+				},
+			},
+			{
 				displayName: 'Sort',
 				name: 'sort',
 				type: 'string',
 				default: '+id',
 				routing: { request: { qs: { sort: '={{ $value }}' } } },
 			},
-		],
+			],
 	},
 	customQueryParamsField('invoiceLine'),
 ];
