@@ -21,5 +21,7 @@ module.exports = {
 		'n8n-nodes-base/node-execute-block-missing-continue-on-fail': 'warn',
 		'n8n-nodes-base/node-resource-description-filename-against-convention': 'warn',
 		'n8n-nodes-base/node-param-option-name-wrong-for-get-many': 'off',
+		'n8n-nodes-base/node-class-description-inputs-wrong-regular-node': 'off',
+		'n8n-nodes-base/node-class-description-outputs-wrong': 'off',
 	},
 };

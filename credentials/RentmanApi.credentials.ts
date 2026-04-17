@@ -10,6 +10,8 @@ export class RentmanApi implements ICredentialType {
 
 	displayName = 'Rentman API';
 
+	icon = 'file:rentman.svg' as const;
+
 	documentationUrl = 'https://api.rentman.net/#section/Authentication';
 
 	properties: INodeProperties[] = [

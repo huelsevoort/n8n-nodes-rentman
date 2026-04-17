@@ -1,3 +1,4 @@
+import { NodeConnectionTypes } from 'n8n-workflow';
 import type { INodeType, INodeTypeDescription } from 'n8n-workflow';
 
 import {
@@ -129,8 +130,8 @@ export class Rentman implements INodeType {
 		description: 'Interact with the Rentman rental management API',
 		defaults: { name: 'Rentman' },
 		usableAsTool: true,
-		inputs: ['main'],
-		outputs: ['main'],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [{ name: 'rentmanApi', required: true }],
 		requestDefaults: {
 			baseURL: 'https://api.rentman.net',
