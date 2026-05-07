@@ -43,6 +43,7 @@ export {
 } from './EquipmentExtendedDescription';
 export { alternativeOperations, alternativeFields } from './AlternativeDescription';
 export { supplierOperations, supplierFields } from './SupplierDescription';
+export { vehicleOperations, vehicleFields } from './VehicleDescription';
 
 // ─── NEW: FILES ───────────────────────────────────────────────────────────────
 export {
@@ -77,8 +78,6 @@ export {
 	subRentalOperations, subRentalFields,
 	subRentalEquipmentOperations, subRentalEquipmentFields,
 	subRentalEquipmentGroupOperations, subRentalEquipmentGroupFields,
-	// Vehicles
-	vehicleOperations, vehicleFields,
 	// Crew extended
 	invitationOperations, invitationFields,
 	timeRegistrationActivityOperations, timeRegistrationActivityFields,

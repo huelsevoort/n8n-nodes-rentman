@@ -4,6 +4,20 @@ All notable changes to the **n8n-nodes-rentman** community node are documented i
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows a CalVer scheme `YY.Major.Minor-RentmanAPIVersion`.
 
+## [26.3.0-1.11.0] – 2026-05-07
+
+Tracks Rentman API **v1.10.0** + **v1.11.0**. Catches up on write operations missed in 26.2.x.
+
+### Added
+- **Equipment**: new **Create** operation (`POST /equipment`).
+- **Accessory**: now full CRUD — added **Create** (via `POST /equipment/{id}/accessories`), **Update** (`PUT /accessories/{id}`), **Delete**.
+- **Equipment Sets Content**: now full CRUD — added **Create** (via `POST /equipment/{id}/equipmentsetscontent`), **Update**, **Delete**.
+- **Serial Number**: now full CRUD — added **Create** (via `POST /equipment/{id}/serialnumbers`), **Update**, **Delete**.
+- **Vehicle**: now full CRUD — added **Create** (`POST /vehicles`), **Create For Stock Location** (`POST /stocklocations/{id}/vehicles`), **Update**, **Delete**.
+
+### Notes
+- Rentman's published changelog lists `external` on contacts/contactpersons and `use_distance_from_location` / `use_travel_time_from_location` on projects. The OpenAPI spec instead places these fields on **Crew** and **Project Function** respectively, which is what this node follows.
+
 ## [26.2.1-1.11.0] – 2026-05-07
 
 ### Documentation
@@ -92,6 +106,7 @@ Tracks Rentman API **v1.9.0**.
 ### Changed
 - Aligned package metadata and README with Rentman branding.
 
+[26.3.0-1.11.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.3.0-1.11.0
 [26.2.1-1.11.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.2.1-1.11.0
 [26.2.0-1.11.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.2.0-1.11.0
 [26.1.11-1.9.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.1.11-1.9.0

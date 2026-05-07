@@ -354,12 +354,6 @@ const subRentalEquipmentGroup = buildReadOnly('subRentalEquipmentGroup', 'subren
 export const subRentalEquipmentGroupOperations = subRentalEquipmentGroup.operations;
 export const subRentalEquipmentGroupFields = subRentalEquipmentGroup.fields;
 
-// ─── VEHICLES ─────────────────────────────────────────────────────────────────
-
-const vehicles = buildReadOnly('vehicle', 'vehicles', 'Vehicle');
-export const vehicleOperations = vehicles.operations;
-export const vehicleFields = vehicles.fields;
-
 // ─── CREW EXTENDED ────────────────────────────────────────────────────────────
 
 const invitations = buildReadOnly('invitation', 'invitations', 'Invitation');

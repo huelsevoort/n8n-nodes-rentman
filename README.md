@@ -96,14 +96,14 @@ npm install n8n-nodes-rentman
 | | Leave Type | Get, Get Collection |
 | | Time Registration ✏️ | Create, Delete, Get, Get Collection, Update |
 | | Time Registration Activity | Get, Get Collection |
-| **Equipment & Stock** | Equipment | Get, Get Collection |
-| | Accessory | Get, Get Collection |
+| **Equipment & Stock** | Equipment ✏️ | Create, Get, Get Collection |
+| | Accessory ✏️ | Create, Delete, Get, Get Collection, Update |
 | | Actual Content | Get, Get Collection |
 | | Alternative ✏️ | Create, Delete, Get, Get Collection, Get For Equipment, Update |
 | | Equipment Assigned Serial | Get, Get Collection |
-| | Equipment Sets Content | Get, Get Collection |
+| | Equipment Sets Content ✏️ | Create, Delete, Get, Get Collection, Update |
 | | Repair | Get, Get Collection |
-| | Serial Number | Get, Get Collection |
+| | Serial Number ✏️ | Create, Delete, Get, Get Collection, Update |
 | | Stock Location | Get, Get Collection |
 | | Stock Movement ✏️ | Delete, Get, Get Collection, Update |
 | | Supplier ✏️ | Create, Delete, Get, Get Collection, Get For Equipment, Get File Folders, Get Files, Update |
@@ -124,7 +124,7 @@ npm install n8n-nodes-rentman
 | | Tax Class | Get, Get Collection |
 | | Ledger Code | Get, Get Collection |
 | **Misc** | Status | Get, Get Collection |
-| | Vehicle | Get, Get Collection |
+| | Vehicle ✏️ | Create, Create For Stock Location, Delete, Get, Get Collection, Update |
 
 ---
 
