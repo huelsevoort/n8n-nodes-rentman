@@ -66,7 +66,7 @@ npm install n8n-nodes-rentman
 
 ## Supported Resources
 
-53 resources covering the full Rentman API. Resources marked **✏️** support write operations.
+55 resources covering the full Rentman API. Resources marked **✏️** support write operations.
 
 | Category | Resource | Operations |
 |---|---|---|
@@ -99,12 +99,14 @@ npm install n8n-nodes-rentman
 | **Equipment & Stock** | Equipment | Get, Get Collection |
 | | Accessory | Get, Get Collection |
 | | Actual Content | Get, Get Collection |
+| | Alternative ✏️ | Create, Delete, Get, Get Collection, Get For Equipment, Update |
 | | Equipment Assigned Serial | Get, Get Collection |
 | | Equipment Sets Content | Get, Get Collection |
 | | Repair | Get, Get Collection |
 | | Serial Number | Get, Get Collection |
 | | Stock Location | Get, Get Collection |
 | | Stock Movement ✏️ | Delete, Get, Get Collection, Update |
+| | Supplier ✏️ | Create, Delete, Get, Get Collection, Get For Equipment, Get File Folders, Get Files, Update |
 | **Financial** | Invoice | Get, Get Collection |
 | | Invoice Line | Get, Get Collection |
 | | Payment ✏️ | Get, Get Collection, Update |
@@ -151,6 +153,12 @@ All **Get Collection** operations support:
 | Requests per second | 10 |
 | Max concurrent requests | 20 |
 | Max items per page | 1,500 |
+
+---
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a full version history, or browse the [GitHub releases](https://github.com/huelsevoort/n8n-nodes-rentman/releases).
 
 ---
 
