@@ -41,6 +41,8 @@ export {
 	repairOperations, repairFields,
 	serialNumberOperations, serialNumberFields,
 } from './EquipmentExtendedDescription';
+export { alternativeOperations, alternativeFields } from './AlternativeDescription';
+export { supplierOperations, supplierFields } from './SupplierDescription';
 
 // ─── NEW: FILES ───────────────────────────────────────────────────────────────
 export {

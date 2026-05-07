@@ -209,6 +209,20 @@ export const crewFields: INodeProperties[] = [
 				},
 			},
 			{
+				displayName: 'External',
+				name: 'external',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to filter by external (freelance) crew members',
+				routing: {
+					request: {
+						qs: {
+							external: '={{ $value }}',
+						},
+					},
+				},
+			},
+			{
 				displayName: 'Fields',
 				name: 'fields',
 				type: 'string',
