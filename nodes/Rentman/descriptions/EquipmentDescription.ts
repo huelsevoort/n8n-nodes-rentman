@@ -72,6 +72,25 @@ export const equipmentOperations: INodeProperties[] = [
 					},
 				},
 			},
+			{
+				name: 'Update',
+				value: 'update',
+				action: 'Update a piece of equipment',
+				description: 'Update an existing equipment item',
+				routing: {
+					request: {
+						method: 'PUT',
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
+					},
+				},
+			},
 		],
 		default: 'getAll',
 	},
@@ -86,7 +105,7 @@ export const equipmentFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['equipment'],
-				operation: ['get'],
+				operation: ['get', 'update'],
 			},
 		},
 		default: '',
@@ -358,7 +377,7 @@ export const equipmentFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['equipment'],
-				operation: ['create'],
+				operation: ['create', 'update'],
 			},
 		},
 		default: {},
@@ -443,8 +462,12 @@ export const equipmentFields: INodeProperties[] = [
 			{
 				displayName: 'Is Physical',
 				name: 'is_physical',
-				type: 'boolean',
-				default: true,
+				type: 'options',
+				options: [
+					{ name: 'Physical Equipment', value: 'Physical equipment' },
+					{ name: 'Virtual Package', value: 'Virtual package' },
+				],
+				default: 'Physical equipment',
 				routing: { request: { body: { is_physical: '={{ $value }}' } } },
 			},
 			{
@@ -476,6 +499,28 @@ export const equipmentFields: INodeProperties[] = [
 				default: 0,
 				description: 'Default rental price per period',
 				routing: { request: { body: { price: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Rental / Sales',
+				name: 'rental_sales',
+				type: 'options',
+				options: [
+					{ name: 'Rental', value: 'Rental' },
+					{ name: 'Sale', value: 'Sale' },
+				],
+				default: 'Rental',
+				routing: { request: { body: { rental_sales: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Stock Management',
+				name: 'stock_management',
+				type: 'options',
+				options: [
+					{ name: 'Exclude From Stock Tracking', value: 'Exclude from stock tracking' },
+					{ name: 'Track Stock', value: 'Track stock' },
+				],
+				default: 'Track stock',
+				routing: { request: { body: { stock_management: '={{ $value }}' } } },
 			},
 			{
 				displayName: 'Strict Container Content',

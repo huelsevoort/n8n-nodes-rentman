@@ -45,6 +45,22 @@ export { alternativeOperations, alternativeFields } from './AlternativeDescripti
 export { supplierOperations, supplierFields } from './SupplierDescription';
 export { vehicleOperations, vehicleFields } from './VehicleDescription';
 
+// ─── NEW (v1.12.0): TASKS ─────────────────────────────────────────────────────
+export { taskOperations, taskFields } from './TaskDescription';
+export {
+	taskStatusOperations, taskStatusFields,
+	subtaskOperations, subtaskFields,
+	taskAssignmentOperations, taskAssignmentFields,
+} from './TaskExtendedDescription';
+
+// ─── NEW (v1.12.0): PURCHASE ORDERS & EXTRA INPUT FIELDS ─────────────────────
+export {
+	purchaseOrderOperations, purchaseOrderFields,
+	purchaseOrderCostOperations, purchaseOrderCostFields,
+	purchaseOrderGlobalCostOperations, purchaseOrderGlobalCostFields,
+	extraInputFieldOperations, extraInputFieldFields,
+} from './PurchaseOrderDescription';
+
 // ─── NEW: FILES ───────────────────────────────────────────────────────────────
 export {
 	fileOperations, fileFields,

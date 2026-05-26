@@ -121,6 +121,24 @@ import {
 	subRentalEquipmentGroupOperations,
 	vehicleFields,
 	vehicleOperations,
+	// ── Tasks (v1.12.0) ───────────────────────────────────────────────────────
+	taskFields,
+	taskOperations,
+	taskStatusFields,
+	taskStatusOperations,
+	subtaskFields,
+	subtaskOperations,
+	taskAssignmentFields,
+	taskAssignmentOperations,
+	// ── Purchase Orders & Extra Input Fields (v1.12.0) ────────────────────────
+	purchaseOrderFields,
+	purchaseOrderOperations,
+	purchaseOrderCostFields,
+	purchaseOrderCostOperations,
+	purchaseOrderGlobalCostFields,
+	purchaseOrderGlobalCostOperations,
+	extraInputFieldFields,
+	extraInputFieldOperations,
 } from './descriptions';
 
 export class Rentman implements INodeType {
@@ -198,6 +216,14 @@ export class Rentman implements INodeType {
 					{ name: 'Invoice', value: 'invoice', description: 'Invoices' },
 					{ name: 'Invoice Line', value: 'invoiceLine', description: 'Individual invoice lines' },
 					{ name: 'Payment', value: 'payment', description: 'Invoice payments' },
+					{ name: 'Purchase Order', value: 'purchaseOrder', description: 'Purchase orders to suppliers' },
+					{ name: 'Purchase Order Cost', value: 'purchaseOrderCost', description: 'Costs on purchase orders' },
+					{ name: 'Purchase Order Global Cost', value: 'purchaseOrderGlobalCost', description: 'Global costs on purchase orders' },
+					// Tasks
+					{ name: 'Task', value: 'task', description: 'Tasks linked to projects, equipment, crew, etc' },
+					{ name: 'Task Status', value: 'taskStatus', description: 'Task status definitions' },
+					{ name: 'Subtask', value: 'subtask', description: 'Subtasks of a task' },
+					{ name: 'Task Assignment', value: 'taskAssignment', description: 'Crew assignments to tasks' },
 					// Sub-Rentals
 					{ name: 'Sub Rental', value: 'subRental', description: 'Sub-rental orders' },
 					{ name: 'Sub Rental Equipment', value: 'subRentalEquipment', description: 'Equipment on sub-rentals' },
@@ -214,6 +240,7 @@ export class Rentman implements INodeType {
 					{ name: 'Tax Class', value: 'taxClass', description: 'Tax class definitions' },
 					{ name: 'Ledger Code', value: 'ledgerCode', description: 'Accounting ledger codes' },
 					// Misc
+					{ name: 'Extra Input Field', value: 'extraInputField', description: 'Custom field configurations' },
 					{ name: 'Status', value: 'status', description: 'Project status definitions' },
 					{ name: 'Vehicle', value: 'vehicle', description: 'Vehicles' },
 				].sort((a, b) => a.name.localeCompare(b.name)),
@@ -311,6 +338,22 @@ export class Rentman implements INodeType {
 			...invoiceLineFields,
 			...paymentOperations,
 			...paymentFields,
+			...purchaseOrderOperations,
+			...purchaseOrderFields,
+			...purchaseOrderCostOperations,
+			...purchaseOrderCostFields,
+			...purchaseOrderGlobalCostOperations,
+			...purchaseOrderGlobalCostFields,
+
+			// ─── TASKS ─────────────────────────────────────────────────────────
+			...taskOperations,
+			...taskFields,
+			...taskStatusOperations,
+			...taskStatusFields,
+			...subtaskOperations,
+			...subtaskFields,
+			...taskAssignmentOperations,
+			...taskAssignmentFields,
 
 			// ─── SUB-RENTALS ───────────────────────────────────────────────────
 			...subRentalOperations,
@@ -343,6 +386,8 @@ export class Rentman implements INodeType {
 			...ledgerCodeFields,
 
 			// ─── MISC ──────────────────────────────────────────────────────────
+			...extraInputFieldOperations,
+			...extraInputFieldFields,
 			...statusOperations,
 			...statusFields,
 			...vehicleOperations,

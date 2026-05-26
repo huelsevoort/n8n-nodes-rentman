@@ -4,6 +4,55 @@ All notable changes to the **n8n-nodes-rentman** community node are documented i
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows a CalVer scheme `YY.Major.Minor-RentmanAPIVersion`.
 
+## [26.4.0-1.12.0] – 2026-05-26
+
+Tracks Rentman API **v1.12.0**.
+
+### Added — new resources
+
+- **Task** (`/tasks`) — full CRUD plus *Get For Parent* / *Create For Parent* for the 14 parent resources that link to tasks (Contact, Contact Person, Contract, Crew, Equipment, Invoice, Project, Purchase Order, Quote, Repair, Serial Number, Sub Rental, Supplier, Vehicle), plus *Get/Create Subtask*, *Get/Create Task Assignment*, *Get Files*, *Get File Folders*.
+- **Task Status** (`/taskstatuses`) — full CRUD.
+- **Subtask** (`/subtasks`) — Get, Get Collection, Update, Delete. (Create via Task → *Create Subtask*.)
+- **Task Assignment** (`/taskassignments`) — Get, Get Collection, Update, Delete. (Create via Task → *Create Task Assignment*.)
+- **Purchase Order** (`/purchaseorders`) — read-only, plus *Get Files*, *Get File Folders*, *Get Invoice Lines*, *Get Order Costs*, *Get Global Costs*.
+- **Purchase Order Cost** (`/purchaseordercosts`) — read-only.
+- **Purchase Order Global Cost** (`/purchaseorderglobalcosts`) — read-only.
+- **Extra Input Field** (`/extrainputfields`) — read-only access to custom field configurations.
+
+### Added — new write operations on existing resources
+
+- **Equipment**: new **Update** operation (`PUT /equipment/{id}`).
+- **Folder**: new **Create** and **Update** operations (`POST /folders`, `PUT /folders/{id}`).
+
+### Changed — breaking field type corrections (boolean → string enum)
+
+Multiple fields had their `boolean` type corrected to a string enum in the API. The node now sends the correct enum values; if you were sending booleans for any of these in 26.3.x, those calls will no longer be valid:
+
+| Resource | Field | New enum values |
+|---|---|---|
+| Equipment | `is_physical` | `Physical equipment` / `Virtual package` |
+| Equipment | `rental_sales` | `Rental` / `Sale` |
+| Equipment | `stock_management` | `Track stock` / `Exclude from stock tracking` |
+| Equipment Sets Content | `is_fixed` | `Available outside this combination` / `Reserved from stock` |
+| Equipment Sets Content | `is_physically_connected` | `Will be removed when emptying combinations` / `Will remain in the combination when emptying combinations` |
+| Vehicle | `multiple` | `plannable_once` / `plannable_multi` |
+
+### Notes on hidden / undocumented changes
+
+A diff of the OpenAPI specs (v1.11.0 → v1.12.0) surfaced a few items not in Rentman's published changelog:
+
+- **Task** response includes a `tags` field (generated, hidden imports).
+- ProjectFunction `*_schedule_is_start` fields use enum values `Start time` / `End time` (the changelog says `is_start` / `is_end`).
+- File / FileFolder `itemtype` is now a string enum, but Rentman's changelog only described the type change (string ↔ integer) without listing the new enum values.
+- Several response descriptions on Contract / Invoice / Quote schemas were tweaked ("Not visible in collection responses" → "Not visible in collection responses unless explicitly requested"). No behavioural impact.
+
+### Notes on auto-surfaced fields
+
+These are returned automatically when fetched — no node changes were required:
+
+- **Project / Subproject**: `estimated_cost`, `planned_cost`, `actual_cost` (generated, request explicitly via the *Fields* filter).
+- **File / FileFolder / InvoiceLine / Task**: `parent_api_path` (generated).
+
 ## [26.3.0-1.11.0] – 2026-05-07
 
 Tracks Rentman API **v1.10.0** + **v1.11.0**. Catches up on write operations missed in 26.2.x.
@@ -106,6 +155,7 @@ Tracks Rentman API **v1.9.0**.
 ### Changed
 - Aligned package metadata and README with Rentman branding.
 
+[26.4.0-1.12.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.4.0-1.12.0
 [26.3.0-1.11.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.3.0-1.11.0
 [26.2.1-1.11.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.2.1-1.11.0
 [26.2.0-1.11.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.2.0-1.11.0

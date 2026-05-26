@@ -66,7 +66,7 @@ npm install n8n-nodes-rentman
 
 ## Supported Resources
 
-55 resources covering the full Rentman API. Resources marked **✏️** support write operations.
+63 resources covering the full Rentman API. Resources marked **✏️** support write operations.
 
 | Category | Resource | Operations |
 |---|---|---|
@@ -96,7 +96,7 @@ npm install n8n-nodes-rentman
 | | Leave Type | Get, Get Collection |
 | | Time Registration ✏️ | Create, Delete, Get, Get Collection, Update |
 | | Time Registration Activity | Get, Get Collection |
-| **Equipment & Stock** | Equipment ✏️ | Create, Get, Get Collection |
+| **Equipment & Stock** | Equipment ✏️ | Create, Get, Get Collection, Update |
 | | Accessory ✏️ | Create, Delete, Get, Get Collection, Update |
 | | Actual Content | Get, Get Collection |
 | | Alternative ✏️ | Create, Delete, Get, Get Collection, Get For Equipment, Update |
@@ -111,19 +111,27 @@ npm install n8n-nodes-rentman
 | | Invoice Line | Get, Get Collection |
 | | Payment ✏️ | Get, Get Collection, Update |
 | | Cost ✏️ | Delete, Get, Get Collection, Update |
+| | Purchase Order | Get, Get Collection, Get File Folders, Get Files, Get Global Costs, Get Invoice Lines, Get Order Costs |
+| | Purchase Order Cost | Get, Get Collection |
+| | Purchase Order Global Cost | Get, Get Collection |
 | **Sub-Rentals** | Sub Rental | Get, Get Collection |
 | | Sub Rental Equipment | Get, Get Collection |
 | | Sub Rental Equipment Group | Get, Get Collection |
 | **Files & Folders** | File | Get, Get Collection |
 | | File Folder | Get, Get Collection |
-| | Folder | Get, Get Collection |
+| | Folder ✏️ | Create, Get, Get Collection, Update |
 | **Rates & Pricing** | Factor | Get, Get Collection |
 | | Factor Group | Get, Get Collection |
 | | Rate | Get, Get Collection |
 | | Rate Factor | Get, Get Collection |
 | | Tax Class | Get, Get Collection |
 | | Ledger Code | Get, Get Collection |
-| **Misc** | Status | Get, Get Collection |
+| **Tasks** | Task ✏️ | Create, Create For Parent, Create Subtask, Create Task Assignment, Delete, Get, Get Collection, Get File Folders, Get Files, Get For Parent, Get Subtasks, Get Task Assignments, Update |
+| | Task Status ✏️ | Create, Delete, Get, Get Collection, Update |
+| | Subtask ✏️ | Delete, Get, Get Collection, Update |
+| | Task Assignment ✏️ | Delete, Get, Get Collection, Update |
+| **Misc** | Extra Input Field | Get, Get Collection |
+| | Status | Get, Get Collection |
 | | Vehicle ✏️ | Create, Create For Stock Location, Delete, Get, Get Collection, Update |
 
 ---

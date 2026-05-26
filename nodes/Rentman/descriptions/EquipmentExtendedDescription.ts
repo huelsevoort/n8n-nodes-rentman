@@ -463,16 +463,24 @@ const equipmentSetsContentBodyFields: INodeProperties['options'] = [
 	{
 		displayName: 'Is Fixed',
 		name: 'is_fixed',
-		type: 'boolean',
-		default: false,
+		type: 'options',
+		options: [
+			{ name: 'Available Outside This Combination', value: 'Available outside this combination' },
+			{ name: 'Reserved From Stock', value: 'Reserved from stock' },
+		],
+		default: 'Available outside this combination',
 		description: 'Whether to permanently reduce the stock by the amount from this combination',
 		routing: { request: { body: { is_fixed: '={{ $value }}' } } },
 	},
 	{
 		displayName: 'Is Physically Connected',
 		name: 'is_physically_connected',
-		type: 'boolean',
-		default: false,
+		type: 'options',
+		options: [
+			{ name: 'Will Be Removed When Emptying Combinations', value: 'Will be removed when emptying combinations' },
+			{ name: 'Will Remain in the Combination When Emptying Combinations', value: 'Will remain in the combination when emptying combinations' },
+		],
+		default: 'Will be removed when emptying combinations',
 		description: 'Whether the equipment will stay inside the combination when emptying it in the warehouse',
 		routing: { request: { body: { is_physically_connected: '={{ $value }}' } } },
 	},

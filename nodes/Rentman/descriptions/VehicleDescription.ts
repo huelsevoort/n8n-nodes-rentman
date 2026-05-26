@@ -147,10 +147,14 @@ const vehicleBodyFields: INodeProperties['options'] = [
 	{
 		displayName: 'Multiple',
 		name: 'multiple',
-		type: 'boolean',
-		default: false,
+		type: 'options',
+		options: [
+			{ name: 'Plannable Multi', value: 'plannable_multi' },
+			{ name: 'Plannable Once', value: 'plannable_once' },
+		],
+		default: 'plannable_once',
 		description: 'Whether the vehicle can be scheduled more than once at the same time (for example, for employment agencies)',
-		routing: { request: { body: { multiple: '={{ $value ? 1 : 0 }}' } } },
+		routing: { request: { body: { multiple: '={{ $value }}' } } },
 	},
 	{
 		displayName: 'Name',
