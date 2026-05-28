@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-rentman",
-  "version": "26.4.1-1.12.0",
+  "version": "26.4.2-1.12.0",
   "description": "n8n community node for Rentman — the rental management software for AV, event, and crewing companies",
   "keywords": [
     "n8n-community-node-package",

@@ -449,15 +449,19 @@ const accessories = buildCrud(
 );
 
 // ─── EQUIPMENT SETS CONTENT (CRUD) ───────────────────────────────────────────
+// Note: per the API, `equipment` is required on EquipmentSetContentRequest.
+// We do NOT mark it required at the n8n property level, because that would
+// trigger global "workflow has issues" validation errors even when this
+// resource isn't selected (n8n's validator does not consult the parent
+// collection's displayOptions when evaluating required inner items).
 const equipmentSetsContentBodyFields: INodeProperties['options'] = [
 	{
 		displayName: 'Equipment (Path)',
 		name: 'equipment',
 		type: 'string',
-		required: true,
 		default: '',
 		placeholder: '/equipment/0',
-		description: 'Resource path of the equipment item that is part of this set',
+		description: 'Required by the API. Resource path of the equipment item that is part of this set.',
 		routing: { request: { body: { equipment: '={{ $value }}' } } },
 	},
 	{
