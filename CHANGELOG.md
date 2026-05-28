@@ -4,6 +4,11 @@ All notable changes to the **n8n-nodes-rentman** community node are documented i
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows a CalVer scheme `YY.Major.Minor-RentmanAPIVersion`.
 
+## [26.4.1-1.12.0] – 2026-05-26
+
+### Fixed
+- **Critical**: workflows could not execute on n8n ("workflow has issues and cannot be executed"). The `peerDependencies.n8n-workflow` value had been tightened to `^2.13.1` in 26.1.10 as part of the verification fixes, but n8n's community-node loader requires it to be `"*"` exactly. Reverted to `"*"`. No code changes — same surface as 26.4.0-1.12.0.
+
 ## [26.4.0-1.12.0] – 2026-05-26
 
 Tracks Rentman API **v1.12.0**.
@@ -155,6 +160,7 @@ Tracks Rentman API **v1.9.0**.
 ### Changed
 - Aligned package metadata and README with Rentman branding.
 
+[26.4.1-1.12.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.4.1-1.12.0
 [26.4.0-1.12.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.4.0-1.12.0
 [26.3.0-1.11.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.3.0-1.11.0
 [26.2.1-1.11.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.2.1-1.11.0
