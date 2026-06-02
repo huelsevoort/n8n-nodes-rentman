@@ -151,6 +151,16 @@ All **Get Collection** operations support:
 | **Incremental sync** | `ID Greater Than` filter for efficient delta syncs |
 | **Field selection** | `Fields` filter to request only specific fields (reduces payload) |
 
+### Expanding linked items
+
+All **read** operations (Get, Get Collection, and read sub-resource operations) expose an **Expand** field. By default a field that references another resource returns a path string (e.g. `"/equipment/12"`); pass one or more field names to `Expand` to inline the full linked object instead. Accepts a comma-separated list and supports dot notation for nested expansion up to 3 levels.
+
+```
+Expand: equipment,equipment.creator
+```
+
+Only `item`/`link` fields can be expanded. Requires Rentman API v1.13.0 or newer.
+
 ---
 
 ## API Limits

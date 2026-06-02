@@ -4,6 +4,20 @@ All notable changes to the **n8n-nodes-rentman** community node are documented i
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows a CalVer scheme `YY.Major.Minor-RentmanAPIVersion`.
 
+## [26.5.0-1.13.0] – 2026-06-02
+
+Tracks Rentman API **v1.13.0**.
+
+### Added
+- **Expand** field on every read operation (Get, Get Collection, and all read sub-resource operations) across every resource. Maps to the new `expand` query parameter introduced in Rentman API v1.13.0: inline linked resources in the response instead of returning a path string. Accepts a comma-separated list of linkable field names and supports dot notation for nested expansion up to 3 levels (e.g. `equipment,equipment.creator`). Only `item`/`link` fields are expandable. Implemented as a single global field scoped by operation, so it appears wherever the node issues a GET and is hidden on Create/Update/Delete.
+
+### Fixed
+- **Custom Query Parameters**: a blank parameter row (key left empty) previously serialized to a malformed `&=` in the query string, which the Rentman API rejects with HTTP 400 — causing every request from that node to fail until the empty row was removed. Blank-key parameters are now stripped from the request via a `preSend` sanitizer (`stripBlankQueryKeys` in `descriptions/shared.ts`), so an empty row is a harmless no-op. Pre-existing since the Custom Query Parameters field was introduced (26.1.x); unrelated to the v1.13.0 API update.
+
+### Notes
+- v1.13.0 also corrected the OpenAPI spec to declare `created`/`modified` as non-nullable on the File, Subproject, and Task **response** schemas (previously `string | null`). These are read-only response fields; the node does not model response schemas, so no change was required.
+- Verified the full OpenAPI diff (v1.12.0 → v1.13.0): no new endpoints, methods, schemas, request-body fields, required fields, or enum changes beyond the above.
+
 ## [26.4.2-1.12.0] – 2026-05-28
 
 ### Fixed
@@ -171,6 +185,7 @@ Tracks Rentman API **v1.9.0**.
 ### Changed
 - Aligned package metadata and README with Rentman branding.
 
+[26.5.0-1.13.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.5.0-1.13.0
 [26.4.2-1.12.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.4.2-1.12.0
 [26.3.0-1.11.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.3.0-1.11.0
 [26.2.1-1.11.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.2.1-1.11.0

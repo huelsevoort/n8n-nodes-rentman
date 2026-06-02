@@ -2,6 +2,8 @@ import { NodeConnectionTypes } from 'n8n-workflow';
 import type { INodeType, INodeTypeDescription } from 'n8n-workflow';
 
 import {
+	// ── Shared helpers ──────────────────────────────────────────────────────────
+	expandField,
 	// ── Existing ──────────────────────────────────────────────────────────────
 	appointmentFields,
 	appointmentOperations,
@@ -246,6 +248,11 @@ export class Rentman implements INodeType {
 				].sort((a, b) => a.name.localeCompare(b.name)),
 				default: 'contact',
 			},
+
+			// ─── GLOBAL: EXPAND (API v1.13.0) ──────────────────────────────────
+			// Shown on every read operation across all resources; inlines linked
+			// resources in the response. See expandField() in descriptions/shared.ts.
+			expandField(),
 
 			// ─── CONTACT ───────────────────────────────────────────────────────
 			...contactOperations,

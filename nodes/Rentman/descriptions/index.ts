@@ -1,3 +1,6 @@
+// ─── SHARED HELPERS ───────────────────────────────────────────────────────────
+export { expandField } from './shared';
+
 // ─── EXISTING RESOURCES ───────────────────────────────────────────────────────
 export { appointmentOperations, appointmentFields } from './AppointmentDescription';
 export { contactOperations, contactFields } from './ContactDescription';
