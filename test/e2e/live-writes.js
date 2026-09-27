@@ -3,7 +3,7 @@
 //
 // Everything created is named "n8n-e2e TEST" and written to <outDir>/created.json as it happens.
 // Records Rentman cannot delete through the API (project, subproject, project function (group), equipment,
-// folder, leave mutation, leave request and its hours once approved or rejected, payment) are listed at the end for manual removal.
+// folder, leave mutation, leave request and its hours once approved, payment) are listed at the end for manual removal.
 // References to pre-existing records (crew, contacts, equipment, statuses ...) are looked up at start.
 const fs = require('fs');
 const path = require('path');
@@ -206,10 +206,10 @@ const w1bCases = [
 	{ name: 'subproject.create.full', track: ['subprojects', false], params: { resource: 'subproject', operation: 'create', projectId: P1, additionalFields: { custom: '{}', name: `${T} subproject` } } },
 	{ name: 'projectFunctionGroup.create.full', track: ['projectfunctiongroups', false], params: { resource: 'projectFunctionGroup', operation: 'create', projectId: P1, subprojectPath: P1sub ? `/subprojects/${P1sub}` : undefined, additionalFields: {
 		name: `${T} function group`, planperiod_end: d2, planperiod_start: d1, remark: 'e2e', usageperiod_end: '2027-03-01T16:00:00', usageperiod_start: '2027-03-01T10:00:00' } } },
-	// Rentman refuses to change or delete these hours once the request is approved or rejected, so they stay for manual removal.
+	// Rentman refuses to change or delete these hours once the request was approved (also after canceling), so they stay for manual removal.
 	{ name: 'timeRegistration.createForLeaveRequest', track: ['timeregistration', false], params: { resource: 'timeRegistration', operation: 'createForLeaveRequest', leaveRequestId: LR1, crewmember: ref.crew,
 		start: '2027-05-03T00:00:00', end: '2027-05-04T00:00:00', additionalFields: { duration: 28800, leavetype: ref.leavetype, remark: T } } },
-	{ name: 'timeRegistration.createForLeaveRequest[to reject]', track: ['timeregistration', false], params: { resource: 'timeRegistration', operation: 'createForLeaveRequest', leaveRequestId: LR2, crewmember: ref.crew,
+	{ name: 'timeRegistration.createForLeaveRequest[to reject]', track: ['timeregistration', true], params: { resource: 'timeRegistration', operation: 'createForLeaveRequest', leaveRequestId: LR2, crewmember: ref.crew,
 		start: '2027-05-10T00:00:00', end: '2027-05-11T00:00:00', additionalFields: { duration: 28800, leavetype: ref.leavetype } } },
 ];
 const runnableNow = (cases) => cases.filter((c) => {
@@ -385,6 +385,7 @@ const w4cases = [
 	...ledger.filter((l) => l.kind === 'crewavailability' && !l.deleted).map((l, i) => del(i === 0 ? 'crewAvailability.delete' : `crewAvailability.delete#${l.id}`, 'crewAvailability', 'crewAvailabilityId', String(l.id))),
 	del('timeRegistration.delete', 'timeRegistration', 'timeRegId', TR1),
 	del('timeRegistration.delete#correction', 'timeRegistration', 'timeRegId', TRC),
+	del('timeRegistration.delete#rejectedLeave', 'timeRegistration', 'timeRegId', LRH2),
 	...ledger.filter((l) => l.kind === 'vehicles' && !l.deleted).map((l, i) => del(i === 0 ? 'vehicle.delete' : `vehicle.delete#${l.id}`, 'vehicle', 'vehicleId', String(l.id))),
 	...ledger.filter((l) => l.kind === 'contacts' && !l.deleted).map((l, i) => del(i === 0 ? 'contact.delete' : `contact.delete#${l.id}`, 'contact', 'contactId', String(l.id))),
 ].filter((c) => c.id);

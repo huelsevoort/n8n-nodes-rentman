@@ -16,7 +16,7 @@
  * (operations Get For Parent / Create For Parent with Parent Resource = Purchase Order).
  */
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination } from './shared';
+import { customQueryParamsField, rentmanPagination, withOwnFiltersOnly } from './shared';
 
 const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'data' } }];
 
@@ -148,7 +148,7 @@ const purchaseOrderIdField = (op: string, suffix: string): INodeProperties => ({
 	routing: { request: { url: `=/purchaseorders/{{$value}}${suffix}` } },
 });
 
-export const purchaseOrderFields: INodeProperties[] = [
+export const purchaseOrderFields: INodeProperties[] = withOwnFiltersOnly([
 	purchaseOrderIdField('get', ''),
 	purchaseOrderIdField('getFiles', '/files'),
 	purchaseOrderIdField('getFileFolders', '/file_folders'),
@@ -249,7 +249,7 @@ export const purchaseOrderFields: INodeProperties[] = [
 		],
 	},
 	customQueryParamsField('purchaseOrder'),
-];
+], ['getAll'], ['approval_status', 'supplier']);
 
 // ─── PURCHASE ORDER COST (read-only) ─────────────────────────────────────────
 

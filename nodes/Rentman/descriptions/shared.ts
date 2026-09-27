@@ -152,6 +152,29 @@ export const rentmanPagination: IN8nRequestOperationPaginationGeneric = {
  * `link` fields are expandable. Since v1.16.0, child fields and custom fields of
  * an item type (`custom_<number>`) are expandable too.
  */
+/**
+ * Sub-collection getters such as Get Files list other records than the resource itself, so the resource's own
+ * filters (e.g. a purchase order's Approval Status) do not apply there and Rentman rejects them with HTTP 400.
+ * Keeps the full Filters collection for `operations` and shows a copy without `ownFilters` for the other operations.
+ */
+export function withOwnFiltersOnly(fields: INodeProperties[], operations: string[], ownFilters: string[]): INodeProperties[] {
+	return fields.flatMap((field) => {
+		const show = field.displayOptions?.show;
+		const shown = show?.operation as string[] | undefined;
+		if (field.name !== 'filters' || !show || !shown) return [field];
+		const others = shown.filter((op) => !operations.includes(op));
+		if (!others.length) return [field];
+		return [
+			{ ...field, displayOptions: { ...field.displayOptions, show: { ...show, operation: shown.filter((op) => operations.includes(op)) } } },
+			{
+				...field,
+				displayOptions: { ...field.displayOptions, show: { ...show, operation: others } },
+				options: (field.options as INodeProperties[]).filter((option) => !ownFilters.includes(option.name)),
+			},
+		];
+	});
+}
+
 export function expandField(): INodeProperties {
 	return {
 		displayName: 'Expand',

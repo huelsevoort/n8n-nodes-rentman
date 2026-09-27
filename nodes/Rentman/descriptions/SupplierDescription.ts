@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination } from './shared';
+import { customQueryParamsField, rentmanPagination, withOwnFiltersOnly } from './shared';
 
 export const supplierOperations: INodeProperties[] = [
 	{
@@ -103,7 +103,7 @@ export const supplierOperations: INodeProperties[] = [
 	},
 ];
 
-export const supplierFields: INodeProperties[] = [
+export const supplierFields: INodeProperties[] = withOwnFiltersOnly([
 	// ── Path: supplier ID for get/update/delete/getFiles/getFileFolders ──────
 	{
 		displayName: 'Supplier ID',
@@ -368,4 +368,4 @@ export const supplierFields: INodeProperties[] = [
 		],
 	},
 	customQueryParamsField('supplier'),
-];
+], ['getAll', 'getForEquipment'], ['contact', 'equipment']);

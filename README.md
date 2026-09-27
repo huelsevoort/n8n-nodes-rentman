@@ -66,7 +66,7 @@ npm install n8n-nodes-rentman
 
 ## Supported Resources
 
-65 resources covering the full Rentman API v1.16.0: every one of its 314 operations, and every writable field. Resources marked **✏️** support write operations. **Get For Parent** lists the records of a parent through Rentman's sub-collection endpoints (e.g. the crew of a project or the payments of an invoice).
+65 resources covering the full Rentman API v1.16.0: every one of its 314 operations, and every writable field except three that have no effect: Task Public (Rentman rejects every value), Crew Availability Last Updated/Last Updater and Stock Movement API Client (Rentman sets them itself). Resources marked **✏️** support write operations. **Get For Parent** lists the records of a parent through Rentman's sub-collection endpoints (e.g. the crew of a project or the payments of an invoice).
 
 | Category | Resource | Operations |
 |---|---|---|

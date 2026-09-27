@@ -38,11 +38,11 @@ export GENERIC_TIMEZONE=Europe/Berlin
 - `live-pagination.js`: Return All with small pages (Custom Query Parameter `limit`) combined with filters, Fields, Sort and Expand, compared item by item with the same list read directly.
 - `live-writes.js`: every create, update and delete. Records are named `n8n-e2e TEST` and logged to `created.json`. After each create and update the record is read back and every sent field is compared with what Rentman stored. Everything that can be deleted is deleted at the end; `live-cleanup.js <dir>` deletes leftovers after an aborted run.
 
-Rentman's API cannot delete projects, subprojects, project functions, project function groups, equipment, folders, leave mutations, leave requests, the hours of approved or rejected leave requests, or payments. Each live write run leaves these behind (named `n8n-e2e TEST`, two leave requests with their hours, the payment has amount 0 on the first invoice); remove them in Rentman afterwards.
+Rentman's API cannot delete projects, subprojects, project functions, project function groups, equipment, folders, leave mutations, leave requests, the hours of approved leave requests, or payments. Each live write run leaves these behind (named `n8n-e2e TEST`, two leave requests and the hours of the approved one, the payment has amount 0 on the first invoice); remove them in Rentman afterwards.
 
 Known Rentman-side results in the live run (not node bugs, each reproduced directly against the API):
 - Task Status → Create/Update needs a token user who may manage task statuses (HTTP 401 on create, 404 on update otherwise; reading works).
-- Leave Request → Approve/Reject needs hours on the request (Time Registration → Create For Leave Request), otherwise HTTP 500. Rentman also refuses some status changes: approved → rejected, and anything out of canceled. Once a request is approved or rejected its hours can no longer be changed or deleted.
+- Leave Request → Approve/Reject needs hours on the request (Time Registration → Create For Leave Request), otherwise HTTP 500. Rentman also refuses some status changes: approved → rejected, and anything out of canceled. Once a request was approved (also after canceling it) its hours can no longer be changed or deleted; the hours of a rejected request can.
 - Serial Number → Active = false is ignored while the purchase date lies in the future.
 - Contact → Type = Private clears Name, Type = Company clears First Name, Surname Prefix and Last Name.
 - Equipment → Type is derived by Rentman (Case/Set from Is Combination); a value sent directly is ignored. Strict Container Content is not stored either, without an error, and Can Edit Content During Planning is stored only for virtual packages (sets).
