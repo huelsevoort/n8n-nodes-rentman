@@ -209,26 +209,12 @@ export const crewFields: INodeProperties[] = [
 				},
 			},
 			{
-				displayName: 'External',
-				name: 'external',
-				type: 'boolean',
-				default: false,
-				description: 'Whether to filter by external (freelance) crew members',
-				routing: {
-					request: {
-						qs: {
-							external: '={{ $value }}',
-						},
-					},
-				},
-			},
-			{
 				displayName: 'Fields',
 				name: 'fields',
 				type: 'string',
 				default: '',
 				placeholder: 'ID,displayname,modified',
-				description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+				description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
 				routing: {
 					request: {
 						qs: {

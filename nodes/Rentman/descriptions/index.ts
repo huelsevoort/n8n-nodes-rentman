@@ -91,6 +91,8 @@ export {
 	crewRateOperations, crewRateFields,
 	// Status
 	statusOperations, statusFields,
+	projectStatusOperations, projectStatusFields,
+	warehouseStatusOperations, warehouseStatusFields,
 	// Stock & locations
 	stockLocationOperations, stockLocationFields,
 	// Sub-rentals

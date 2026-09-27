@@ -3,3 +3,7 @@ dist/
 .DS_Store
 *.js.map
 tsconfig.tsbuildinfo
+test/e2e/env.sh
+test/e2e/*.pem
+test/e2e/out/
+test/e2e/requests.jsonl

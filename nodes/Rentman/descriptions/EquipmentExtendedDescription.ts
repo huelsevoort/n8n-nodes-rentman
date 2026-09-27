@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { customQueryParamsField } from './shared';
 
 const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'data' } }];
 
@@ -24,7 +25,7 @@ const standardFilterOptions = (extra: INodeProperties['options'] = []): INodePro
 		type: 'string',
 		default: '',
 		placeholder: 'ID,displayname,modified',
-		description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+		description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
 		routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 	},
 	{
@@ -63,47 +64,6 @@ const standardFilterOptions = (extra: INodeProperties['options'] = []): INodePro
 	...(extra ?? []),
 ];
 
-const customQueryParamsOption = (resourceValue: string): INodeProperties => ({
-	displayName: 'Custom Query Parameters',
-	name: 'customQueryParams',
-	type: 'fixedCollection',
-	placeholder: 'Add Parameter',
-	displayOptions: { show: { resource: [resourceValue], operation: ['getAll'] } },
-	default: {},
-	typeOptions: { multipleValues: true },
-	description: 'Add custom query parameters for field-value filtering (e.g. country=nl) or relational operators (e.g. modified[gt]=2024-01-01).',
-	options: [
-		{
-			name: 'params',
-			displayName: 'Parameter',
-			values: [
-				{
-					displayName: 'Key',
-					name: 'key',
-					type: 'string',
-					default: '',
-					placeholder: 'e.g. country or modified[gt]',
-					description: 'Query parameter key. Use field[gt] or field[lt] for relational operators.',
-				},
-				{
-					displayName: 'Value',
-					name: 'value',
-					type: 'string',
-					default: '',
-					placeholder: 'e.g. nl or 2024-01-01',
-					routing: {
-						send: {
-							type: 'query',
-							property: '={{$parent.key}}',
-							value: '={{$value}}',
-							propertyInDotNotation: false,
-						},
-					},
-				},
-			],
-		},
-	],
-});
 
 /**
  * Helper to build a minimal read-only (Get + Get Collection) resource description.
@@ -204,7 +164,7 @@ function buildReadOnly(
 			default: {},
 			options: standardFilterOptions(extraFilters),
 		},
-		customQueryParamsOption(resourceValue),
+		customQueryParamsField(resourceValue),
 	];
 
 	return { operations, fields };
@@ -354,7 +314,7 @@ function buildCrud(
 			default: {},
 			options: standardFilterOptions(extraFilters),
 		},
-		customQueryParamsOption(resourceValue),
+		customQueryParamsField(resourceValue),
 		// Create body fields
 		{
 			displayName: 'Additional Fields',

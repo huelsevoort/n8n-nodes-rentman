@@ -3,6 +3,7 @@
  * Each uses the same Get + Get Collection pattern with cursor pagination.
  */
 import type { INodeProperties } from 'n8n-workflow';
+import { customQueryParamsField } from './shared';
 
 function buildReadOnly(
 	resourceValue: string,
@@ -113,7 +114,7 @@ function buildReadOnly(
 					type: 'string',
 					default: '',
 					placeholder: 'ID,displayname,modified',
-					description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+					description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
 					routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 				},
 				{
@@ -152,47 +153,7 @@ function buildReadOnly(
 				...extraFilterOptions,
 			],
 		},
-		{
-			displayName: 'Custom Query Parameters',
-			name: 'customQueryParams',
-			type: 'fixedCollection',
-			placeholder: 'Add Parameter',
-			displayOptions: { show: { resource: [resourceValue], operation: ['getAll'] } },
-			default: {},
-			typeOptions: { multipleValues: true },
-			description: 'Add custom query parameters for field-value filtering (e.g. country=nl) or relational operators (e.g. modified[gt]=2024-01-01).',
-			options: [
-				{
-					name: 'params',
-					displayName: 'Parameter',
-					values: [
-						{
-							displayName: 'Key',
-							name: 'key',
-							type: 'string',
-							default: '',
-							placeholder: 'e.g. country or modified[gt]',
-							description: 'Query parameter key. Use field[gt] or field[lt] for relational operators.',
-						},
-						{
-							displayName: 'Value',
-							name: 'value',
-							type: 'string',
-							default: '',
-							placeholder: 'e.g. nl or 2024-01-01',
-							routing: {
-								send: {
-									type: 'query',
-									property: '={{$parent.key}}',
-									value: '={{$value}}',
-									propertyInDotNotation: false,
-								},
-							},
-						},
-					],
-				},
-			],
-		},
+		customQueryParamsField(resourceValue),
 	];
 
 	return { operations, fields };
@@ -313,6 +274,16 @@ export const crewRateFields = crewRates.fields;
 const statuses = buildReadOnly('status', 'statuses', 'Status');
 export const statusOperations = statuses.operations;
 export const statusFields = statuses.fields;
+
+// API v1.15.0 split project lifecycle statuses (Inquiry, Concept, Option,
+// Confirmed) from warehouse statuses (Confirmed, Prepped, On Location, Returned).
+const projectStatuses = buildReadOnly('projectStatus', 'projectstatuses', 'Project Status');
+export const projectStatusOperations = projectStatuses.operations;
+export const projectStatusFields = projectStatuses.fields;
+
+const warehouseStatuses = buildReadOnly('warehouseStatus', 'warehousestatuses', 'Warehouse Status');
+export const warehouseStatusOperations = warehouseStatuses.operations;
+export const warehouseStatusFields = warehouseStatuses.fields;
 
 // ─── STOCK & LOCATIONS ────────────────────────────────────────────────────────
 

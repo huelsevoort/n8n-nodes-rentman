@@ -131,7 +131,9 @@ npm install n8n-nodes-rentman
 | | Subtask ✏️ | Delete, Get, Get Collection, Update |
 | | Task Assignment ✏️ | Delete, Get, Get Collection, Update |
 | **Misc** | Extra Input Field | Get, Get Collection |
+| | Project Status | Get, Get Collection |
 | | Status | Get, Get Collection |
+| | Warehouse Status | Get, Get Collection |
 | | Vehicle ✏️ | Create, Create For Stock Location, Delete, Get, Get Collection, Update |
 
 ---
@@ -149,7 +151,8 @@ All **Get Collection** operations support:
 | **Filters** | Per-resource filters: name, code, status, date ranges, path references |
 | **Date filters** | `Modified After/Before`, `Created After` using Rentman's relational operators |
 | **Incremental sync** | `ID Greater Than` filter for efficient delta syncs |
-| **Field selection** | `Fields` filter to request only specific fields (reduces payload) |
+| **Field selection** | `Fields` filter to request only specific fields (reduces payload), including custom fields as `custom_N` |
+| **Custom field filters** | `Custom Query Parameters` accept custom fields with the normal operators (e.g. `custom_3[gt]`) |
 
 ### Expanding linked items
 
@@ -159,7 +162,7 @@ All **read** operations (Get, Get Collection, and read sub-resource operations) 
 Expand: equipment,equipment.creator
 ```
 
-Only `item`/`link` fields can be expanded. Requires Rentman API v1.13.0 or newer.
+Item, link and child fields can be expanded, as can custom fields of an item type (`custom_N`). Requires Rentman API v1.13.0 or newer (child and custom fields: v1.16.0).
 
 ---
 
