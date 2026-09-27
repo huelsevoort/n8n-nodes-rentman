@@ -34,15 +34,20 @@ export GENERIC_TIMEZONE=Europe/Berlin
 ./run-live.sh /tmp/rentman-live
 ```
 
-- `live-reads.js`: every read operation. For each resource it picks a real record X, checks that Get returns X, and runs Get Collection three times: limit 1, offset 1, and with every filter, Fields, Sort, Expand and Custom Query Parameters (plus a blank row) set from X's own values, which must still return X. Every sub-collection getter and Get For Parent (all 14 parent types) runs against a real parent.
+- `live-reads.js`: every read operation. For each resource it picks a real record X, checks that Get returns X, and runs Get Collection three times: limit 1, offset 1, and with every filter, Fields, Sort, Expand and Custom Query Parameters (plus a blank row) set from X's own values, which must still return X. Every sub-collection getter and every Get For Parent (each parent type of each resource) runs against a real parent.
 - `live-pagination.js`: Return All with small pages (Custom Query Parameter `limit`) combined with filters, Fields, Sort and Expand, compared item by item with the same list read directly.
-- `live-writes.js`: every create, update and delete. Records are named `n8n-e2e TEST` and logged to `created.json`. After each update the record is read back and every sent field is compared with what Rentman stored. Everything that can be deleted is deleted at the end; `live-cleanup.js <dir>` deletes leftovers after an aborted run.
+- `live-writes.js`: every create, update and delete. Records are named `n8n-e2e TEST` and logged to `created.json`. After each create and update the record is read back and every sent field is compared with what Rentman stored. Everything that can be deleted is deleted at the end; `live-cleanup.js <dir>` deletes leftovers after an aborted run.
 
-Rentman's API cannot delete projects, equipment, folders, leave mutations, leave requests or payments. Each live write run leaves one of each (named `n8n-e2e TEST`, the payment has amount 0 on the first invoice); remove them in Rentman afterwards.
+Rentman's API cannot delete projects, subprojects, project functions, project function groups, equipment, folders, leave mutations, leave requests, the hours of approved or rejected leave requests, or payments. Each live write run leaves these behind (named `n8n-e2e TEST`, two leave requests with their hours, the payment has amount 0 on the first invoice); remove them in Rentman afterwards.
 
-Known Rentman-side results in the live run (not node bugs):
-- Vehicle → Create fails with HTTP 500 ("Das Speichern der Artikel ist fehlgeschlagen") for any body, also when called directly.
-- Task Status → Create needs a token user who may create task statuses (HTTP 401 otherwise).
-- Leave Request → Update to Rejected fails with HTTP 500; Pending/Approved/Canceled work.
+Known Rentman-side results in the live run (not node bugs, each reproduced directly against the API):
+- Task Status → Create/Update needs a token user who may manage task statuses (HTTP 401 on create, 404 on update otherwise; reading works).
+- Leave Request → Approve/Reject needs hours on the request (Time Registration → Create For Leave Request), otherwise HTTP 500. Rentman also refuses some status changes: approved → rejected, and anything out of canceled. Once a request is approved or rejected its hours can no longer be changed or deleted.
+- Serial Number → Active = false is ignored while the purchase date lies in the future.
+- Contact → Type = Private clears Name, Type = Company clears First Name, Surname Prefix and Last Name.
+- Equipment → Type is derived by Rentman (Case/Set from Is Combination); a value sent directly is ignored. Strict Container Content is not stored either, without an error, and Can Edit Content During Planning is stored only for virtual packages (sets).
 - Changing Equipment → Stock Management to "Exclude from stock tracking" deletes that item's serial numbers and stock movements.
-- Two crew availabilities for the same crew member and period are merged into one.
+- Two crew availabilities for the same crew member and period are merged into one. Recurrence End Date keeps only the date.
+- Time Registration → Create without a Leave Type fails with HTTP 500. Duration is computed from start and end for worked hours, and Correction Duration is stored only on registrations with a correction leave type.
+- Task → Time Budget is reset to 0 when Assignment Type is Creator Only.
+- Payment → Import Source "publicapi" does not appear in Rentman's responses; the accounting sources (e.g. Xero) do.

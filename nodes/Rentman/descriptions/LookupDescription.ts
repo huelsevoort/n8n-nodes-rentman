@@ -153,6 +153,55 @@ function buildReadOnly(
 	return { operations, fields };
 }
 
+/**
+ * Adds a Create operation for records Rentman creates only under a project (POST /projects/{ID}/<apiPath>).
+ * `createFields` are the body fields shown for it.
+ */
+function withProjectCreate(
+	built: { operations: INodeProperties[]; fields: INodeProperties[] },
+	resourceValue: string,
+	apiPath: string,
+	label: string,
+	createFields: INodeProperties[],
+): { operations: INodeProperties[]; fields: INodeProperties[] } {
+	const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'data' } }];
+	const [operation] = built.operations;
+	operation.options = [
+		{
+			name: 'Create',
+			value: 'create',
+			action: `Create a ${label}`,
+			description: `Create a ${label} in a project (POST /projects/{ID}/${apiPath})`,
+			routing: { request: { method: 'POST' }, output: { postReceive } },
+		},
+		...(operation.options ?? []),
+	];
+	built.fields.unshift({
+		displayName: 'Project ID',
+		name: 'projectId',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: [resourceValue], operation: ['create'] } },
+		default: '',
+		description: `The ID of the project to add the ${label} to`,
+		routing: { request: { url: `=/projects/{{$value}}/${apiPath}` } },
+	});
+	built.fields.push(...createFields);
+	return built;
+}
+
+const subprojectCreateField = (resourceValue: string): INodeProperties => ({
+	displayName: 'Subproject (Path)',
+	name: 'subprojectPath',
+	type: 'string',
+	required: true,
+	displayOptions: { show: { resource: [resourceValue], operation: ['create'] } },
+	default: '',
+	placeholder: '/subprojects/1',
+	description: 'Resource path of the subproject the record belongs to',
+	routing: { request: { body: { subproject: '={{ $value }}' } } },
+});
+
 // ─── PROJECT SUB-RESOURCES ────────────────────────────────────────────────────
 
 const projectCrew = buildReadOnly('projectCrew', 'projectcrew', 'Project Crew', [
@@ -208,6 +257,61 @@ const projectFunctionGroups = buildReadOnly('projectFunctionGroup', 'projectfunc
 		routing: { request: { qs: { subproject: '={{ $value }}' } } },
 	},
 ]);
+withProjectCreate(projectFunctionGroups, 'projectFunctionGroup', 'projectfunctiongroups', 'project function group', [
+	subprojectCreateField('projectFunctionGroup'),
+	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: { show: { resource: ['projectFunctionGroup'], operation: ['create'] } },
+		default: {},
+		options: [
+			{
+				displayName: 'Name',
+				name: 'name',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { name: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Plan Period End',
+				name: 'planperiod_end',
+				type: 'dateTime',
+				default: '',
+				routing: { request: { body: { planperiod_end: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Plan Period Start',
+				name: 'planperiod_start',
+				type: 'dateTime',
+				default: '',
+				routing: { request: { body: { planperiod_start: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Remark',
+				name: 'remark',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { remark: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Usage Period End',
+				name: 'usageperiod_end',
+				type: 'dateTime',
+				default: '',
+				routing: { request: { body: { usageperiod_end: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Usage Period Start',
+				name: 'usageperiod_start',
+				type: 'dateTime',
+				default: '',
+				routing: { request: { body: { usageperiod_start: '={{ $value }}' } } },
+			},
+		],
+	},
+]);
 export const projectFunctionGroupOperations = projectFunctionGroups.operations;
 export const projectFunctionGroupFields = projectFunctionGroups.fields;
 
@@ -220,6 +324,185 @@ const projectFunctions = buildReadOnly('projectFunction', 'projectfunctions', 'P
 		placeholder: '/projectfunctiongroups/42',
 		description: 'Filter by project function group resource path',
 		routing: { request: { qs: { group: '={{ $value }}' } } },
+	},
+]);
+withProjectCreate(projectFunctions, 'projectFunction', 'projectfunctions', 'project function', [
+	subprojectCreateField('projectFunction'),
+	{
+		displayName: 'Cost Rate (Path)',
+		name: 'costRate',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['projectFunction'], operation: ['create'] } },
+		default: '',
+		placeholder: '/rates/1',
+		description: 'Resource path of the rate used for the crew costs',
+		routing: { request: { body: { cost_rate: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Price Rate (Path)',
+		name: 'priceRate',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['projectFunction'], operation: ['create'] } },
+		default: '',
+		placeholder: '/rates/1',
+		description: 'Resource path of the rate used for the price',
+		routing: { request: { body: { price_rate: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: { show: { resource: ['projectFunction'], operation: ['create'] } },
+		default: {},
+		options: [
+			{
+				displayName: 'Amount',
+				name: 'amount',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { amount: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Cost Accommodation',
+				name: 'cost_accommodation',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { cost_accommodation: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Cost Catering',
+				name: 'cost_catering',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { cost_catering: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Cost Other',
+				name: 'cost_other',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { cost_other: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Cost Travel',
+				name: 'cost_travel',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { cost_travel: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Custom Fields',
+				name: 'custom',
+				type: 'json',
+				default: '{}',
+				description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
+				routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
+			},
+			{
+				displayName: 'External Name',
+				name: 'name_external',
+				type: 'string',
+				default: '',
+				description: 'Name on financial documents',
+				routing: { request: { body: { name_external: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Group (Path)',
+				name: 'group',
+				type: 'string',
+				default: '',
+				placeholder: '/projectfunctiongroups/0',
+				routing: { request: { body: { group: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Name',
+				name: 'name',
+				type: 'string',
+				default: '',
+				description: 'Name on packing lists',
+				routing: { request: { body: { name: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Plan Period End',
+				name: 'planperiod_end',
+				type: 'dateTime',
+				default: '',
+				routing: { request: { body: { planperiod_end: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Plan Period Start',
+				name: 'planperiod_start',
+				type: 'dateTime',
+				default: '',
+				routing: { request: { body: { planperiod_start: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Plannable',
+				name: 'is_plannable',
+				type: 'boolean',
+				default: false,
+				description: 'Whether crew members scheduled on this shift are shown as available for other functions',
+				routing: { request: { body: { is_plannable: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Price Accommodation',
+				name: 'price_accommodation',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { price_accommodation: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Price Catering',
+				name: 'price_catering',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { price_catering: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Price Other',
+				name: 'price_other',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { price_other: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Price Travel',
+				name: 'price_travel',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { price_travel: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Type',
+				name: 'type',
+				type: 'options',
+				options: [
+					{ name: 'Crew Function', value: 'crew_function' },
+					{ name: 'Remark', value: 'remark' },
+					{ name: 'Shift', value: 'shift' },
+					{ name: 'Transport Function', value: 'transport_function' },
+				],
+				default: 'crew_function',
+				routing: { request: { body: { type: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Usage Period End',
+				name: 'usageperiod_end',
+				type: 'dateTime',
+				default: '',
+				routing: { request: { body: { usageperiod_end: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Usage Period Start',
+				name: 'usageperiod_start',
+				type: 'dateTime',
+				default: '',
+				routing: { request: { body: { usageperiod_start: '={{ $value }}' } } },
+			},
+		],
 	},
 ]);
 export const projectFunctionOperations = projectFunctions.operations;

@@ -7,12 +7,18 @@ export const stockMovementOperations: INodeProperties[] = [
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
-		displayOptions: {
-			show: {
-				resource: ['stockMovement'],
-			},
-		},
+		displayOptions: { show: { resource: ['stockMovement'] } },
 		options: [
+			{
+				name: 'Create',
+				value: 'create',
+				action: 'Create a stock movement',
+				description: 'Create a stock movement for an equipment item (POST /equipment/{ID}/stockmovements)',
+				routing: {
+					request: { method: 'POST' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
+			},
 			{
 				name: 'Delete',
 				value: 'delete',
@@ -97,7 +103,79 @@ export const stockMovementOperations: INodeProperties[] = [
 	},
 ];
 
+const stockMovementBodyFields: INodeProperties['options'] = [
+	{
+		displayName: 'API Client',
+		name: 'api_client',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { api_client: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Description',
+		name: 'remark',
+		type: 'string',
+		typeOptions: {
+			rows: 3,
+		},
+		default: '',
+		routing: {
+			request: {
+				body: {
+					description: '={{ $value }}',
+				},
+			},
+		},
+	},
+	{
+		displayName: 'Details',
+		name: 'details',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { details: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Project Equipment (Path)',
+		name: 'projectequipment',
+		type: 'string',
+		default: '',
+		placeholder: '/projectequipment/42',
+		routing: { request: { body: { projectequipment: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Quantity',
+		name: 'quantity',
+		type: 'number',
+		default: 0,
+		routing: {
+			request: {
+				body: {
+					amount: '={{ $value }}',
+				},
+			},
+		},
+	},
+	{
+		displayName: 'Stock Location (Path)',
+		name: 'stock_location',
+		type: 'string',
+		default: '',
+		placeholder: '/stocklocations/1',
+		routing: { request: { body: { stock_location: '={{ $value }}' } } },
+	},
+];
+
 export const stockMovementFields: INodeProperties[] = [
+	{
+		displayName: 'Equipment ID',
+		name: 'equipmentId',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['stockMovement'], operation: ['create'] } },
+		default: '',
+		description: 'The ID of the equipment item the stock movement belongs to',
+		routing: { request: { url: '=/equipment/{{$value}}/stockmovements' } },
+	},
 	{
 		displayName: 'Stock Movement ID',
 		name: 'stockMovementId',
@@ -291,77 +369,28 @@ export const stockMovementFields: INodeProperties[] = [
 		name: 'date',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['stockMovement'], operation: ['update'] } },
+		displayOptions: { show: { resource: ['stockMovement'], operation: ['create', 'update'] } },
 		default: '',
-		description: 'Date of the stock movement. Rentman requires it on every update.',
+		description: 'Date of the stock movement. Rentman requires it on create and on every update.',
 		routing: { request: { body: { date: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: { show: { resource: ['stockMovement'], operation: ['create'] } },
+		default: {},
+		options: stockMovementBodyFields,
 	},
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
 		type: 'collection',
 		placeholder: 'Add Field',
-		displayOptions: {
-			show: {
-				resource: ['stockMovement'],
-				operation: ['update'],
-			},
-		},
+		displayOptions: { show: { resource: ['stockMovement'], operation: ['update'] } },
 		default: {},
-		options: [
-			{
-				displayName: 'Description',
-				name: 'remark',
-				type: 'string',
-				typeOptions: {
-					rows: 3,
-				},
-				default: '',
-				routing: {
-					request: {
-						body: {
-							description: '={{ $value }}',
-						},
-					},
-				},
-			},
-			{
-				displayName: 'Details',
-				name: 'details',
-				type: 'string',
-				default: '',
-				routing: { request: { body: { details: '={{ $value }}' } } },
-			},
-			{
-				displayName: 'Project Equipment (Path)',
-				name: 'projectequipment',
-				type: 'string',
-				default: '',
-				placeholder: '/projectequipment/42',
-				routing: { request: { body: { projectequipment: '={{ $value }}' } } },
-			},
-			{
-				displayName: 'Quantity',
-				name: 'quantity',
-				type: 'number',
-				default: 0,
-				routing: {
-					request: {
-						body: {
-							amount: '={{ $value }}',
-						},
-					},
-				},
-			},
-			{
-				displayName: 'Stock Location (Path)',
-				name: 'stock_location',
-				type: 'string',
-				default: '',
-				placeholder: '/stocklocations/1',
-				routing: { request: { body: { stock_location: '={{ $value }}' } } },
-			},
-		],
+		options: stockMovementBodyFields,
 	},
 	customQueryParamsField('stockMovement'),
 ];

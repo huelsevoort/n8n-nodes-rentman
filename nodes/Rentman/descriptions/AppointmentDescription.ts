@@ -367,6 +367,21 @@ export const appointmentFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
+				displayName: 'Color',
+				name: 'color',
+				type: 'color',
+				default: '',
+				description: 'Appointment color as hex code, e.g. #CABDBF',
+				routing: { request: { body: { color: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Location',
+				name: 'location',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { location: '={{ $value }}' } } },
+			},
+			{
 				displayName: 'Name',
 				name: 'name',
 				type: 'string',
@@ -379,6 +394,21 @@ export const appointmentFields: INodeProperties[] = [
 						},
 					},
 				},
+			},
+			{
+				displayName: 'Plannable',
+				name: 'is_plannable',
+				type: 'boolean',
+				default: false,
+				description: 'Whether crew members can be scheduled during this appointment',
+				routing: { request: { body: { is_plannable: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Public',
+				name: 'is_public',
+				type: 'boolean',
+				default: false,
+				routing: { request: { body: { is_public: '={{ $value }}' } } },
 			},
 			{
 				displayName: 'Remark',
@@ -456,6 +486,21 @@ export const appointmentFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
+				displayName: 'Color',
+				name: 'color',
+				type: 'color',
+				default: '',
+				description: 'Appointment color as hex code, e.g. #CABDBF',
+				routing: { request: { body: { color: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Location',
+				name: 'location',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { location: '={{ $value }}' } } },
+			},
+			{
 				displayName: 'Name',
 				name: 'name',
 				type: 'string',
@@ -467,6 +512,21 @@ export const appointmentFields: INodeProperties[] = [
 						},
 					},
 				},
+			},
+			{
+				displayName: 'Plannable',
+				name: 'is_plannable',
+				type: 'boolean',
+				default: false,
+				description: 'Whether crew members can be scheduled during this appointment',
+				routing: { request: { body: { is_plannable: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Public',
+				name: 'is_public',
+				type: 'boolean',
+				default: false,
+				routing: { request: { body: { is_public: '={{ $value }}' } } },
 			},
 			{
 				displayName: 'Remark',

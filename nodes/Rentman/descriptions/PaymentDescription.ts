@@ -10,6 +10,16 @@ export const paymentOperations: INodeProperties[] = [
 		displayOptions: { show: { resource: ['payment'] } },
 		options: [
 			{
+				name: 'Create',
+				value: 'create',
+				action: 'Create a payment',
+				description: 'Register a payment on an invoice (POST /invoices/{ID}/payments)',
+				routing: {
+					request: { method: 'POST' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
+			},
+			{
 				name: 'Get',
 				value: 'get',
 				action: 'Get a payment',
@@ -44,7 +54,49 @@ export const paymentOperations: INodeProperties[] = [
 	},
 ];
 
+const paymentBodyFields: INodeProperties['options'] = [
+	{
+		displayName: 'Amount',
+		name: 'amount',
+		type: 'number',
+		default: 0,
+		routing: { request: { body: { amount: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Description',
+		name: 'remark',
+		type: 'string',
+		typeOptions: { rows: 3 },
+		default: '',
+		routing: { request: { body: { description: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Import Source',
+		name: 'payment_import_source',
+		type: 'options',
+		options: [
+			{ name: 'Exact Online', value: 'exactonline' },
+			{ name: 'None', value: 'none' },
+			{ name: 'Public API', value: 'publicapi' },
+			{ name: 'QuickBooks', value: 'quickbooks' },
+			{ name: 'Xero', value: 'xero' },
+		],
+		default: 'publicapi',
+		routing: { request: { body: { payment_import_source: '={{ $value }}' } } },
+	},
+	];
+
 export const paymentFields: INodeProperties[] = [
+	{
+		displayName: 'Invoice ID',
+		name: 'invoiceId',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['payment'], operation: ['create'] } },
+		default: '',
+		description: 'The ID of the invoice the payment belongs to',
+		routing: { request: { url: '=/invoices/{{$value}}/payments' } },
+	},
 	{
 		displayName: 'Payment ID',
 		name: 'paymentId',
@@ -154,10 +206,19 @@ export const paymentFields: INodeProperties[] = [
 		name: 'moment',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['payment'], operation: ['update'] } },
+		displayOptions: { show: { resource: ['payment'], operation: ['create', 'update'] } },
 		default: '',
-		description: 'When the payment was made. Rentman requires it on every update.',
+		description: 'When the payment was made. Rentman requires it on create and on every update.',
 		routing: { request: { body: { moment: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: { show: { resource: ['payment'], operation: ['create'] } },
+		default: {},
+		options: paymentBodyFields,
 	},
 	{
 		displayName: 'Update Fields',
@@ -166,37 +227,7 @@ export const paymentFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['payment'], operation: ['update'] } },
 		default: {},
-		options: [
-			{
-				displayName: 'Amount',
-				name: 'amount',
-				type: 'number',
-				default: 0,
-				routing: { request: { body: { amount: '={{ $value }}' } } },
-			},
-			{
-				displayName: 'Description',
-				name: 'remark',
-				type: 'string',
-				typeOptions: { rows: 3 },
-				default: '',
-				routing: { request: { body: { description: '={{ $value }}' } } },
-			},
-			{
-				displayName: 'Import Source',
-				name: 'payment_import_source',
-				type: 'options',
-				options: [
-					{ name: 'Exact Online', value: 'exactonline' },
-					{ name: 'None', value: 'none' },
-					{ name: 'Public API', value: 'publicapi' },
-					{ name: 'QuickBooks', value: 'quickbooks' },
-					{ name: 'Xero', value: 'xero' },
-				],
-				default: 'publicapi',
-				routing: { request: { body: { payment_import_source: '={{ $value }}' } } },
-			},
-		],
+		options: paymentBodyFields,
 	},
 	customQueryParamsField('payment'),
 ];

@@ -4,6 +4,7 @@ import type { INodeType, INodeTypeDescription } from 'n8n-workflow';
 import {
 	// ── Shared helpers ──────────────────────────────────────────────────────────
 	expandField,
+	withParentListings,
 	withWriteHooks,
 	// ── Existing ──────────────────────────────────────────────────────────────
 	appointmentFields,
@@ -169,7 +170,7 @@ export class Rentman implements INodeType {
 				'Content-Type': 'application/json',
 			},
 		},
-		properties: withWriteHooks([
+		properties: withWriteHooks(withParentListings([
 			// ─── RESOURCE SELECTOR ─────────────────────────────────────────────
 			{
 				displayName: 'Resource',
@@ -410,6 +411,6 @@ export class Rentman implements INodeType {
 			...warehouseStatusFields,
 			...vehicleOperations,
 			...vehicleFields,
-		]),
+		])),
 	};
 }

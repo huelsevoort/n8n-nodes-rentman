@@ -335,6 +335,14 @@ export const projectFields: INodeProperties[] = [
 		description: 'Rentman accepts only name, reference and number when creating a project. Customer, status, project type and similar fields are managed in Rentman itself and are rejected by the API.',
 		options: [
 			{
+				displayName: 'Custom Fields',
+				name: 'custom',
+				type: 'json',
+				default: '{}',
+				description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
+				routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
+			},
+			{
 				displayName: 'Custom Reference',
 				name: 'reference',
 				type: 'string',

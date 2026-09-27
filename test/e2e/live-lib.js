@@ -68,7 +68,13 @@ function runBatch(cases, dir) {
 		let error;
 		if (!run) error = 'node did not run';
 		else if (run.error) error = run.error.message + (run.error.description ? ' | ' + run.error.description : '');
-		else if (first && first.error) error = typeof first.error === 'string' ? first.error : JSON.stringify(first.error);
+		else if (first && first.error) {
+			error = typeof first.error === 'string' ? first.error : JSON.stringify(first.error);
+			// Rentman's own reason travels in the item's NodeApiError context, not in json.error
+			const body = items[0].error?.context?.data;
+			const reason = body?.errorMessage ?? body?.message ?? body?.validation;
+			if (reason) error += ` | ${typeof reason === 'string' ? reason : JSON.stringify(reason)}`;
+		}
 		res[c.name] = { ok: !error, error, items: items.length, first, all: items.map((i) => i.json) };
 	}
 	return res;

@@ -491,6 +491,14 @@ const serialNumberBodyFields: INodeProperties['options'] = [
 		routing: { request: { body: { book_value: '={{ $value }}' } } },
 	},
 	{
+		displayName: 'Custom Fields',
+		name: 'custom',
+		type: 'json',
+		default: '{}',
+		description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
+		routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
+	},
+	{
 		displayName: 'Depreciation Monthly',
 		name: 'depreciation_monthly',
 		type: 'number',

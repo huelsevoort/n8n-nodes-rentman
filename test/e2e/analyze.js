@@ -42,6 +42,7 @@ for (const c of cases) {
 		}
 		if (!(x.key in bag)) { problems.push(`${x.field} not sent as ${x.in}.${x.key}`); continue; }
 		const got = bag[x.key];
+		if (got && typeof got === 'object') { if (JSON.stringify(got) !== JSON.stringify(JSON.parse(x.value))) problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${x.value}`); continue; }
 		if (String(got) !== String(x.value) && !(typeof x.value === 'string' && x.value.startsWith('2026') && String(got).startsWith('2026')))
 			problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${JSON.stringify(x.value)}`);
 	}

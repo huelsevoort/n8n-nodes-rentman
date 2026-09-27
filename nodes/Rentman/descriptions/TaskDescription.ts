@@ -52,6 +52,14 @@ const taskBodyFields: INodeProperties['options'] = [
 		routing: { request: { body: { completed_by: '={{ $value }}' } } },
 	},
 	{
+		displayName: 'Custom Fields',
+		name: 'custom',
+		type: 'json',
+		default: '{}',
+		description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
+		routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
+	},
+	{
 		displayName: 'Deadline',
 		name: 'deadline',
 		type: 'dateTime',
@@ -195,6 +203,14 @@ const taskBodyFields: INodeProperties['options'] = [
 		routing: { request: { body: { priority: '={{ $value }}' } } },
 	},
 	{
+		displayName: 'Recurrence End',
+		name: 'recureind',
+		type: 'string',
+		default: '',
+		description: 'Recurrence end identifier',
+		routing: { request: { body: { recureind: '={{ $value }}' } } },
+	},
+	{
 		displayName: 'Recurrence Period',
 		name: 'recurperiode',
 		type: 'number',
@@ -216,14 +232,6 @@ const taskBodyFields: INodeProperties['options'] = [
 		],
 		default: 'once',
 		routing: { request: { body: { recurhoe: '={{ $value }}' } } },
-	},
-	{
-		displayName: 'Recurrence End',
-		name: 'recureind',
-		type: 'string',
-		default: '',
-		description: 'Recurrence end identifier',
-		routing: { request: { body: { recureind: '={{ $value }}' } } },
 	},
 	{
 		displayName: 'Status (Path)',
@@ -249,10 +257,11 @@ const taskBodyFields: INodeProperties['options'] = [
 		routing: { request: { body: { synchronization_uri: '={{ $value }}' } } },
 	},
 	{
-		displayName: 'Time Budget',
+		displayName: 'Time Budget (Seconds)',
 		name: 'time_budget',
 		type: 'number',
 		default: 0,
+		description: 'Time budget in seconds, e.g. 28800 for 8 hours. Rentman resets it to 0 when Assignment Type is Creator Only.',
 		routing: { request: { body: { time_budget: '={{ $value }}' } } },
 	},
 ];
