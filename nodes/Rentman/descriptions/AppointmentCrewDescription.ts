@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const appointmentCrewOperations: INodeProperties[] = [
 	{
@@ -9,6 +9,16 @@ export const appointmentCrewOperations: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['appointmentCrew'] } },
 		options: [
+			{
+				name: 'Create',
+				value: 'create',
+				action: 'Create an appointment crew entry',
+				description: 'Assign a crew member to an appointment (POST /appointments/{ID}/appointmentcrew)',
+				routing: {
+					request: { method: 'POST' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
+			},
 			{
 				name: 'Delete',
 				value: 'delete',
@@ -65,6 +75,16 @@ export const appointmentCrewOperations: INodeProperties[] = [
 
 export const appointmentCrewFields: INodeProperties[] = [
 	{
+		displayName: 'Appointment ID',
+		name: 'appointmentId',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['appointmentCrew'], operation: ['create'] } },
+		default: '',
+		description: 'The ID of the appointment to assign the crew member to',
+		routing: { request: { url: '=/appointments/{{$value}}/appointmentcrew' } },
+	},
+	{
 		displayName: 'Appointment Crew ID',
 		name: 'appointmentCrewId',
 		type: 'string',
@@ -84,13 +104,7 @@ export const appointmentCrewFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -184,22 +198,15 @@ export const appointmentCrewFields: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: 'Update Fields',
-		name: 'updateFields',
-		type: 'collection',
-		placeholder: 'Add Field',
-		displayOptions: { show: { resource: ['appointmentCrew'], operation: ['update'] } },
-		default: {},
-		options: [
-			{
-				displayName: 'Remark',
-				name: 'remark',
-				type: 'string',
-				typeOptions: { rows: 3 },
-				default: '',
-				routing: { request: { body: { remark: '={{ $value }}' } } },
-			},
-		],
+		displayName: 'Crew Member (Path)',
+		name: 'crew',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['appointmentCrew'], operation: ['create', 'update'] } },
+		default: '',
+		placeholder: '/crew/42',
+		description: 'Crew member assigned to the appointment. Rentman requires it on create and on every update.',
+		routing: { request: { body: { crew: '={{ $value }}' } } },
 	},
 	customQueryParamsField('appointmentCrew'),
 ];

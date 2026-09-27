@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 // ─── LEAVE MUTATION ───────────────────────────────────────────────────────────
 
@@ -67,13 +67,7 @@ export const leaveMutationFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -217,12 +211,12 @@ export const leaveMutationFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
-				displayName: 'Remark',
+				displayName: 'Description',
 				name: 'remark',
 				type: 'string',
 				typeOptions: { rows: 3 },
 				default: '',
-				routing: { request: { body: { remark: '={{ $value }}' } } },
+				routing: { request: { body: { description: '={{ $value }}' } } },
 			},
 		],
 	},
@@ -304,13 +298,7 @@ export const leaveRequestFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -350,6 +338,7 @@ export const leaveRequestFields: INodeProperties[] = [
 			{ name: 'Pending', value: 'pending' },
 			{ name: 'Approved', value: 'approved' },
 			{ name: 'Rejected', value: 'rejected' },
+			{ name: 'Canceled', value: 'canceled' },
 			],
 			default: 'pending',
 			description: 'Filter by approval status',
@@ -428,6 +417,22 @@ export const leaveRequestFields: INodeProperties[] = [
 		routing: { request: { body: { requested_for: '={{ $value }}' } } },
 	},
 	{
+		displayName: 'Approval Status',
+		name: 'approval_status',
+		type: 'options',
+		required: true,
+		displayOptions: { show: { resource: ['leaveRequest'], operation: ['create'] } },
+		options: [
+			{ name: 'Pending', value: 'pending' },
+			{ name: 'Approved', value: 'approved' },
+			{ name: 'Rejected', value: 'rejected' },
+			{ name: 'Canceled', value: 'canceled' },
+		],
+		default: 'pending',
+		description: 'Approval status of the new leave request. Rentman fails to save a request without one.',
+		routing: { request: { body: { approval_status: '={{ $value }}' } } },
+	},
+	{
 		displayName: 'Additional Fields',
 		name: 'additionalFields',
 		type: 'collection',
@@ -442,6 +447,21 @@ export const leaveRequestFields: INodeProperties[] = [
 				typeOptions: { rows: 3 },
 				default: '',
 				routing: { request: { body: { description: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Reviewed On',
+				name: 'reviewed_on',
+				type: 'dateTime',
+				default: '',
+				routing: { request: { body: { reviewed_on: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Reviewer (Path)',
+				name: 'reviewer',
+				type: 'string',
+				default: '',
+				placeholder: '/crew/0',
+				routing: { request: { body: { reviewer: '={{ $value }}' } } },
 			},
 		],
 	},
@@ -472,9 +492,10 @@ export const leaveRequestFields: INodeProperties[] = [
 					{ name: 'Pending', value: 'pending' },
 					{ name: 'Approved', value: 'approved' },
 					{ name: 'Rejected', value: 'rejected' },
+					{ name: 'Canceled', value: 'canceled' },
 				],
 				default: 'pending',
-				description: 'Approval status of the leave request',
+				description: 'Approval status of the leave request. Rentman can only approve or reject a request that has hours; add them with Time Registration → Create For Leave Request.',
 				routing: { request: { body: { approval_status: '={{ $value }}' } } },
 			},
 			{
@@ -484,6 +505,21 @@ export const leaveRequestFields: INodeProperties[] = [
 				typeOptions: { rows: 3 },
 				default: '',
 				routing: { request: { body: { description: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Reviewed On',
+				name: 'reviewed_on',
+				type: 'dateTime',
+				default: '',
+				routing: { request: { body: { reviewed_on: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Reviewer (Path)',
+				name: 'reviewer',
+				type: 'string',
+				default: '',
+				placeholder: '/crew/0',
+				routing: { request: { body: { reviewer: '={{ $value }}' } } },
 			},
 		],
 	},

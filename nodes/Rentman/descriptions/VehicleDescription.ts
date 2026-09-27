@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'data' } }];
 
@@ -92,6 +92,14 @@ const vehicleBodyFields: INodeProperties['options'] = [
 		placeholder: '/rates/0',
 		description: 'Resource path of the cost rate',
 		routing: { request: { body: { cost_rate: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Custom Fields',
+		name: 'custom',
+		type: 'json',
+		default: '{}',
+		description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
+		routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
 	},
 	{
 		displayName: 'Folder (Path)',
@@ -236,13 +244,7 @@ export const vehicleFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -329,13 +331,24 @@ export const vehicleFields: INodeProperties[] = [
 	customQueryParamsField('vehicle'),
 	// Create body fields
 	{
+		displayName: 'Cost Rate (Path)',
+		name: 'costRate',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['vehicle'], operation: ['create', 'createForStockLocation'] } },
+		default: '',
+		placeholder: '/rates/1',
+		description: 'Resource path of the cost rate. Rentman rejects a vehicle without one (HTTP 500).',
+		routing: { request: { body: { cost_rate: '={{ $value }}' } } },
+	},
+	{
 		displayName: 'Additional Fields',
 		name: 'additionalFields',
 		type: 'collection',
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['vehicle'], operation: ['create', 'createForStockLocation'] } },
 		default: {},
-		options: vehicleBodyFields,
+		options: vehicleBodyFields.filter((field) => field.name !== 'cost_rate'),
 	},
 	// Update body fields
 	{

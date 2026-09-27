@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const costOperations: INodeProperties[] = [
 	{
@@ -9,6 +9,16 @@ export const costOperations: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['cost'] } },
 		options: [
+			{
+				name: 'Create',
+				value: 'create',
+				action: 'Create a cost',
+				description: 'Create a cost item in a project (POST /projects/{ID}/costs)',
+				routing: {
+					request: { method: 'POST' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
+			},
 			{
 				name: 'Delete',
 				value: 'delete',
@@ -63,7 +73,104 @@ export const costOperations: INodeProperties[] = [
 	},
 ];
 
+const costBodyFields: INodeProperties['options'] = [
+	{
+		displayName: 'Custom Fields',
+		name: 'custom',
+		type: 'json',
+		default: '{}',
+		description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
+		routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
+	},
+	{
+		displayName: 'Discount',
+		name: 'discount',
+		type: 'number',
+		default: 0,
+		routing: { request: { body: { discount: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Ledger (Path)',
+		name: 'ledger',
+		type: 'string',
+		default: '',
+		placeholder: '/ledgercodes/0',
+		routing: { request: { body: { ledger: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Ledger Debit (Path)',
+		name: 'ledger_debit',
+		type: 'string',
+		default: '',
+		placeholder: '/ledgercodes/0',
+		description: 'Resource path of a debit ledger code (one with is_debit); Rentman rejects credit ledger codes here',
+		routing: { request: { body: { ledger_debit: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Name',
+		name: 'name',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { name: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Purchase Price',
+		name: 'purchase_price',
+		type: 'number',
+		default: 0,
+		routing: { request: { body: { purchase_price: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Quantity',
+		name: 'quantity',
+		type: 'number',
+		default: 0,
+		routing: { request: { body: { quantity: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Remark',
+		name: 'remark',
+		type: 'string',
+		typeOptions: { rows: 3 },
+		default: '',
+		routing: { request: { body: { remark: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Sale Price',
+		name: 'sale_price',
+		type: 'number',
+		default: 0,
+		routing: { request: { body: { sale_price: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Tax Class (Path)',
+		name: 'taxclass',
+		type: 'string',
+		default: '',
+		placeholder: '/taxclasses/0',
+		description: 'This class, in combination with the chosen VAT scheme at project level, determines the final VAT rate',
+		routing: { request: { body: { taxclass: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Template',
+		name: 'is_template',
+		type: 'boolean',
+		default: false,
+		routing: { request: { body: { is_template: '={{ $value }}' } } },
+	},
+];
+
 export const costFields: INodeProperties[] = [
+	{
+		displayName: 'Project ID',
+		name: 'projectId',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['cost'], operation: ['create'] } },
+		default: '',
+		description: 'The ID of the project to add the cost to',
+		routing: { request: { url: '=/projects/{{$value}}/costs' } },
+	},
 	{
 		displayName: 'Cost ID',
 		name: 'costId',
@@ -84,13 +191,7 @@ export const costFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -179,11 +280,20 @@ export const costFields: INodeProperties[] = [
 		name: 'subproject',
 		type: 'string',
 		required: true,
-		displayOptions: { show: { resource: ['cost'], operation: ['update'] } },
+		displayOptions: { show: { resource: ['cost'], operation: ['create', 'update'] } },
 		default: '',
 		placeholder: '/subprojects/155',
-		description: 'Resource path of the subproject (required by the API for updates)',
+		description: 'Resource path of the subproject the cost belongs to (required by the API on create and update)',
 		routing: { request: { body: { subproject: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: { show: { resource: ['cost'], operation: ['create'] } },
+		default: {},
+		options: costBodyFields,
 	},
 	{
 		displayName: 'Update Fields',
@@ -192,23 +302,7 @@ export const costFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['cost'], operation: ['update'] } },
 		default: {},
-		options: [
-			{
-				displayName: 'Name',
-				name: 'name',
-				type: 'string',
-				default: '',
-				routing: { request: { body: { name: '={{ $value }}' } } },
-			},
-			{
-				displayName: 'Remark',
-				name: 'remark',
-				type: 'string',
-				typeOptions: { rows: 3 },
-				default: '',
-				routing: { request: { body: { remark: '={{ $value }}' } } },
-			},
-		],
+		options: costBodyFields,
 	},
 	customQueryParamsField('cost'),
 ];

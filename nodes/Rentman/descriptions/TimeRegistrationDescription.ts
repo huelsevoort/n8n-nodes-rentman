@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const timeRegistrationOperations: INodeProperties[] = [
 	{
@@ -7,11 +7,7 @@ export const timeRegistrationOperations: INodeProperties[] = [
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
-		displayOptions: {
-			show: {
-				resource: ['timeRegistration'],
-			},
-		},
+		displayOptions: { show: { resource: ['timeRegistration'] } },
 		options: [
 			{
 				name: 'Create',
@@ -31,6 +27,16 @@ export const timeRegistrationOperations: INodeProperties[] = [
 							},
 						],
 					},
+				},
+			},
+			{
+				name: 'Create For Leave Request',
+				value: 'createForLeaveRequest',
+				action: 'Create a time registration for a leave request',
+				description: 'Add the hours of a leave request (POST /leaverequest/{ID}/timeregistration). Rentman can only approve or reject a leave request that has hours.',
+				routing: {
+					request: { method: 'POST' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
 				},
 			},
 			{
@@ -157,15 +163,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 				paginate: true,
 			},
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: {
-							url: '={{ $response.body?.next_page_url ?? $request.url }}',
-						},
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -320,11 +318,11 @@ export const timeRegistrationFields: INodeProperties[] = [
 				name: 'status',
 				type: 'options',
 				options: [
-					{ name: 'Open', value: 'open' },
+					{ name: 'Pending', value: 'pending' },
 					{ name: 'Approved', value: 'approved' },
 					{ name: 'Rejected', value: 'rejected' },
 				],
-				default: 'open',
+				default: 'pending',
 				description: 'Filter by approval status',
 				routing: {
 					request: {
@@ -339,6 +337,16 @@ export const timeRegistrationFields: INodeProperties[] = [
 
 	// ─── CREATE ───────────────────────────────────────────────────────────────
 	{
+		displayName: 'Leave Request ID',
+		name: 'leaveRequestId',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['timeRegistration'], operation: ['createForLeaveRequest'] } },
+		default: '',
+		description: 'The ID of the leave request the hours belong to',
+		routing: { request: { url: '=/leaverequest/{{$value}}/timeregistration' } },
+	},
+	{
 		displayName: 'Crew Member (Path)',
 		name: 'crewmember',
 		type: 'string',
@@ -346,7 +354,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['timeRegistration'],
-				operation: ['create'],
+				operation: ['create', 'createForLeaveRequest'],
 			},
 		},
 		default: '',
@@ -368,7 +376,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['timeRegistration'],
-				operation: ['create'],
+				operation: ['create', 'createForLeaveRequest'],
 			},
 		},
 		default: '',
@@ -389,7 +397,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['timeRegistration'],
-				operation: ['create'],
+				operation: ['create', 'createForLeaveRequest'],
 			},
 		},
 		default: '',
@@ -410,17 +418,17 @@ export const timeRegistrationFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['timeRegistration'],
-				operation: ['create'],
+				operation: ['create', 'createForLeaveRequest'],
 			},
 		},
 		default: {},
 		options: [
 			{
-				displayName: 'Break Duration (Minutes)',
+				displayName: 'Break Duration (Seconds)',
 				name: 'break_duration',
 				type: 'number',
 				default: 0,
-				description: 'Break duration in minutes',
+				description: 'Break duration in seconds, e.g. 1800 for 30 minutes',
 				routing: {
 					request: {
 						body: {
@@ -428,6 +436,22 @@ export const timeRegistrationFields: INodeProperties[] = [
 						},
 					},
 				},
+			},
+			{
+				displayName: 'Correction Duration (Seconds)',
+				name: 'correction_duration',
+				type: 'number',
+				default: 0,
+				description: 'Correction in seconds. Rentman stores it only for registrations with a correction leave type and sets it to 0 for other types.',
+				routing: { request: { body: { correction_duration: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Custom Fields',
+				name: 'custom',
+				type: 'json',
+				default: '{}',
+				description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
+				routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
 			},
 			{
 				displayName: 'Distance (Km)',
@@ -444,12 +468,20 @@ export const timeRegistrationFields: INodeProperties[] = [
 				},
 			},
 			{
+				displayName: 'Duration (Seconds)',
+				name: 'duration',
+				type: 'number',
+				default: 0,
+				description: 'Duration in seconds. Rentman calculates it from start and end for worked hours; for leave that affects an hour balance it is the time deducted from the balance.',
+				routing: { request: { body: { duration: '={{ $value }}' } } },
+			},
+			{
 				displayName: 'Leave Type (Path)',
 				name: 'leavetype',
 				type: 'string',
 				default: '',
 				placeholder: '/leavetypes/1',
-				description: 'Resource path of the leave type if applicable',
+				description: 'Resource path of the leave type, e.g. the "Worked" type for worked hours. Rentman rejects a time registration without a leave type with an HTTP 500 error.',
 				routing: {
 					request: {
 						body: {
@@ -457,6 +489,13 @@ export const timeRegistrationFields: INodeProperties[] = [
 						},
 					},
 				},
+			},
+			{
+				displayName: 'Lunch Included',
+				name: 'is_lunch_included',
+				type: 'boolean',
+				default: false,
+				routing: { request: { body: { is_lunch_included: '={{ $value }}' } } },
 			},
 			{
 				displayName: 'Remark',
@@ -473,6 +512,13 @@ export const timeRegistrationFields: INodeProperties[] = [
 						},
 					},
 				},
+			},
+			{
+				displayName: 'Travel Time (Seconds)',
+				name: 'travel_time',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { travel_time: '={{ $value }}' } } },
 			},
 		],
 	},
@@ -492,7 +538,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
-				displayName: 'Break Duration (Minutes)',
+				displayName: 'Break Duration (Seconds)',
 				name: 'break_duration',
 				type: 'number',
 				default: 0,
@@ -503,6 +549,30 @@ export const timeRegistrationFields: INodeProperties[] = [
 						},
 					},
 				},
+			},
+			{
+				displayName: 'Correction Duration (Seconds)',
+				name: 'correction_duration',
+				type: 'number',
+				default: 0,
+				description: 'Correction in seconds. Rentman stores it only for registrations with a correction leave type and sets it to 0 for other types.',
+				routing: { request: { body: { correction_duration: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Crew Member (Path)',
+				name: 'crewmember',
+				type: 'string',
+				default: '',
+				placeholder: '/crew/0',
+				routing: { request: { body: { crewmember: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Custom Fields',
+				name: 'custom',
+				type: 'json',
+				default: '{}',
+				description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
+				routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
 			},
 			{
 				displayName: 'Distance (Km)',
@@ -518,6 +588,14 @@ export const timeRegistrationFields: INodeProperties[] = [
 				},
 			},
 			{
+				displayName: 'Duration (Seconds)',
+				name: 'duration',
+				type: 'number',
+				default: 0,
+				description: 'Duration in seconds. Rentman calculates it from start and end for worked hours; for leave that affects an hour balance it is the time deducted from the balance.',
+				routing: { request: { body: { duration: '={{ $value }}' } } },
+			},
+			{
 				displayName: 'End Date/Time',
 				name: 'end',
 				type: 'dateTime',
@@ -529,6 +607,22 @@ export const timeRegistrationFields: INodeProperties[] = [
 						},
 					},
 				},
+			},
+			{
+				displayName: 'Leave Type (Path)',
+				name: 'leavetype',
+				type: 'string',
+				default: '',
+				placeholder: '/leavetypes/1',
+				description: 'Resource path of the leave type, e.g. the "Worked" type for worked hours',
+				routing: { request: { body: { leavetype: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Lunch Included',
+				name: 'is_lunch_included',
+				type: 'boolean',
+				default: false,
+				routing: { request: { body: { is_lunch_included: '={{ $value }}' } } },
 			},
 			{
 				displayName: 'Remark',
@@ -560,22 +654,11 @@ export const timeRegistrationFields: INodeProperties[] = [
 				},
 			},
 			{
-				displayName: 'Status',
-				name: 'status',
-				type: 'options',
-				options: [
-					{ name: 'Open', value: 'open' },
-					{ name: 'Approved', value: 'approved' },
-					{ name: 'Rejected', value: 'rejected' },
-				],
-				default: 'open',
-				routing: {
-					request: {
-						body: {
-							status: '={{ $value }}',
-						},
-					},
-				},
+				displayName: 'Travel Time (Seconds)',
+				name: 'travel_time',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { travel_time: '={{ $value }}' } } },
 			},
 		],
 	},

@@ -16,7 +16,7 @@
  * (operations Get For Parent / Create For Parent with Parent Resource = Purchase Order).
  */
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination, withOwnFiltersOnly } from './shared';
 
 const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'data' } }];
 
@@ -148,7 +148,7 @@ const purchaseOrderIdField = (op: string, suffix: string): INodeProperties => ({
 	routing: { request: { url: `=/purchaseorders/{{$value}}${suffix}` } },
 });
 
-export const purchaseOrderFields: INodeProperties[] = [
+export const purchaseOrderFields: INodeProperties[] = withOwnFiltersOnly([
 	purchaseOrderIdField('get', ''),
 	purchaseOrderIdField('getFiles', '/files'),
 	purchaseOrderIdField('getFileFolders', '/file_folders'),
@@ -170,13 +170,7 @@ export const purchaseOrderFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -255,7 +249,7 @@ export const purchaseOrderFields: INodeProperties[] = [
 		],
 	},
 	customQueryParamsField('purchaseOrder'),
-];
+], ['getAll'], ['approval_status', 'supplier']);
 
 // ─── PURCHASE ORDER COST (read-only) ─────────────────────────────────────────
 
@@ -307,13 +301,7 @@ export const purchaseOrderCostFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -409,13 +397,7 @@ export const purchaseOrderGlobalCostFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -511,13 +493,7 @@ export const extraInputFieldFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},

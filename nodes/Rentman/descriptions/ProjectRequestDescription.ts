@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 // ─── PROJECT REQUESTS ─────────────────────────────────────────────────────────
 
@@ -75,6 +75,215 @@ export const projectRequestOperations: INodeProperties[] = [
 	},
 ];
 
+const projectRequestBodyFields: INodeProperties['options'] = [
+	{
+		displayName: 'Contact City',
+		name: 'contact_mailing_city',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { contact_mailing_city: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Contact Country',
+		name: 'contact_mailing_country',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { contact_mailing_country: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Contact House Number',
+		name: 'contact_mailing_number',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { contact_mailing_number: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Contact Name',
+		name: 'contact_name',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { contact_name: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Contact Person Email',
+		name: 'contact_person_email',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { contact_person_email: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Contact Person First Name',
+		name: 'contact_person_first_name',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { contact_person_first_name: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Contact Person Last Name',
+		name: 'contact_person_lastname',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { contact_person_lastname: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Contact Person Middle Name',
+		name: 'contact_person_middle_name',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { contact_person_middle_name: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Contact Phone',
+		name: 'contact_phone',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { contact_phone: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Contact Postal Code',
+		name: 'contact_mailing_postalcode',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { contact_mailing_postalcode: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Contact Street',
+		name: 'contact_mailing_street',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { contact_mailing_street: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Delivery (Out)',
+		name: 'out',
+		type: 'dateTime',
+		default: '',
+		routing: { request: { body: { out: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'External Reference',
+		name: 'external_reference',
+		type: 'number',
+		default: 0,
+		routing: { request: { body: { external_reference: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Language',
+		name: 'language',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { language: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Linked Contact (Path)',
+		name: 'customer',
+		type: 'string',
+		default: '',
+		placeholder: '/contacts/42',
+		description: 'Resource path of the contact this request belongs to, e.g. /contacts/42',
+		routing: { request: { body: { linked_contact: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Location City',
+		name: 'location_mailing_city',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { location_mailing_city: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Location Country',
+		name: 'location_mailing_country',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { location_mailing_country: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Location House Number',
+		name: 'location_mailing_number',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { location_mailing_number: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Location Name',
+		name: 'location_name',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { location_name: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Location Phone',
+		name: 'location_phone',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { location_phone: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Location Postal Code',
+		name: 'location_mailing_postalcode',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { location_mailing_postalcode: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Location Street',
+		name: 'location_mailing_street',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { location_mailing_street: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Name',
+		name: 'name',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { name: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Paid',
+		name: 'is_paid',
+		type: 'boolean',
+		default: false,
+		routing: { request: { body: { is_paid: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Price',
+		name: 'price',
+		type: 'number',
+		default: 0,
+		routing: { request: { body: { price: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Remark',
+		name: 'remark',
+		type: 'string',
+		typeOptions: { rows: 3 },
+		default: '',
+		routing: { request: { body: { remark: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Return (In)',
+		name: 'in',
+		type: 'dateTime',
+		default: '',
+		routing: { request: { body: { in: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Usage Period End',
+		name: 'usageperiod_end',
+		type: 'dateTime',
+		default: '',
+		routing: { request: { body: { usageperiod_end: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Usage Period Start',
+		name: 'usageperiod_start',
+		type: 'dateTime',
+		default: '',
+		routing: { request: { body: { usageperiod_start: '={{ $value }}' } } },
+	},
+];
+
 export const projectRequestFields: INodeProperties[] = [
 	{
 		displayName: 'Project Request ID',
@@ -96,13 +305,7 @@ export const projectRequestFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -203,34 +406,16 @@ export const projectRequestFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['projectRequest'], operation: ['create'] } },
 		default: {},
-		options: [
-			{
-				displayName: 'Customer (Path)',
-				name: 'customer',
-				type: 'string',
-				default: '',
-				placeholder: '/contacts/42',
-				description: 'Resource path of the customer contact, e.g. /contacts/42',
-				routing: { request: { body: { customer: '={{ $value }}' } } },
-			},
-			{
-				displayName: 'Remark',
-				name: 'remark',
-				type: 'string',
-				typeOptions: { rows: 3 },
-				default: '',
-				routing: { request: { body: { remark: '={{ $value }}' } } },
-			},
-		],
+		options: projectRequestBodyFields.filter((field) => field.name !== 'name'),
 	},
 	{
 		displayName: 'Plan Period Start',
 		name: 'planperiod_start',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['projectRequest'], operation: ['update'] } },
+		displayOptions: { show: { resource: ['projectRequest'], operation: ['create', 'update'] } },
 		default: '',
-		description: 'Start of the planning period (required by the API for updates)',
+		description: 'Start of the planning period (required by the API)',
 		routing: { request: { body: { planperiod_start: '={{ $value }}' } } },
 	},
 	{
@@ -238,9 +423,9 @@ export const projectRequestFields: INodeProperties[] = [
 		name: 'planperiod_end',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['projectRequest'], operation: ['update'] } },
+		displayOptions: { show: { resource: ['projectRequest'], operation: ['create', 'update'] } },
 		default: '',
-		description: 'End of the planning period (required by the API for updates)',
+		description: 'End of the planning period (required by the API)',
 		routing: { request: { body: { planperiod_end: '={{ $value }}' } } },
 	},
 	{
@@ -250,23 +435,7 @@ export const projectRequestFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['projectRequest'], operation: ['update'] } },
 		default: {},
-		options: [
-			{
-				displayName: 'Name',
-				name: 'name',
-				type: 'string',
-				default: '',
-				routing: { request: { body: { name: '={{ $value }}' } } },
-			},
-			{
-				displayName: 'Remark',
-				name: 'remark',
-				type: 'string',
-				typeOptions: { rows: 3 },
-				default: '',
-				routing: { request: { body: { remark: '={{ $value }}' } } },
-			},
-		],
+		options: projectRequestBodyFields,
 	},
 ];
 
@@ -280,6 +449,16 @@ export const projectRequestEquipmentOperations: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['projectRequestEquipment'] } },
 		options: [
+			{
+				name: 'Create',
+				value: 'create',
+				action: 'Create a project request equipment entry',
+				description: 'Add an equipment line to a project request (POST /projectrequests/{ID}/projectrequestequipment)',
+				routing: {
+					request: { method: 'POST' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
+			},
 			{
 				name: 'Delete',
 				value: 'delete',
@@ -334,7 +513,108 @@ export const projectRequestEquipmentOperations: INodeProperties[] = [
 	},
 ];
 
+const projectRequestEquipmentBodyFields: INodeProperties['options'] = [
+	{
+		displayName: 'Comment',
+		name: 'is_comment',
+		type: 'boolean',
+		default: false,
+		routing: { request: { body: { is_comment: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Discount',
+		name: 'discount',
+		type: 'number',
+		default: 0,
+		routing: { request: { body: { discount: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'External Remark',
+		name: 'remark',
+		type: 'string',
+		typeOptions: { rows: 3 },
+		default: '',
+		routing: { request: { body: { external_remark: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Factor',
+		name: 'factor',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { factor: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Kit',
+		name: 'is_kit',
+		type: 'boolean',
+		default: false,
+		routing: { request: { body: { is_kit: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Linked Equipment (Path)',
+		name: 'linked_equipment',
+		type: 'string',
+		default: '',
+		placeholder: '/equipment/0',
+		routing: { request: { body: { linked_equipment: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Name',
+		name: 'name',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { name: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Order',
+		name: 'order',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { order: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Parent (Path)',
+		name: 'parent',
+		type: 'string',
+		default: '',
+		placeholder: '/projectrequestequipment/0',
+		description: 'The combination it is part of',
+		routing: { request: { body: { parent: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Quantity',
+		name: 'quantity',
+		type: 'number',
+		default: 1,
+		routing: { request: { body: { quantity: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Quantity Total',
+		name: 'quantity_total',
+		type: 'number',
+		default: 0,
+		routing: { request: { body: { quantity_total: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Unit Price',
+		name: 'unit_price',
+		type: 'number',
+		default: 0,
+		routing: { request: { body: { unit_price: '={{ $value }}' } } },
+	},
+];
+
 export const projectRequestEquipmentFields: INodeProperties[] = [
+	{
+		displayName: 'Project Request ID',
+		name: 'projectRequestId',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['projectRequestEquipment'], operation: ['create'] } },
+		default: '',
+		description: 'The ID of the project request to add the equipment line to',
+		routing: { request: { url: '=/projectrequests/{{$value}}/projectrequestequipment' } },
+	},
 	{
 		displayName: 'Project Request Equipment ID',
 		name: 'projectRequestEquipmentId',
@@ -355,13 +635,7 @@ export const projectRequestEquipmentFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -441,7 +715,7 @@ export const projectRequestEquipmentFields: INodeProperties[] = [
 			default: '',
 			placeholder: '/projectrequests/42',
 			description: 'Filter by project request resource path',
-			routing: { request: { qs: { projectrequest: '={{ $value }}' } } },
+			routing: { request: { qs: { project_request: '={{ $value }}' } } },
 			},
 			{
 			displayName: 'Sort',
@@ -455,29 +729,22 @@ export const projectRequestEquipmentFields: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: { show: { resource: ['projectRequestEquipment'], operation: ['create'] } },
+		default: {},
+		options: projectRequestEquipmentBodyFields,
+	},
+	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
 		type: 'collection',
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['projectRequestEquipment'], operation: ['update'] } },
 		default: {},
-		options: [
-			{
-				displayName: 'Quantity',
-				name: 'quantity',
-				type: 'number',
-				default: 1,
-				routing: { request: { body: { quantity: '={{ $value }}' } } },
-			},
-			{
-				displayName: 'Remark',
-				name: 'remark',
-				type: 'string',
-				typeOptions: { rows: 3 },
-				default: '',
-				routing: { request: { body: { remark: '={{ $value }}' } } },
-			},
-		],
+		options: projectRequestEquipmentBodyFields,
 	},
 	customQueryParamsField('projectRequest'),
 	customQueryParamsField('projectRequestEquipment'),

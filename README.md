@@ -66,64 +66,64 @@ npm install n8n-nodes-rentman
 
 ## Supported Resources
 
-63 resources covering the full Rentman API. Resources marked **✏️** support write operations.
+65 resources covering the full Rentman API v1.16.0: every one of its 314 operations, and every writable field except three that have no effect: Task Public (Rentman rejects every value), Crew Availability Last Updated/Last Updater and Stock Movement API Client (Rentman sets them itself). Resources marked **✏️** support write operations. **Get For Parent** lists the records of a parent through Rentman's sub-collection endpoints (e.g. the crew of a project or the payments of an invoice).
 
 | Category | Resource | Operations |
 |---|---|---|
 | **Contacts** | Contact ✏️ | Create, Delete, Get, Get Collection, Update |
-| | Contact Person ✏️ | Delete, Get, Get Collection, Update |
+| | Contact Person ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
 | **Projects** | Project ✏️ | Create, Get, Get Collection |
-| | Subproject | Get, Get Collection |
-| | Contract | Get, Get Collection |
-| | Quote | Get, Get Collection |
-| | Project Crew | Get, Get Collection |
-| | Project Equipment | Get, Get Collection |
-| | Project Equipment Group | Get, Get Collection |
-| | Project Function | Get, Get Collection |
-| | Project Function Group | Get, Get Collection |
+| | Subproject ✏️ | Create, Get, Get Collection, Get For Parent |
+| | Contract | Get, Get Collection, Get For Parent |
+| | Quote | Get, Get Collection, Get For Parent |
+| | Project Crew | Get, Get Collection, Get For Parent |
+| | Project Equipment | Get, Get Collection, Get For Parent |
+| | Project Equipment Group | Get, Get Collection, Get For Parent |
+| | Project Function ✏️ | Create, Get, Get Collection, Get For Parent |
+| | Project Function Group ✏️ | Create, Get, Get Collection, Get For Parent |
 | | Project Request ✏️ | Create, Delete, Get, Get Collection, Update |
-| | Project Request Equipment ✏️ | Delete, Get, Get Collection, Update |
+| | Project Request Equipment ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
 | | Project Type | Get, Get Collection |
-| | Project Vehicle | Get, Get Collection |
+| | Project Vehicle | Get, Get Collection, Get For Parent |
 | **Crew & HR** | Crew | Get, Get Collection |
-| | Crew Availability ✏️ | Create, Delete, Get, Get Collection, Update |
-| | Crew Rate | Get, Get Collection |
-| | Appointment ✏️ | Create, Delete, Get, Get Collection, Update |
-| | Appointment Crew ✏️ | Delete, Get, Get Collection, Update |
-| | Invitation | Get, Get Collection |
+| | Crew Availability ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
+| | Crew Rate | Get, Get Collection, Get For Parent |
+| | Appointment ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
+| | Appointment Crew ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
+| | Invitation | Get, Get Collection, Get For Parent |
 | | Leave Mutation ✏️ | Create, Get, Get Collection |
 | | Leave Request ✏️ | Create, Get, Get Collection, Update |
 | | Leave Type | Get, Get Collection |
-| | Time Registration ✏️ | Create, Delete, Get, Get Collection, Update |
-| | Time Registration Activity | Get, Get Collection |
+| | Time Registration ✏️ | Create, Create For Leave Request, Delete, Get, Get Collection, Get For Parent, Update |
+| | Time Registration Activity | Get, Get Collection, Get For Parent |
 | **Equipment & Stock** | Equipment ✏️ | Create, Get, Get Collection, Update |
-| | Accessory ✏️ | Create, Delete, Get, Get Collection, Update |
-| | Actual Content | Get, Get Collection |
+| | Accessory ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
+| | Actual Content | Get, Get Collection, Get For Parent |
 | | Alternative ✏️ | Create, Delete, Get, Get Collection, Get For Equipment, Update |
-| | Equipment Assigned Serial | Get, Get Collection |
-| | Equipment Sets Content ✏️ | Create, Delete, Get, Get Collection, Update |
-| | Repair | Get, Get Collection |
-| | Serial Number ✏️ | Create, Delete, Get, Get Collection, Update |
+| | Equipment Assigned Serial | Get, Get Collection, Get For Parent |
+| | Equipment Sets Content ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
+| | Repair | Get, Get Collection, Get For Parent |
+| | Serial Number ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
 | | Stock Location | Get, Get Collection |
-| | Stock Movement ✏️ | Delete, Get, Get Collection, Update |
-| | Supplier ✏️ | Create, Delete, Get, Get Collection, Get For Equipment, Get File Folders, Get Files, Update |
+| | Stock Movement ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
+| | Supplier ✏️ | Create, Delete, Get, Get Collection, Get File Folders, Get Files, Get For Equipment, Update |
 | **Financial** | Invoice | Get, Get Collection |
-| | Invoice Line | Get, Get Collection |
-| | Payment ✏️ | Get, Get Collection, Update |
-| | Cost ✏️ | Delete, Get, Get Collection, Update |
+| | Invoice Line | Get, Get Collection, Get For Parent |
+| | Payment ✏️ | Create, Get, Get Collection, Get For Parent, Update |
+| | Cost ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
 | | Purchase Order | Get, Get Collection, Get File Folders, Get Files, Get Global Costs, Get Invoice Lines, Get Order Costs |
 | | Purchase Order Cost | Get, Get Collection |
 | | Purchase Order Global Cost | Get, Get Collection |
 | **Sub-Rentals** | Sub Rental | Get, Get Collection |
-| | Sub Rental Equipment | Get, Get Collection |
-| | Sub Rental Equipment Group | Get, Get Collection |
-| **Files & Folders** | File | Get, Get Collection |
-| | File Folder | Get, Get Collection |
+| | Sub Rental Equipment | Get, Get Collection, Get For Parent |
+| | Sub Rental Equipment Group | Get, Get Collection, Get For Parent |
+| **Files & Folders** | File | Get, Get Collection, Get For Parent |
+| | File Folder | Get, Get Collection, Get For Parent |
 | | Folder ✏️ | Create, Get, Get Collection, Update |
-| **Rates & Pricing** | Factor | Get, Get Collection |
+| **Rates & Pricing** | Factor | Get, Get Collection, Get For Parent |
 | | Factor Group | Get, Get Collection |
 | | Rate | Get, Get Collection |
-| | Rate Factor | Get, Get Collection |
+| | Rate Factor | Get, Get Collection, Get For Parent |
 | | Tax Class | Get, Get Collection |
 | | Ledger Code | Get, Get Collection |
 | **Tasks** | Task ✏️ | Create, Create For Parent, Create Subtask, Create Task Assignment, Delete, Get, Get Collection, Get File Folders, Get Files, Get For Parent, Get Subtasks, Get Task Assignments, Update |
@@ -134,7 +134,7 @@ npm install n8n-nodes-rentman
 | | Project Status | Get, Get Collection |
 | | Status | Get, Get Collection |
 | | Warehouse Status | Get, Get Collection |
-| | Vehicle ✏️ | Create, Create For Stock Location, Delete, Get, Get Collection, Update |
+| | Vehicle ✏️ | Create, Create For Stock Location, Delete, Get, Get Collection, Get For Parent, Update |
 
 ---
 

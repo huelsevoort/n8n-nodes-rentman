@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const equipmentOperations: INodeProperties[] = [
 	{
@@ -133,15 +133,7 @@ export const equipmentFields: INodeProperties[] = [
 				paginate: true,
 			},
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: {
-							url: '={{ $response.body?.next_page_url ?? $request.url }}',
-						},
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -270,7 +262,7 @@ export const equipmentFields: INodeProperties[] = [
 			routing: {
 			request: {
 			qs: {
-			in_archive: '={{ $value }}',
+			in_archive: '={{ $value ? 1 : 0 }}',
 			},
 			},
 			},
@@ -284,7 +276,7 @@ export const equipmentFields: INodeProperties[] = [
 			routing: {
 			request: {
 			qs: {
-			in_planner: '={{ $value }}',
+			in_planner: '={{ $value ? 1 : 0 }}',
 			},
 			},
 			},
@@ -352,11 +344,11 @@ export const equipmentFields: INodeProperties[] = [
 			name: 'type',
 			type: 'options',
 			options: [
-			{ name: 'Normal', value: 'normal' },
+			{ name: 'Case', value: 'case' },
+			{ name: 'Item', value: 'item' },
 			{ name: 'Set', value: 'set' },
-			{ name: 'Consumable', value: 'consumable' },
 			],
-			default: 'normal',
+			default: 'item',
 			description: 'Filter by equipment type',
 			routing: {
 			request: {
@@ -383,6 +375,14 @@ export const equipmentFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
+				displayName: 'Can Edit Content During Planning',
+				name: 'can_edit_content_during_planning',
+				type: 'boolean',
+				default: false,
+				description: 'Whether equipment can be added to or removed from this combination, and its quantities changed, during planning. Rentman stores it through the API only for virtual packages (sets).',
+				routing: { request: { body: { can_edit_content_during_planning: '={{ $value }}' } } },
+			},
+			{
 				displayName: 'Code',
 				name: 'code',
 				type: 'string',
@@ -390,11 +390,50 @@ export const equipmentFields: INodeProperties[] = [
 				routing: { request: { body: { code: '={{ $value }}' } } },
 			},
 			{
+				displayName: 'Country of Origin',
+				name: 'country_of_origin',
+				type: 'string',
+				placeholder: 'de',
+				default: '',
+				description: 'Two-letter ISO code (lowercase) of the country where the equipment was manufactured, used e.g. for carnet exports',
+				routing: { request: { body: { country_of_origin: '={{ $value }}' } } },
+			},
+			{
 				displayName: 'Critical Stock Level',
 				name: 'critical_stock_level',
 				type: 'number',
 				default: 0,
 				routing: { request: { body: { critical_stock_level: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Current (Ampere)',
+				name: 'current',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { current: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Custom Fields',
+				name: 'custom',
+				type: 'json',
+				default: '{}',
+				description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
+				routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
+			},
+			{
+				displayName: 'Default Group',
+				name: 'defaultgroup',
+				type: 'string',
+				default: '',
+				description: 'Equipment group the item is placed in automatically when planning',
+				routing: { request: { body: { defaultgroup: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Empty Weight',
+				name: 'empty_weight',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { empty_weight: '={{ $value }}' } } },
 			},
 			{
 				displayName: 'External Remark',
@@ -422,12 +461,26 @@ export const equipmentFields: INodeProperties[] = [
 				routing: { request: { body: { folder: '={{ $value }}' } } },
 			},
 			{
+				displayName: 'Height',
+				name: 'height',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { height: '={{ $value }}' } } },
+			},
+			{
 				displayName: 'Image (Path)',
 				name: 'image',
 				type: 'string',
 				default: '',
 				placeholder: '/files/0',
 				routing: { request: { body: { image: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'In Archive',
+				name: 'in_archive',
+				type: 'boolean',
+				default: false,
+				routing: { request: { body: { in_archive: '={{ $value }}' } } },
 			},
 			{
 				displayName: 'In Planner',
@@ -479,6 +532,22 @@ export const equipmentFields: INodeProperties[] = [
 				routing: { request: { body: { ledger: '={{ $value }}' } } },
 			},
 			{
+				displayName: 'Ledger Debit (Path)',
+				name: 'ledger_debit',
+				type: 'string',
+				default: '',
+				placeholder: '/ledgercodes/0',
+				description: 'Resource path of a debit ledger code (one with is_debit); Rentman rejects credit ledger codes here',
+				routing: { request: { body: { ledger_debit: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Length',
+				name: 'length',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { length: '={{ $value }}' } } },
+			},
+			{
 				displayName: 'List Price',
 				name: 'list_price',
 				type: 'number',
@@ -491,6 +560,20 @@ export const equipmentFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				routing: { request: { body: { name: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Packed Per',
+				name: 'packed_per',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { packed_per: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Power (Watt)',
+				name: 'power',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { power: '={{ $value }}' } } },
 			},
 			{
 				displayName: 'Price',
@@ -512,6 +595,48 @@ export const equipmentFields: INodeProperties[] = [
 				routing: { request: { body: { rental_sales: '={{ $value }}' } } },
 			},
 			{
+				displayName: 'Shop Description Long',
+				name: 'shop_description_long',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { shop_description_long: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Shop Description Short',
+				name: 'shop_description_short',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { shop_description_short: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Shop Featured',
+				name: 'shop_featured',
+				type: 'boolean',
+				default: false,
+				routing: { request: { body: { shop_featured: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Shop SEO Description',
+				name: 'shop_seo_description',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { shop_seo_description: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Shop SEO Keyword',
+				name: 'shop_seo_keyword',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { shop_seo_keyword: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Shop SEO Title',
+				name: 'shop_seo_title',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { shop_seo_title: '={{ $value }}' } } },
+			},
+			{
 				displayName: 'Stock Management',
 				name: 'stock_management',
 				type: 'options',
@@ -531,8 +656,23 @@ export const equipmentFields: INodeProperties[] = [
 					{ name: 'Strict', value: 'Strict' },
 				],
 				default: 'Unrestricted',
-				description: 'Whether a combination can contain actual content that is not part of the default content',
+				description: 'Whether a combination can contain actual content that is not part of the default content. Rentman currently ignores this value when it is sent through the API.',
 				routing: { request: { body: { strict_container_content: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Subrental Costs',
+				name: 'subrental_costs',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { subrental_costs: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Surface Article',
+				name: 'surface_article',
+				type: 'boolean',
+				default: false,
+				description: 'Whether the price is calculated per square meter (width x height), with dimensions entered per project',
+				routing: { request: { body: { surface_article: '={{ $value }}' } } },
 			},
 			{
 				displayName: 'Tax Class (Path)',
@@ -543,15 +683,23 @@ export const equipmentFields: INodeProperties[] = [
 				routing: { request: { body: { taxclass: '={{ $value }}' } } },
 			},
 			{
+				displayName: 'Temporary',
+				name: 'temporary',
+				type: 'boolean',
+				default: false,
+				description: 'Whether the equipment is temporary. Rentman then sets its code to TEMP and hides it from every read (Get answers 404) until Temporary is set back to false.',
+				routing: { request: { body: { temporary: '={{ $value }}' } } },
+			},
+			{
 				displayName: 'Type',
 				name: 'type',
 				type: 'options',
 				options: [
-					{ name: 'Normal', value: 'normal' },
+					{ name: 'Case', value: 'case' },
+					{ name: 'Item', value: 'item' },
 					{ name: 'Set', value: 'set' },
-					{ name: 'Consumable', value: 'consumable' },
 				],
-				default: 'normal',
+				default: 'item',
 				routing: { request: { body: { type: '={{ $value }}' } } },
 			},
 			{
@@ -560,6 +708,27 @@ export const equipmentFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				routing: { request: { body: { unit: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Volume',
+				name: 'volume',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { volume: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Weight',
+				name: 'weight',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { weight: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Width',
+				name: 'width',
+				type: 'number',
+				default: 0,
+				routing: { request: { body: { width: '={{ $value }}' } } },
 			},
 		],
 	},

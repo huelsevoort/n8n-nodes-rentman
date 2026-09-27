@@ -1,5 +1,6 @@
 // ─── SHARED HELPERS ───────────────────────────────────────────────────────────
-export { expandField } from './shared';
+export { expandField, withWriteHooks } from './shared';
+export { withParentListings } from './ParentListing';
 
 // ─── EXISTING RESOURCES ───────────────────────────────────────────────────────
 export { appointmentOperations, appointmentFields } from './AppointmentDescription';

@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const contactPersonOperations: INodeProperties[] = [
 	{
@@ -9,6 +9,16 @@ export const contactPersonOperations: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['contactPerson'] } },
 		options: [
+			{
+				name: 'Create',
+				value: 'create',
+				action: 'Create a contact person',
+				description: 'Create a contact person for a contact (POST /contacts/{ID}/contactpersons)',
+				routing: {
+					request: { method: 'POST' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
+			},
 			{
 				name: 'Delete',
 				value: 'delete',
@@ -63,7 +73,122 @@ export const contactPersonOperations: INodeProperties[] = [
 	},
 ];
 
+const contactPersonBodyFields: INodeProperties['options'] = [
+	{
+		displayName: 'City',
+		name: 'city',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { city: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Country',
+		name: 'country',
+		type: 'string',
+		placeholder: 'de',
+		description: 'Two-letter ISO country code in lowercase',
+		default: '',
+		routing: { request: { body: { country: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Custom Fields',
+		name: 'custom',
+		type: 'json',
+		default: '{}',
+		description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
+		routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
+	},
+	{
+		displayName: 'Email',
+		name: 'email',
+		type: 'string',
+		placeholder: 'name@email.com',
+		default: '',
+		routing: { request: { body: { email: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'First Name',
+		name: 'firstname',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { firstname: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Function',
+		name: 'function',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { function: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'House Number',
+		name: 'number',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { number: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Last Name',
+		name: 'surname',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { lastname: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Middle Name',
+		name: 'middle_name',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { middle_name: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Mobile',
+		name: 'mobile',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { mobilephone: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Phone',
+		name: 'phone',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { phone: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Postal Code',
+		name: 'postalcode',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { postalcode: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'State',
+		name: 'state',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { state: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Street',
+		name: 'street',
+		type: 'string',
+		default: '',
+		routing: { request: { body: { street: '={{ $value }}' } } },
+	},
+	];
+
 export const contactPersonFields: INodeProperties[] = [
+	{
+		displayName: 'Contact ID',
+		name: 'contactId',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['contactPerson'], operation: ['create'] } },
+		default: '',
+		description: 'The ID of the contact to add the person to',
+		routing: { request: { url: '=/contacts/{{$value}}/contactpersons' } },
+	},
 	{
 		displayName: 'Contact Person ID',
 		name: 'contactPersonId',
@@ -84,13 +209,7 @@ export const contactPersonFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -183,58 +302,22 @@ export const contactPersonFields: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: { show: { resource: ['contactPerson'], operation: ['create'] } },
+		default: {},
+		options: contactPersonBodyFields,
+	},
+	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
 		type: 'collection',
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['contactPerson'], operation: ['update'] } },
 		default: {},
-		options: [
-			{
-				displayName: 'Email',
-				name: 'email',
-				type: 'string',
-				placeholder: 'name@email.com',
-				default: '',
-				routing: { request: { body: { email: '={{ $value }}' } } },
-			},
-			{
-				displayName: 'First Name',
-				name: 'firstname',
-				type: 'string',
-				default: '',
-				routing: { request: { body: { firstname: '={{ $value }}' } } },
-			},
-			{
-				displayName: 'Last Name',
-				name: 'surname',
-				type: 'string',
-				default: '',
-				routing: { request: { body: { surname: '={{ $value }}' } } },
-			},
-			{
-				displayName: 'Mobile',
-				name: 'mobile',
-				type: 'string',
-				default: '',
-				routing: { request: { body: { mobile: '={{ $value }}' } } },
-			},
-			{
-				displayName: 'Phone',
-				name: 'phone',
-				type: 'string',
-				default: '',
-				routing: { request: { body: { phone: '={{ $value }}' } } },
-			},
-			{
-				displayName: 'Remark',
-				name: 'remark',
-				type: 'string',
-				typeOptions: { rows: 3 },
-				default: '',
-				routing: { request: { body: { remark: '={{ $value }}' } } },
-			},
-		],
+		options: contactPersonBodyFields,
 	},
 	customQueryParamsField('contactPerson'),
 ];

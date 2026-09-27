@@ -29,6 +29,7 @@ function dummy(p) {
 		case 'options': return p.options[p.options.length - 1].value;
 		case 'dateTime': return '2026-01-02T03:04:05';
 		case 'color': return '#00AA00';
+		case 'json': return '{"custom_1":"t"}';
 		default: return undefined;
 	}
 }

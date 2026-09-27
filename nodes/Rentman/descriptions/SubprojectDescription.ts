@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const subprojectOperations: INodeProperties[] = [
 	{
@@ -7,12 +7,18 @@ export const subprojectOperations: INodeProperties[] = [
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
-		displayOptions: {
-			show: {
-				resource: ['subproject'],
-			},
-		},
+		displayOptions: { show: { resource: ['subproject'] } },
 		options: [
+			{
+				name: 'Create',
+				value: 'create',
+				action: 'Create a subproject',
+				description: 'Create a subproject in a project (POST /projects/{ID}/subprojects)',
+				routing: {
+					request: { method: 'POST' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
+			},
 			{
 				name: 'Get',
 				value: 'get',
@@ -59,6 +65,41 @@ export const subprojectOperations: INodeProperties[] = [
 
 export const subprojectFields: INodeProperties[] = [
 	{
+		displayName: 'Project ID',
+		name: 'projectId',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['subproject'], operation: ['create'] } },
+		default: '',
+		description: 'The ID of the project to add the subproject to',
+		routing: { request: { url: '=/projects/{{$value}}/subprojects' } },
+	},
+	{
+		displayName: 'Additional Fields',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: { show: { resource: ['subproject'], operation: ['create'] } },
+		default: {},
+		options: [
+			{
+				displayName: 'Custom Fields',
+				name: 'custom',
+				type: 'json',
+				default: '{}',
+				description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
+				routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
+			},
+			{
+				displayName: 'Name',
+				name: 'name',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { name: '={{ $value }}' } } },
+			},
+		],
+	},
+	{
 		displayName: 'Subproject ID',
 		name: 'subprojectId',
 		type: 'string',
@@ -94,15 +135,7 @@ export const subprojectFields: INodeProperties[] = [
 				paginate: true,
 			},
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: {
-							url: '={{ $response.body?.next_page_url ?? $request.url }}',
-						},
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},

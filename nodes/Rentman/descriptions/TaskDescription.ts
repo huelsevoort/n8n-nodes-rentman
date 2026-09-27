@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'data' } }];
 
@@ -50,6 +50,14 @@ const taskBodyFields: INodeProperties['options'] = [
 		placeholder: '/crew/0',
 		description: 'Resource path of the crew member who completed the task',
 		routing: { request: { body: { completed_by: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Custom Fields',
+		name: 'custom',
+		type: 'json',
+		default: '{}',
+		description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
+		routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
 	},
 	{
 		displayName: 'Deadline',
@@ -195,15 +203,12 @@ const taskBodyFields: INodeProperties['options'] = [
 		routing: { request: { body: { priority: '={{ $value }}' } } },
 	},
 	{
-		displayName: 'Public',
-		name: 'public',
-		type: 'options',
-		options: [
-			{ name: 'Private', value: 0 },
-			{ name: 'Public', value: 1 },
-		],
-		default: 1,
-		routing: { request: { body: { public: '={{ $value }}' } } },
+		displayName: 'Recurrence End',
+		name: 'recureind',
+		type: 'string',
+		default: '',
+		description: 'Recurrence end identifier',
+		routing: { request: { body: { recureind: '={{ $value }}' } } },
 	},
 	{
 		displayName: 'Recurrence Period',
@@ -229,14 +234,6 @@ const taskBodyFields: INodeProperties['options'] = [
 		routing: { request: { body: { recurhoe: '={{ $value }}' } } },
 	},
 	{
-		displayName: 'Recurrence End',
-		name: 'recureind',
-		type: 'string',
-		default: '',
-		description: 'Recurrence end identifier',
-		routing: { request: { body: { recureind: '={{ $value }}' } } },
-	},
-	{
 		displayName: 'Status (Path)',
 		name: 'status',
 		type: 'string',
@@ -260,10 +257,11 @@ const taskBodyFields: INodeProperties['options'] = [
 		routing: { request: { body: { synchronization_uri: '={{ $value }}' } } },
 	},
 	{
-		displayName: 'Time Budget',
+		displayName: 'Time Budget (Seconds)',
 		name: 'time_budget',
 		type: 'number',
 		default: 0,
+		description: 'Time budget in seconds, e.g. 28800 for 8 hours. Rentman resets it to 0 when Assignment Type is Creator Only.',
 		routing: { request: { body: { time_budget: '={{ $value }}' } } },
 	},
 ];
@@ -506,9 +504,9 @@ export const taskFields: INodeProperties[] = [
 		name: 'color',
 		type: 'color',
 		required: true,
-		displayOptions: { show: { resource: ['task'], operation: ['create', 'createForParent'] } },
+		displayOptions: { show: { resource: ['task'], operation: ['create', 'createForParent', 'update'] } },
 		default: '#000000',
-		description: 'Required: task color (any CSS-style hex code, e.g. #FF6600)',
+		description: 'Task color as hex code, e.g. #FF6600. Rentman requires it on create and on every update.',
 		routing: { request: { body: { color: '={{ $value }}' } } },
 	},
 	// ── Pagination ───────────────────────────────────────────────────────────
@@ -527,13 +525,7 @@ export const taskFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
