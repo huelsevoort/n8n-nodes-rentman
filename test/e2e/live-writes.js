@@ -8,7 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
-const { runBatch } = require('./live-lib');
+const { runBatch, authHeader } = require('./live-lib');
 const repo = path.join(__dirname, '../..');
 const { Rentman } = require(path.join(repo, 'dist/nodes/Rentman/Rentman.node.js'));
 const { withUtcOffset } = require(path.join(repo, 'dist/nodes/Rentman/descriptions/shared.js'));
@@ -23,15 +23,27 @@ const T = 'n8n-e2e TEST';
 
 function api(method, p, body) {
 	const args = ['-sS', '-X', method, `https://api.rentman.net${p}`, '-H', 'Content-Type: application/json'];
-	if (process.env.RENTMAN_API_TOKEN) args.push('-H', `Authorization: Bearer ${process.env.RENTMAN_API_TOKEN}`);
+	if (process.env.RENTMAN_API_TOKEN) args.push('-H', '@-'); // header via stdin, not visible in the process list
 	if (body) args.push('--data', JSON.stringify(body));
 	args.push('-w', '\n%{http_code}');
-	const out = execFileSync('curl', args, { maxBuffer: 1 << 28 }).toString();
+	const out = execFileSync('curl', args, { maxBuffer: 1 << 28, input: authHeader() }).toString();
 	const i = out.lastIndexOf('\n');
 	const status = Number(out.slice(i + 1));
 	let json;
 	try { json = JSON.parse(out.slice(0, i)); } catch { json = out.slice(0, i); }
 	return { status, json };
+}
+// Writes create records in the account behind the token, some of which the API cannot delete. Show the
+// account and require an explicit go: RENTMAN_LIVE_WRITE_ACK=<the account's first project name>.
+{
+	const project = api('GET', '/projects?limit=1&sort=%2Bid').json.data?.[0];
+	const contact = api('GET', '/contacts?limit=1&sort=%2Bid').json.data?.[0];
+	const account = project?.name ?? '(no project)';
+	console.log(`Rentman account: first project "${account}", first contact "${contact?.displayname ?? '-'}"`);
+	if (process.env.RENTMAN_LIVE_WRITE_ACK !== account) {
+		console.error(`Refusing to write. Run only against a test account, then set RENTMAN_LIVE_WRITE_ACK="${account}".`);
+		process.exit(2);
+	}
 }
 const firstId = (coll, q = '') => api('GET', `${coll}?limit=1&sort=%2Bid${q}`).json.data?.[0]?.id;
 
@@ -118,6 +130,13 @@ function readBack(name, coll, id, params) {
 	}
 	if (miss.length) ignored[name] = miss;
 }
+// Fields Rentman accepts but stores differently, each reproduced directly against the API (README.md).
+// Any other difference between what was sent and what Rentman stored fails the case.
+const KNOWN_NOT_STORED = [
+	[/^equipment\./, 'type'], // derived from Is Combination
+	[/^equipment\./, 'strict_container_content'], // not stored
+];
+const knownNotStored = (name, line) => KNOWN_NOT_STORED.some(([re, key]) => re.test(name) && line.includes(`→${key}`));
 
 // ── W1: creates without dependencies ─────────────────────────────────────────
 const d1 = '2027-03-01T09:00:00';
@@ -152,8 +171,8 @@ const w1cases = [
 	{ name: 'leaveRequest.create.full', track: ['leaverequest', false], params: { resource: 'leaveRequest', operation: 'create', requested_for: ref.crew, approval_status: 'pending', additionalFields: { description: T, reviewed_on: '2027-02-01T09:00:00', reviewer: ref.crew } } },
 	{ name: 'leaveRequest.create[to reject]', track: ['leaverequest', false], params: { resource: 'leaveRequest', operation: 'create', requested_for: ref.crew, approval_status: 'pending', additionalFields: { description: `${T} to reject` } } },
 	{ name: 'project.create.full', track: ['projects', false], params: { resource: 'project', operation: 'create', name: `${T} project`, additionalFields: { custom: '{}', reference: 'E2E-REF', number: String(90000 + (Date.now() % 10000)) } } },
-	{ name: 'projectRequest.create.min', track: ['projectrequests', true], params: { resource: 'projectRequest', operation: 'create', name: `${T} request min`, planperiod_start: d1, planperiod_end: d2 } },
-	{ name: 'projectRequest.create.full', track: ['projectrequests', true], params: { resource: 'projectRequest', operation: 'create', name: `${T} request full`, planperiod_start: d1, planperiod_end: d2, additionalFields: { customer: ref.contact, remark: 'e2e',
+	{ name: 'projectRequest.create.min', track: ['projectrequests', true], params: { resource: 'projectRequest', operation: 'create', name: `${T} request min`, additionalFields: { planperiod_start: d1, planperiod_end: d2 } } },
+	{ name: 'projectRequest.create.full', track: ['projectrequests', true], params: { resource: 'projectRequest', operation: 'create', name: `${T} request full`, additionalFields: { planperiod_start: d1, planperiod_end: d2, customer: ref.contact, remark: 'e2e',
 		contact_mailing_city: 'Berlin', contact_mailing_country: 'de', contact_mailing_number: '1', contact_mailing_postalcode: '10115', contact_mailing_street: 'Teststr.', contact_name: `${T} req contact`,
 		contact_person_email: 'req@example.com', contact_person_first_name: 'Max', contact_person_lastname: 'Muster', contact_person_middle_name: 'van', contact_phone: '+49 30 1',
 		external_reference: 4711, in: '2027-03-01T18:00:00', is_paid: false, language: 'de', location_mailing_city: 'Hamburg', location_mailing_country: 'de', location_mailing_number: '2',
@@ -166,11 +185,11 @@ const w1cases = [
 	{ name: 'taskStatus.create.full', track: ['taskstatuses', true], params: { resource: 'taskStatus', operation: 'create', color: '#00AA00', additionalFields: { name: `${T} status`, order: '99', type: 'custom' } } },
 	{ name: 'timeRegistration.create.full', track: ['timeregistration', true], params: { resource: 'timeRegistration', operation: 'create', crewmember: ref.crew, start: d1, end: d2, additionalFields: { break_duration: 0, custom: '{}', distance: 0, is_lunch_included: true, leavetype: ref.leavetypeWork, remark: T, travel_time: 120 } } },
 	{ name: 'timeRegistration.create[correction]', track: ['timeregistration', true], params: { resource: 'timeRegistration', operation: 'create', crewmember: ref.crew, start: '2027-03-03T09:00:00', end: '2027-03-03T09:00:00', additionalFields: { correction_duration: 600, leavetype: ref.leavetypeCorrection, remark: `${T} correction` } } },
-	{ name: 'vehicle.create.min', track: ['vehicles', true], params: { resource: 'vehicle', operation: 'create', costRate: ref.rateCost } },
-	{ name: 'vehicle.create.full', track: ['vehicles', true], params: { resource: 'vehicle', operation: 'create', costRate: ref.rateCost, additionalFields: { custom: '{}',
+	{ name: 'vehicle.create.min', track: ['vehicles', true], params: { resource: 'vehicle', operation: 'create', additionalFields: { cost_rate: ref.rateCost } } },
+	{ name: 'vehicle.create.full', track: ['vehicles', true], params: { resource: 'vehicle', operation: 'create', additionalFields: { cost_rate: ref.rateCost, custom: '{}',
 		folder: ref.folderVeh, height: 2, in_planner: true, inspection_date: '2027-03-01T00:00:00', length: 5, licenseplate: 'E2E-1', multiple: 'plannable_once', name: `${T} vehicle`,
 		payload_capacity: 100, remark: 'e2e', seats: 2, surface_area: '10', width: 2 } } },
-	{ name: 'vehicle.createForStockLocation', track: ['vehicles', true], params: { resource: 'vehicle', operation: 'createForStockLocation', stockLocationId: ref.stockLocationId, costRate: ref.rateCost, additionalFields: { name: `${T} vehicle sl` } } },
+	{ name: 'vehicle.createForStockLocation', track: ['vehicles', true], params: { resource: 'vehicle', operation: 'createForStockLocation', stockLocationId: ref.stockLocationId, additionalFields: { cost_rate: ref.rateCost, name: `${T} vehicle sl` } } },
 ];
 const w1 = run(w1cases);
 
@@ -245,7 +264,7 @@ for (const p of parents) if (!parentIds[p]) parentIds[p] = firstId(`/${p}`);
 const w2cases = [
 	{ name: 'accessory.create.full', track: ['accessories', true], params: { resource: 'accessory', operation: 'create', equipmentId: E1, additionalFields: { add_as_new_line: false, automatic: true, equipment: ref.eqA, is_free: false, order: '1', quantity: 1, skip: false } } },
 	{ name: 'alternative.create', track: ['alternatives', true], params: { resource: 'alternative', operation: 'create', equipmentId: E1, alternative: ref.eqA } },
-	{ name: 'equipmentSetsContent.create.full', track: ['equipmentsetscontent', true], params: { resource: 'equipmentSetsContent', operation: 'create', equipmentId: E1, setContentEquipment: ref.eqA, additionalFields: { is_fixed: 'Reserved from stock', is_physically_connected: 'Will remain in the combination when emptying combinations', order: '1', quantity: '1' } } },
+	{ name: 'equipmentSetsContent.create.full', track: ['equipmentsetscontent', true], params: { resource: 'equipmentSetsContent', operation: 'create', equipmentId: E1, additionalFields: { equipment: ref.eqA, is_fixed: 'Reserved from stock', is_physically_connected: 'Will remain in the combination when emptying combinations', order: '1', quantity: '1' } } },
 	{ name: 'serialNumber.create.full', track: ['serialnumbers', true], params: { resource: 'serialNumber', operation: 'create', equipmentId: E1, additionalFields: { active: true, asset_location: `/stocklocations/${ref.stockLocationId}`, book_value: 1, depreciation_monthly: 0, purchase_costs: 1, purchasedate: '2027-01-01T00:00:00', ref: 'E2E', remark: T, residual_value: 0, serial: 'E2E-SN-1' } } },
 	{ name: 'supplier.create.full', track: ['suppliers', true], params: { resource: 'supplier', operation: 'create', equipmentId: E1, contact: `/contacts/${C1}`, additionalFields: { contactperson: CP1 ? `/contactpersons/${CP1}` : undefined, details: 'e2e', price: 1 } } },
 	{ name: 'task.createSubtask', track: ['subtasks', true], params: { resource: 'task', operation: 'createSubtask', taskId: T1, subtaskTitle: `${T} subtask`, subtaskCompleted: false } },
@@ -291,7 +310,7 @@ const w3cases = [
 	u('accessory.update', 'accessory', 'accessoryId', ACC, 'accessories', { updateFields: { add_as_new_line: true, automatic: false, equipment: ref.eqB, is_free: true, order: '2', quantity: 2, skip: true } }),
 	u('alternative.update', 'alternative', 'alternativeId', ALT, 'alternatives', { alternative: ref.eqB }),
 	u('appointment.update', 'appointment', 'appointmentId', A1, 'appointments', { start: d3, end: d4, updateFields: { color: '#00AA00', is_plannable: false, is_public: false, location: 'Bonn', name: `${T} appointment upd`, remark: 'e2e upd' } }),
-	u('appointmentCrew.update', 'appointmentCrew', 'appointmentCrewId', AC1, 'appointmentcrew', { crew: ref.crew }),
+	u('appointmentCrew.update', 'appointmentCrew', 'appointmentCrewId', AC1, 'appointmentcrew', { updateFields: { crew: ref.crew } }),
 	u('contact.update', 'contact', 'contactId', C1, 'contacts', { updateFields: {
 		accounting_code: 'E2E-ACC2', mailing_city: 'Köln', visit_city: 'Bonn', code: 'E2E-C2', email_1: 'e2e2@example.com', name: `${T} contact upd`,
 		phone_1: '+49 221 1', phone_2: '+49 221 2', projectnote: 'e2e note 2', mailing_street: 'Domplatz', type: 'company', VAT_code: 'DE987654321', website: 'https://example.org',
@@ -306,21 +325,21 @@ const w3cases = [
 	u('contact.update[type=private]', 'contact', 'contactId', C1, 'contacts', { updateFields: { firstname: 'Erika', surfix: 'de', surname: 'Privat', type: 'private' } }),
 	u('contactPerson.update', 'contactPerson', 'contactPersonId', CP1, 'contactpersons', { updateFields: { city: 'Berlin', country: 'de', email: 'cp@example.com', firstname: 'n8n-e2e upd', function: 'Tester', number: '1a', surname: 'TEST upd', middle_name: 'van', mobile: '+49 170 1', phone: '+49 30 3', postalcode: '10115', state: 'BE', street: 'Teststr.', custom: '{}' } }),
 	u('cost.update', 'cost', 'costId', CO1, 'costs', { subproject: P1sub ? `/subprojects/${P1sub}` : '', updateFields: { custom: '{}', discount: 0.2, is_template: false, ledger: ref.ledger, ledger_debit: ref.ledgerDebit, name: `${T} cost upd`, purchase_price: 4, quantity: 2, remark: 'e2e upd', sale_price: 6, taxclass: ref.taxclass } }),
-	u('crewAvailability.update', 'crewAvailability', 'crewAvailabilityId', CA1, 'crewavailability', { start: d3, end: d4, updateFields: { recurrence_enddate: '2027-03-02T00:00:00', recurrence_interval: 1, recurrence_interval_unit: 'once', recurrence_weekdays: '[]', recurrent_group: 0, remark: `${T} upd`, status: 'B' } }),
+	u('crewAvailability.update', 'crewAvailability', 'crewAvailabilityId', CA1, 'crewavailability', { updateFields: { start: d3, end: d4, recurrence_enddate: '2027-03-02T00:00:00', recurrence_interval: 1, recurrence_interval_unit: 'once', recurrence_weekdays: '[]', recurrent_group: 0, remark: `${T} upd`, status: 'B' } }),
 	u('equipment.update', 'equipment', 'equipmentId', E1, 'equipment', { additionalFields: {
 		code: 'E2E-EQ2', critical_stock_level: 2, external_remark: 'e2e ext 2', in_planner: false, in_shop: true, internal_remark: 'e2e int 2', list_price: 11, name: `${T} equipment upd`, price: 6,
 		rental_sales: 'Sale', unit: 'Pcs', can_edit_content_during_planning: false, country_of_origin: 'nl', current: 2.5, custom: '{"custom_1": "n8n-e2e custom 2"}', defaultgroup: 'e2e group 2',
 		empty_weight: 2, height: 0.7, in_archive: false, ledger_debit: ref.ledgerDebit, length: 0.8, packed_per: 3, power: 200, shop_description_long: 'e2e long 2', shop_description_short: 'e2e short 2',
 		shop_featured: false, shop_seo_description: 'e2e seo desc 2', shop_seo_keyword: 'e2e2', shop_seo_title: 'e2e seo 2', subrental_costs: 4, surface_article: true, temporary: false, volume: 0.3,
 		weight: 3, width: 0.5 } }),
-	u('equipmentSetsContent.update', 'equipmentSetsContent', 'equipmentSetsContentId', ESC, 'equipmentsetscontent', { setContentEquipment: ref.eqB, updateFields: { is_fixed: 'Available outside this combination', is_physically_connected: 'Will be removed when emptying combinations', order: '2', quantity: '2' } }),
+	u('equipmentSetsContent.update', 'equipmentSetsContent', 'equipmentSetsContentId', ESC, 'equipmentsetscontent', { updateFields: { equipment: ref.eqB, is_fixed: 'Available outside this combination', is_physically_connected: 'Will be removed when emptying combinations', order: '2', quantity: '2' } }),
 	u('folder.update', 'folder', 'folderId', F1, 'folders', { additionalFields: { itemtype: 'equipment', name: `${T} folder upd`, order: '98', parent: ref.folderEq } }),
 	u('leaveRequest.update', 'leaveRequest', 'leaveRequestId', LR1, 'leaverequest', { requested_for: ref.crew, updateFields: { description: `${T} upd`, reviewed_on: '2027-02-02T09:00:00', reviewer: ref.crew } }),
 	u('leaveRequest.update[approved]', 'leaveRequest', 'leaveRequestId', LRH1 && LR1, 'leaverequest', { requested_for: ref.crew, updateFields: { approval_status: 'approved' } }),
 	// Rentman refuses some status changes (approved → rejected, anything out of canceled), so rejecting uses a second request.
 	u('leaveRequest.update[rejected]', 'leaveRequest', 'leaveRequestId', LRH2 && LR2, 'leaverequest', { requested_for: ref.crew, updateFields: { approval_status: 'rejected' } }),
 	u('leaveRequest.update[canceled]', 'leaveRequest', 'leaveRequestId', LR1, 'leaverequest', { requested_for: ref.crew, updateFields: { approval_status: 'canceled' } }),
-	u('payment.update', 'payment', 'paymentId', PAY1, 'payments', { moment: '2027-03-02T00:00:00', updateFields: { amount: 0, remark: `${T} upd`, payment_import_source: 'xero' } }),
+	u('payment.update', 'payment', 'paymentId', PAY1, 'payments', { updateFields: { date: '2027-03-02T00:00:00', amount: 0, remark: `${T} upd`, payment_import_source: 'xero' } }),
 	u('projectRequest.update', 'projectRequest', 'projectRequestId', PR1, 'projectrequests', { planperiod_start: d3, planperiod_end: d4, updateFields: { name: `${T} request upd`, remark: 'e2e upd',
 		contact_mailing_city: 'Köln', contact_mailing_country: 'nl', contact_mailing_number: '2', contact_mailing_postalcode: '50667', contact_mailing_street: 'Domplatz', contact_name: `${T} req contact 2`,
 		contact_person_email: 'req2@example.com', contact_person_first_name: 'Erika', contact_person_lastname: 'Muster', contact_person_middle_name: 'de', contact_phone: '+49 221 1', customer: ref.contact,
@@ -329,12 +348,12 @@ const w3cases = [
 		usageperiod_end: '2027-03-02T17:00:00', usageperiod_start: '2027-03-02T11:00:00' } }),
 	u('projectRequestEquipment.update', 'projectRequestEquipment', 'projectRequestEquipmentId', PRE1, 'projectrequestequipment', { updateFields: { discount: 0.2, factor: '2', is_comment: false, is_kit: false, linked_equipment: ref.eqB, name: `${T} upd`, order: '2', quantity: 2, quantity_total: 2, remark: 'e2e upd', unit_price: 6 } }),
 	u('serialNumber.update', 'serialNumber', 'serialNumberId', SN, 'serialnumbers', { updateFields: { active: false, book_value: 2, depreciation_monthly: 1, purchase_costs: 2, purchasedate: '2025-01-02T00:00:00', ref: 'E2E2', remark: `${T} upd`, residual_value: 1, serial: 'E2E-SN-2', custom: '{}' } }),
-	u('stockMovement.update', 'stockMovement', 'stockMovementId', SM1, 'stockmovements', { date: '2027-03-02T00:00:00', updateFields: { quantity: 2, remark: `${T} upd`, details: 'e2e', stock_location: `/stocklocations/${ref.stockLocationId}` } }),
+	u('stockMovement.update', 'stockMovement', 'stockMovementId', SM1, 'stockmovements', { updateFields: { date: '2027-03-02T00:00:00', quantity: 2, remark: `${T} upd`, details: 'e2e', stock_location: `/stocklocations/${ref.stockLocationId}` } }),
 	u('subtask.update', 'subtask', 'subtaskId', ST1, 'subtasks', { updateFields: { completed: true, title: `${T} subtask upd` } }),
-	u('supplier.update', 'supplier', 'supplierId', SUP, 'suppliers', { contact: `/contacts/${C1}`, updateFields: { details: 'e2e upd', price: 2 } }),
-	u('task.update', 'task', 'taskId', T1, 'tasks', { color: '#AA0000', additionalFields: { name: `${T} task upd`, details: 'e2e upd', priority: 'high_priority', completed_by: ref.crew, completed_at: '2027-03-02T12:00:00', custom: '{}' } }),
-	u('taskAssignment.update', 'taskAssignment', 'taskAssignmentId', TA1, 'taskassignments', { crew: ref.crew }),
-	u('taskStatus.update', 'taskStatus', 'taskStatusId', TS1, 'taskstatuses', { color: '#AA0000', additionalFields: { name: `${T} status upd`, order: '98', type: 'custom' } }),
+	u('supplier.update', 'supplier', 'supplierId', SUP, 'suppliers', { updateFields: { contact: `/contacts/${C1}`, details: 'e2e upd', price: 2 } }),
+	u('task.update', 'task', 'taskId', T1, 'tasks', { additionalFields: { color: '#AA0000', name: `${T} task upd`, details: 'e2e upd', priority: 'high_priority', completed_by: ref.crew, completed_at: '2027-03-02T12:00:00', custom: '{}' } }),
+	u('taskAssignment.update', 'taskAssignment', 'taskAssignmentId', TA1, 'taskassignments', { updateFields: { crew: ref.crew } }),
+	u('taskStatus.update', 'taskStatus', 'taskStatusId', TS1, 'taskstatuses', { additionalFields: { color: '#AA0000', name: `${T} status upd`, order: '98', type: 'custom' } }),
 	u('timeRegistration.update', 'timeRegistration', 'timeRegId', TR1, 'timeregistration', { updateFields: { break_duration: 1800, crewmember: ref.crew, custom: '{}', distance: 1, end: d4, is_lunch_included: false, leavetype: ref.leavetypeWork, remark: `${T} upd`, start: d3, travel_time: 240 } }),
 	u('timeRegistration.update[correction]', 'timeRegistration', 'timeRegId', TRC, 'timeregistration', { updateFields: { correction_duration: 900, remark: `${T} correction upd` } }),
 	u('vehicle.update', 'vehicle', 'vehicleId', V1, 'vehicles', { updateFields: { height: 3, in_planner: false, length: 6, licenseplate: 'E2E-2', multiple: 'plannable_multi', name: `${T} vehicle upd`, payload_capacity: 200, remark: 'e2e upd', seats: 3, surface_area: '12', width: 3, cost_rate: ref.rateCost, custom: '{}' } }),
@@ -402,8 +421,13 @@ for (const c of w4cases) {
 }
 saveLedger();
 
+for (const [name, lines] of Object.entries(ignored)) {
+	const unexpected = lines.filter((l) => !knownNotStored(name, l));
+	const r = results.find((x) => x.name === name);
+	if (unexpected.length && r?.ok) { r.ok = false; r.error = `read-back: ${unexpected.join('; ')}`; console.log(`FAIL ${name}: ${r.error}`); }
+}
 fs.writeFileSync(path.join(outDir, 'writes.json'), JSON.stringify({ results, ignored, ref }, null, 1));
-console.log('\nFields sent but not stored:');
+console.log('\nFields sent but not stored (known Rentman behavior unless the case failed):');
 for (const [k, v] of Object.entries(ignored)) console.log(`  ${k}: ${v.join('; ')}`);
 console.log('\nLeft in the account:');
 for (const l of ledger.filter((x) => !x.deleted)) console.log(`  /${l.kind}/${l.id}${l.deletable ? ' (deletable, cleanup failed)' : ' (no API delete)'}`);

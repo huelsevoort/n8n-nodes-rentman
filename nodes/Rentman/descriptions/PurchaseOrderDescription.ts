@@ -35,7 +35,7 @@ const standardFilters: INodeProperties['options'] = [
 		type: 'string',
 		default: '',
 		placeholder: 'ID,displayname,modified',
-		description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
+		description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N; together with Expand, dot notation limits an expanded record (e.g. equipment.name). Leave empty for all fields.',
 		routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 	},
 	{

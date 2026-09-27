@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination } from './shared';
+import { customQueryParamsField, rentmanPagination, sortByDisplayName } from './shared';
 
 export const stockMovementOperations: INodeProperties[] = [
 	{
@@ -103,7 +103,7 @@ export const stockMovementOperations: INodeProperties[] = [
 	},
 ];
 
-const stockMovementBodyFields: INodeProperties['options'] = [
+const stockMovementBodyFields: INodeProperties[] = [
 	{
 		displayName: 'Description',
 		name: 'remark',
@@ -288,7 +288,7 @@ export const stockMovementFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: 'ID,displayname,modified',
-				description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
+				description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N; together with Expand, dot notation limits an expanded record (e.g. equipment.name). Leave empty for all fields.',
 				routing: {
 					request: {
 						qs: {
@@ -362,9 +362,9 @@ export const stockMovementFields: INodeProperties[] = [
 		name: 'date',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['stockMovement'], operation: ['create', 'update'] } },
+		displayOptions: { show: { resource: ['stockMovement'], operation: ['create'] } },
 		default: '',
-		description: 'Date of the stock movement. Rentman requires it on create and on every update.',
+		description: 'Date of the stock movement',
 		routing: { request: { body: { date: '={{ $value }}' } } },
 	},
 	{
@@ -383,7 +383,17 @@ export const stockMovementFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['stockMovement'], operation: ['update'] } },
 		default: {},
-		options: stockMovementBodyFields,
+		options: sortByDisplayName([
+			{
+				displayName: 'Date',
+				name: 'date',
+				type: 'dateTime',
+				default: '',
+				description: 'Date of the stock movement. Rentman requires it on every update.',
+				routing: { request: { body: { date: '={{ $value }}' } } },
+			},
+			...stockMovementBodyFields,
+		]),
 	},
 	customQueryParamsField('stockMovement'),
 ];

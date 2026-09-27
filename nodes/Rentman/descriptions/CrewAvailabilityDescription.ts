@@ -149,7 +149,7 @@ export const crewAvailabilityFields: INodeProperties[] = [
 			type: 'string',
 			default: '',
 			placeholder: 'ID,displayname,modified',
-			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
+			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N; together with Expand, dot notation limits an expanded record (e.g. equipment.name). Leave empty for all fields.',
 			routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 			{
@@ -204,7 +204,7 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		name: 'start',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create', 'update'] } },
+		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create'] } },
 		default: '',
 		description: 'Start of the availability period',
 		routing: { request: { body: { start: '={{ $value }}' } } },
@@ -214,7 +214,7 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		name: 'end',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create', 'update'] } },
+		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create'] } },
 		default: '',
 		description: 'End of the availability period',
 		routing: { request: { body: { end: '={{ $value }}' } } },
@@ -307,6 +307,14 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
+				displayName: 'End Date/Time',
+				name: 'end',
+				type: 'dateTime',
+				default: '',
+				description: 'End of the availability period. Rentman requires start and end on every update.',
+				routing: { request: { body: { end: '={{ $value }}' } } },
+			},
+			{
 				displayName: 'Recurrence End Date',
 				name: 'recurrence_enddate',
 				type: 'dateTime',
@@ -360,6 +368,14 @@ export const crewAvailabilityFields: INodeProperties[] = [
 				typeOptions: { rows: 3 },
 				default: '',
 				routing: { request: { body: { remark: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Start Date/Time',
+				name: 'start',
+				type: 'dateTime',
+				default: '',
+				description: 'Start of the availability period. Rentman requires start and end on every update.',
+				routing: { request: { body: { start: '={{ $value }}' } } },
 			},
 			{
 				displayName: 'Status',

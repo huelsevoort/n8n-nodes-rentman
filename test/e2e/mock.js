@@ -1,8 +1,9 @@
 // HTTPS mock of api.rentman.net: echoes each request back in the response.
 const https = require('https');
 const fs = require('fs');
+const path = require('path');
 const log = fs.createWriteStream(process.argv[2] || 'requests.jsonl', { flags: 'a' });
-https.createServer({ key: fs.readFileSync('key.pem'), cert: fs.readFileSync('cert.pem') }, (req, res) => {
+https.createServer({ key: fs.readFileSync(path.join(__dirname, 'key.pem')), cert: fs.readFileSync(path.join(__dirname, 'cert.pem')) }, (req, res) => {
 	let raw = '';
 	req.on('data', (c) => (raw += c));
 	req.on('end', () => {

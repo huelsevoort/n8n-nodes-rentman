@@ -1,3 +1,4 @@
+import { NodeOperationError } from 'n8n-workflow';
 import type {
 	IDataObject,
 	IExecuteSingleFunctions,
@@ -84,11 +85,28 @@ const DATE_TIME_KEYS = new Set([
 	'recurrence_enddate', 'reviewed_on', 'start', 'usageperiod_end', 'usageperiod_start',
 ]);
 
+/**
+ * Body fields Rentman requires that live in an optional collection (to keep 26.5.0 workflows
+ * valid), keyed by resource.operation. Without them Rentman only answers with a bare HTTP 500.
+ */
+export const REQUIRED_BODY_FIELDS: Record<string, Array<[key: string, label: string]>> = {
+	'vehicle.create': [['cost_rate', 'Additional Fields → Cost Rate']],
+	'vehicle.createForStockLocation': [['cost_rate', 'Additional Fields → Cost Rate']],
+};
+
 async function prepareWriteBody(
 	this: IExecuteSingleFunctions,
 	requestOptions: IHttpRequestOptions,
 ): Promise<IHttpRequestOptions> {
 	const body = requestOptions.body as Record<string, unknown> | undefined;
+	const required = REQUIRED_BODY_FIELDS[`${this.getNodeParameter('resource')}.${this.getNodeParameter('operation')}`];
+	for (const [key, label] of required ?? []) {
+		if (body?.[key] === undefined || body[key] === '') {
+			throw new NodeOperationError(this.getNode(), `Rentman requires ${label}`, {
+				description: `Set ${label}; Rentman rejects the request without it (HTTP 500).`,
+			});
+		}
+	}
 	if (body && typeof body === 'object' && !Array.isArray(body)) {
 		const timeZone = this.getTimezone();
 		for (const [key, value] of Object.entries(body)) {
@@ -112,7 +130,10 @@ export function withWriteHooks(properties: INodeProperties[]): INodeProperties[]
 			const op = option as { routing?: NonNullable<INodeProperties['routing']> };
 			const method = op.routing?.request?.method;
 			if (method !== 'POST' && method !== 'PUT') continue;
-			op.routing!.send = { ...op.routing!.send, preSend: [...(op.routing!.send?.preSend ?? []), prepareWriteBody] };
+			const preSend = op.routing!.send?.preSend ?? [];
+			// The option objects are module-level, so every `new Rentman()` passes here again.
+			if (preSend.includes(prepareWriteBody)) continue;
+			op.routing!.send = { ...op.routing!.send, preSend: [...preSend, prepareWriteBody] };
 		}
 	}
 	return properties;
@@ -139,20 +160,6 @@ export const rentmanPagination: IN8nRequestOperationPaginationGeneric = {
 };
 
 /**
- * Returns the global "Expand" field (Rentman API v1.13.0).
- *
- * `expand` is a query parameter available on every GET endpoint that inlines
- * linked resources in the response instead of returning a path string. It is
- * scoped here purely by operation value: every read operation in this node uses
- * an operation value beginning with `get`, and no write operation does, so a
- * single field with no resource filter covers all resources at once.
- *
- * Comma-separated list of linkable field names; dot notation for nested
- * expansion up to 3 levels (e.g. `equipment,equipment.creator`). Only `item`/
- * `link` fields are expandable. Since v1.16.0, child fields and custom fields of
- * an item type (`custom_<number>`) are expandable too.
- */
-/**
  * Sub-collection getters such as Get Files list other records than the resource itself, so the resource's own
  * filters (e.g. a purchase order's Approval Status) do not apply there and Rentman rejects them with HTTP 400.
  * Keeps the full Filters collection for `operations` and shows a copy without `ownFilters` for the other operations.
@@ -175,6 +182,25 @@ export function withOwnFiltersOnly(fields: INodeProperties[], operations: string
 	});
 }
 
+/** Collection options in alphabetical order, as n8n's linter expects for literal option lists. */
+export function sortByDisplayName(options: INodeProperties[]): INodeProperties[] {
+	return [...options].sort((a, b) => a.displayName.localeCompare(b.displayName));
+}
+
+/**
+ * Returns the global "Expand" field (Rentman API v1.13.0).
+ *
+ * `expand` is a query parameter available on every GET endpoint that inlines
+ * linked resources in the response instead of returning a path string. It is
+ * scoped here purely by operation value: every read operation in this node uses
+ * an operation value beginning with `get`, and no write operation does, so a
+ * single field with no resource filter covers all resources at once.
+ *
+ * Comma-separated list of linkable field names; dot notation for nested
+ * expansion up to 3 levels (e.g. `equipment,equipment.creator`). Only `item`/
+ * `link` fields are expandable. Since v1.16.0, child fields and custom fields of
+ * an item type (`custom_<number>`) are expandable too.
+ */
 export function expandField(): INodeProperties {
 	return {
 		displayName: 'Expand',

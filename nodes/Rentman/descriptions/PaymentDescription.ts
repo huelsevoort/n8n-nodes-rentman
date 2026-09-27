@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination } from './shared';
+import { customQueryParamsField, rentmanPagination, sortByDisplayName } from './shared';
 
 export const paymentOperations: INodeProperties[] = [
 	{
@@ -54,7 +54,7 @@ export const paymentOperations: INodeProperties[] = [
 	},
 ];
 
-const paymentBodyFields: INodeProperties['options'] = [
+const paymentBodyFields: INodeProperties[] = [
 	{
 		displayName: 'Amount',
 		name: 'amount',
@@ -163,7 +163,7 @@ export const paymentFields: INodeProperties[] = [
 			type: 'string',
 			default: '',
 			placeholder: 'ID,displayname,modified',
-			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
+			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N; together with Expand, dot notation limits an expanded record (e.g. equipment.name). Leave empty for all fields.',
 			routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 			{
@@ -206,9 +206,9 @@ export const paymentFields: INodeProperties[] = [
 		name: 'moment',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['payment'], operation: ['create', 'update'] } },
+		displayOptions: { show: { resource: ['payment'], operation: ['create'] } },
 		default: '',
-		description: 'When the payment was made. Rentman requires it on create and on every update.',
+		description: 'When the payment was made',
 		routing: { request: { body: { moment: '={{ $value }}' } } },
 	},
 	{
@@ -227,7 +227,18 @@ export const paymentFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['payment'], operation: ['update'] } },
 		default: {},
-		options: paymentBodyFields,
+		options: sortByDisplayName([
+			{
+				displayName: 'Payment Date',
+				// Named "date" as in 26.5.0, so saved workflows keep their value; Rentman's field is "moment".
+				name: 'date',
+				type: 'dateTime',
+				default: '',
+				description: 'When the payment was made. Rentman requires it on every update.',
+				routing: { request: { body: { moment: '={{ $value }}' } } },
+			},
+			...paymentBodyFields,
+		]),
 	},
 	customQueryParamsField('payment'),
 ];

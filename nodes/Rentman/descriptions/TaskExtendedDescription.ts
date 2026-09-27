@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination } from './shared';
+import { customQueryParamsField, rentmanPagination, sortByDisplayName } from './shared';
 
 const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'data' } }];
 const deletePostReceive = [
@@ -24,7 +24,7 @@ const standardFilters: INodeProperties['options'] = [
 		type: 'string',
 		default: '',
 		placeholder: 'ID,displayname,modified',
-		description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
+		description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N; together with Expand, dot notation limits an expanded record (e.g. equipment.name). Leave empty for all fields.',
 		routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 	},
 	{
@@ -115,7 +115,7 @@ export const taskStatusOperations: INodeProperties[] = [
 	},
 ];
 
-const taskStatusBodyFields: INodeProperties['options'] = [
+const taskStatusBodyFields: INodeProperties[] = [
 	{
 		displayName: 'Name',
 		name: 'name',
@@ -160,9 +160,9 @@ export const taskStatusFields: INodeProperties[] = [
 		name: 'color',
 		type: 'color',
 		required: true,
-		displayOptions: { show: { resource: ['taskStatus'], operation: ['create', 'update'] } },
+		displayOptions: { show: { resource: ['taskStatus'], operation: ['create'] } },
 		default: '#000000',
-		description: 'Status color as hex code, e.g. #00AA00. Rentman requires it on create and on every update.',
+		description: 'Status color as hex code, e.g. #00AA00',
 		routing: { request: { body: { color: '={{ $value }}' } } },
 	},
 	{
@@ -216,7 +216,19 @@ export const taskStatusFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['taskStatus'], operation: ['create', 'update'] } },
 		default: {},
-		options: taskStatusBodyFields,
+		options: sortByDisplayName([
+			{
+				displayName: 'Color',
+				name: 'color',
+				type: 'color',
+				// Update only: on create Color is a required top-level field
+				displayOptions: { show: { '/operation': ['update'] } },
+				default: '',
+				description: 'Status color as hex code. Rentman requires it on every update; take the current value from Get to keep it.',
+				routing: { request: { body: { color: '={{ $value }}' } } },
+			},
+			...taskStatusBodyFields,
+		]),
 	},
 ];
 
@@ -474,14 +486,22 @@ export const taskAssignmentFields: INodeProperties[] = [
 	},
 	customQueryParamsField('taskAssignment'),
 	{
-		displayName: 'Crew (Path)',
-		name: 'crew',
-		type: 'string',
-		required: true,
+		displayName: 'Update Fields',
+		name: 'updateFields',
+		type: 'collection',
+		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['taskAssignment'], operation: ['update'] } },
-		default: '',
-		placeholder: '/crew/42',
-		description: 'Resource path of the assigned crew member. Rentman requires it on every update.',
-		routing: { request: { body: { crew: '={{ $value }}' } } },
+		default: {},
+		options: [
+			{
+				displayName: 'Crew (Path)',
+				name: 'crew',
+				type: 'string',
+				default: '',
+				placeholder: '/crew/42',
+				description: 'Resource path of the assigned crew member. Rentman requires it on every update.',
+				routing: { request: { body: { crew: '={{ $value }}' } } },
+			},
+		],
 	},
 ];

@@ -20,5 +20,15 @@ for f in "$H"/out/wf*.json; do
 	id=$(python3 -c "import sqlite3;print(sqlite3.connect('$N8N_USER_FOLDER/.n8n/database.sqlite').execute('select max(id) from execution_entity').fetchone()[0])")
 	node "$H/extract.js" "$id" "$H/requests.jsonl" "$H/out/result$i.json"
 done
-node "$H/analyze.js" "$H/out"
-node "$H/issues.js" "$H/out"
+# Return All across three mocked pages (pagination-wf.json)
+: > "$H/requests.jsonl"
+"$N8N" import:workflow --input="$H/pagination-wf.json" 2>&1 | grep -i imported
+"$N8N" execute --id=rentmanPagination >/dev/null 2>"$H/out/err-pagination.log" || echo "execute pagination failed"
+id=$(python3 -c "import sqlite3;print(sqlite3.connect('$N8N_USER_FOLDER/.n8n/database.sqlite').execute('select max(id) from execution_entity').fetchone()[0])")
+status=0
+node "$H/analyze.js" "$H/out" || status=1
+node "$H/issues.js" "$H/out" || status=1
+node "$H/pagination-check.js" "$id" "$H/requests.jsonl" || status=1
+# Workflows saved with the previous release (OLD_BUILD: a built checkout of it, see README.md)
+if [ -n "$OLD_BUILD" ]; then node "$H/upgrade-check.js" "$OLD_BUILD" "$REPO" "$N8N_MODS" "$H/out/upgrade" || status=1; fi
+exit $status

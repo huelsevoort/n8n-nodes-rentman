@@ -152,7 +152,7 @@ export const supplierFields: INodeProperties[] = withOwnFiltersOnly([
 		name: 'contact',
 		type: 'string',
 		required: true,
-		displayOptions: { show: { resource: ['supplier'], operation: ['create', 'update'] } },
+		displayOptions: { show: { resource: ['supplier'], operation: ['create'] } },
 		default: '',
 		placeholder: '/contacts/42',
 		description: 'Resource path of the supplier contact',
@@ -204,6 +204,15 @@ export const supplierFields: INodeProperties[] = withOwnFiltersOnly([
 		displayOptions: { show: { resource: ['supplier'], operation: ['update'] } },
 		default: {},
 		options: [
+			{
+				displayName: 'Contact (Path)',
+				name: 'contact',
+				type: 'string',
+				default: '',
+				placeholder: '/contacts/42',
+				description: 'Resource path of the supplier contact. Rentman requires it on every update.',
+				routing: { request: { body: { contact: '={{ $value }}' } } },
+			},
 			{
 				displayName: 'Contact Person (Path)',
 				name: 'contactperson',
@@ -329,7 +338,7 @@ export const supplierFields: INodeProperties[] = withOwnFiltersOnly([
 				type: 'string',
 				default: '',
 				placeholder: 'ID,displayname,modified',
-				description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
+				description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N; together with Expand, dot notation limits an expanded record (e.g. equipment.name). Leave empty for all fields.',
 				routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 			{

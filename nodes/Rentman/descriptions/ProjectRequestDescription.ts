@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination } from './shared';
+import { customQueryParamsField, rentmanPagination, sortByDisplayName } from './shared';
 
 // ─── PROJECT REQUESTS ─────────────────────────────────────────────────────────
 
@@ -75,7 +75,7 @@ export const projectRequestOperations: INodeProperties[] = [
 	},
 ];
 
-const projectRequestBodyFields: INodeProperties['options'] = [
+const projectRequestBodyFields: INodeProperties[] = [
 	{
 		displayName: 'Contact City',
 		name: 'contact_mailing_city',
@@ -351,7 +351,7 @@ export const projectRequestFields: INodeProperties[] = [
 			type: 'string',
 			default: '',
 			placeholder: 'ID,displayname,modified',
-			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
+			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N; together with Expand, dot notation limits an expanded record (e.g. equipment.name). Leave empty for all fields.',
 			routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 			{
@@ -406,14 +406,32 @@ export const projectRequestFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['projectRequest'], operation: ['create'] } },
 		default: {},
-		options: projectRequestBodyFields.filter((field) => field.name !== 'name'),
+		options: sortByDisplayName([
+			{
+				displayName: 'Plan Period End',
+				name: 'planperiod_end',
+				type: 'dateTime',
+				default: '',
+				description: 'End of the planning period. Rentman requires start and end on create.',
+				routing: { request: { body: { planperiod_end: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Plan Period Start',
+				name: 'planperiod_start',
+				type: 'dateTime',
+				default: '',
+				description: 'Start of the planning period. Rentman requires start and end on create.',
+				routing: { request: { body: { planperiod_start: '={{ $value }}' } } },
+			},
+			...projectRequestBodyFields.filter((field) => field.name !== 'name'),
+		]),
 	},
 	{
 		displayName: 'Plan Period Start',
 		name: 'planperiod_start',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['projectRequest'], operation: ['create', 'update'] } },
+		displayOptions: { show: { resource: ['projectRequest'], operation: ['update'] } },
 		default: '',
 		description: 'Start of the planning period (required by the API)',
 		routing: { request: { body: { planperiod_start: '={{ $value }}' } } },
@@ -423,7 +441,7 @@ export const projectRequestFields: INodeProperties[] = [
 		name: 'planperiod_end',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['projectRequest'], operation: ['create', 'update'] } },
+		displayOptions: { show: { resource: ['projectRequest'], operation: ['update'] } },
 		default: '',
 		description: 'End of the planning period (required by the API)',
 		routing: { request: { body: { planperiod_end: '={{ $value }}' } } },
@@ -681,7 +699,7 @@ export const projectRequestEquipmentFields: INodeProperties[] = [
 			type: 'string',
 			default: '',
 			placeholder: 'ID,displayname,modified',
-			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
+			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N; together with Expand, dot notation limits an expanded record (e.g. equipment.name). Leave empty for all fields.',
 			routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 			{

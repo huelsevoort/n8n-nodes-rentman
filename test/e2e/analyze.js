@@ -28,11 +28,12 @@ for (const c of cases) {
 	if (e.auth !== 'Bearer mock-token') problems.push('missing auth header');
 	const needsId = Object.keys(c.params).some((k) => /Id$/.test(k));
 	if (needsId && !e.path.includes('101')) problems.push(`ID not in path ${e.path}`);
-	if (c.variant === 'full' && ['POST', 'PUT'].includes(c.method) && (e.body === null || typeof e.body !== 'object')) problems.push('no JSON body');
+	// Rentman rejects a write without a body, so even a write without optional fields must send an object ({}).
+	if (['POST', 'PUT'].includes(c.method) && (e.body === null || typeof e.body !== 'object' || Array.isArray(e.body))) problems.push('no JSON object body');
 	for (const x of c.expect) {
 		if (x.in === 'url') {
 			const want = x.expr.replace(/^=/, '').replace(/\{\{\s*\$value\s*\}\}/g, String(x.value));
-			if (!want.includes('{{') && e.path !== want && !(c.variant && e.path.startsWith(want))) problems.push(`path ${e.path} != ${want}`);
+			if (!want.includes('{{') && e.path !== want) problems.push(`path ${e.path} != ${want}`);
 			continue;
 		}
 		const bag = x.in === 'qs' ? e.query || {} : e.body || {};
@@ -45,8 +46,12 @@ for (const c of cases) {
 		// Boolean filters Rentman reads as 1/0 (it takes "true" as false).
 		if (/^=\{\{\s*\$value \? 1 : 0\s*\}\}$/.test(x.expr || '')) { if (String(got) !== (x.value ? '1' : '0')) problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${x.value ? 1 : 0}`); continue; }
 		if (got && typeof got === 'object') { if (JSON.stringify(got) !== JSON.stringify(JSON.parse(x.value))) problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${x.value}`); continue; }
-		if (String(got) !== String(x.value) && !(typeof x.value === 'string' && x.value.startsWith('2026') && String(got).startsWith('2026')))
-			problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${JSON.stringify(x.value)}`);
+		// Dates in bodies get the workflow timezone's offset (Europe/Berlin in env.sh: +01:00 in January).
+		if (x.in === 'body' && typeof x.value === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d$/.test(x.value)) {
+			if (String(got) !== `${x.value}+01:00`) problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${x.value}+01:00`);
+			continue;
+		}
+		if (String(got) !== String(x.value)) problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${JSON.stringify(x.value)}`);
 	}
 	results.push({ name: c.name, method: c.method, path: e.path, query: e.query, body: e.body, ok: problems.length === 0, problems });
 }
@@ -54,3 +59,4 @@ fs.writeFileSync(path.join(dir, 'report.json'), JSON.stringify(results, null, 1)
 const bad = results.filter((r) => !r.ok);
 console.log(`${results.length - bad.length}/${results.length} cases OK`);
 for (const b of bad) console.log(b.name, '→', b.problems.join('; '));
+process.exit(bad.length ? 1 : 0);
