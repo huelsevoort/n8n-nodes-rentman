@@ -90,7 +90,7 @@ const vehicleBodyFields: INodeProperties['options'] = [
 		type: 'string',
 		default: '',
 		placeholder: '/rates/0',
-		description: 'Resource path of the cost rate',
+		description: 'Resource path of the cost rate. Rentman rejects a new vehicle without one (HTTP 500).',
 		routing: { request: { body: { cost_rate: '={{ $value }}' } } },
 	},
 	{
@@ -331,24 +331,13 @@ export const vehicleFields: INodeProperties[] = [
 	customQueryParamsField('vehicle'),
 	// Create body fields
 	{
-		displayName: 'Cost Rate (Path)',
-		name: 'costRate',
-		type: 'string',
-		required: true,
-		displayOptions: { show: { resource: ['vehicle'], operation: ['create', 'createForStockLocation'] } },
-		default: '',
-		placeholder: '/rates/1',
-		description: 'Resource path of the cost rate. Rentman rejects a vehicle without one (HTTP 500).',
-		routing: { request: { body: { cost_rate: '={{ $value }}' } } },
-	},
-	{
 		displayName: 'Additional Fields',
 		name: 'additionalFields',
 		type: 'collection',
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['vehicle'], operation: ['create', 'createForStockLocation'] } },
 		default: {},
-		options: vehicleBodyFields.filter((field) => field.name !== 'cost_rate'),
+		options: vehicleBodyFields,
 	},
 	// Update body fields
 	{

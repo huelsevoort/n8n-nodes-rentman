@@ -23,6 +23,15 @@ sudo node mock.js requests.jsonl &  # listens on 127.0.0.1:443
 
 Remove the `/etc/hosts` line afterwards, otherwise n8n on this machine keeps talking to the mock.
 
+# Upgrade check
+
+`upgrade-check.js` makes sure workflows saved with the previous release keep running: it generates every operation of the old build (required only and all optional fields) and runs n8n's parameter validator on those parameters against the new build. A new required parameter, or a field moved out of a collection, shows up here as "The workflow has issues".
+
+```bash
+git worktree add /tmp/old v26.5.0-1.13.0 && (cd /tmp/old && npm ci && npm run build)
+node upgrade-check.js /tmp/old "$PWD/../.." /path/to/n8n/node_modules /tmp/upgrade-check
+```
+
 # Live run against the real Rentman API
 
 `run-live.sh` runs the same node inside n8n against `api.rentman.net` itself. Use a test account if you have one.

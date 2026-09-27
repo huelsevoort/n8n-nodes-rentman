@@ -362,9 +362,9 @@ export const stockMovementFields: INodeProperties[] = [
 		name: 'date',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['stockMovement'], operation: ['create', 'update'] } },
+		displayOptions: { show: { resource: ['stockMovement'], operation: ['create'] } },
 		default: '',
-		description: 'Date of the stock movement. Rentman requires it on create and on every update.',
+		description: 'Date of the stock movement',
 		routing: { request: { body: { date: '={{ $value }}' } } },
 	},
 	{
@@ -383,7 +383,17 @@ export const stockMovementFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['stockMovement'], operation: ['update'] } },
 		default: {},
-		options: stockMovementBodyFields,
+		options: [
+			{
+				displayName: 'Date',
+				name: 'date',
+				type: 'dateTime',
+				default: '',
+				description: 'Date of the stock movement. Rentman requires it on every update.',
+				routing: { request: { body: { date: '={{ $value }}' } } },
+			},
+			...stockMovementBodyFields!,
+		],
 	},
 	customQueryParamsField('stockMovement'),
 ];

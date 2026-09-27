@@ -443,27 +443,28 @@ const equipmentSetsContentBodyFields: INodeProperties['options'] = [
 		routing: { request: { body: { quantity: '={{ $value }}' } } },
 	},
 ];
+// Rentman requires the content item on create and on every update. It stays in the collections
+// (where 26.5.0 had it on create) so saved workflows keep validating after an upgrade.
+const equipmentSetsContentWithEquipment: INodeProperties['options'] = [
+	{
+		displayName: 'Equipment (Path)',
+		name: 'equipment',
+		type: 'string',
+		default: '',
+		placeholder: '/equipment/42',
+		description: 'Resource path of the equipment item that is part of this set. Rentman requires it on create and on every update.',
+		routing: { request: { body: { equipment: '={{ $value }}' } } },
+	},
+	...equipmentSetsContentBodyFields!,
+];
 const equipmentSetsContent = buildCrud(
 	'equipmentSetsContent',
 	'equipmentsetscontent',
 	'equipmentsetscontent',
 	'Equipment Sets Content',
-	equipmentSetsContentBodyFields,
-	equipmentSetsContentBodyFields,
+	equipmentSetsContentWithEquipment,
+	equipmentSetsContentWithEquipment,
 );
-// Rentman requires the content item on create and on every update, so it is a top-level required
-// field rather than an optional collection entry (required fields inside a collection break the UI).
-equipmentSetsContent.fields.push({
-	displayName: 'Content Equipment (Path)',
-	name: 'setContentEquipment',
-	type: 'string',
-	required: true,
-	displayOptions: { show: { resource: ['equipmentSetsContent'], operation: ['create', 'update'] } },
-	default: '',
-	placeholder: '/equipment/42',
-	description: 'Resource path of the equipment item that is part of this set',
-	routing: { request: { body: { equipment: '={{ $value }}' } } },
-});
 
 // ─── SERIAL NUMBER (CRUD) ────────────────────────────────────────────────────
 const serialNumberBodyFields: INodeProperties['options'] = [

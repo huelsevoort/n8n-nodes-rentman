@@ -206,9 +206,9 @@ export const paymentFields: INodeProperties[] = [
 		name: 'moment',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['payment'], operation: ['create', 'update'] } },
+		displayOptions: { show: { resource: ['payment'], operation: ['create'] } },
 		default: '',
-		description: 'When the payment was made. Rentman requires it on create and on every update.',
+		description: 'When the payment was made',
 		routing: { request: { body: { moment: '={{ $value }}' } } },
 	},
 	{
@@ -227,7 +227,18 @@ export const paymentFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['payment'], operation: ['update'] } },
 		default: {},
-		options: paymentBodyFields,
+		options: [
+			{
+				displayName: 'Payment Date',
+				// Named "date" as in 26.5.0, so saved workflows keep their value; Rentman's field is "moment".
+				name: 'date',
+				type: 'dateTime',
+				default: '',
+				description: 'When the payment was made. Rentman requires it on every update.',
+				routing: { request: { body: { moment: '={{ $value }}' } } },
+			},
+			...paymentBodyFields!,
+		],
 	},
 	customQueryParamsField('payment'),
 ];
