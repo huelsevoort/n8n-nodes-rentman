@@ -355,7 +355,7 @@ export const projectFields: INodeProperties[] = [
 				name: 'number',
 				type: 'string',
 				default: '',
-				description: 'Project number. Leave empty to let Rentman assign the next number.',
+				description: 'Project number, digits only. Leave empty to let Rentman assign the next number; Rentman also does that for a number with other characters.',
 				routing: { request: { body: { number: '={{ $value }}' } } },
 			},
 		],

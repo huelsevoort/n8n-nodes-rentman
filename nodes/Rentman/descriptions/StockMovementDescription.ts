@@ -105,13 +105,6 @@ export const stockMovementOperations: INodeProperties[] = [
 
 const stockMovementBodyFields: INodeProperties['options'] = [
 	{
-		displayName: 'API Client',
-		name: 'api_client',
-		type: 'string',
-		default: '',
-		routing: { request: { body: { api_client: '={{ $value }}' } } },
-	},
-	{
 		displayName: 'Description',
 		name: 'remark',
 		type: 'string',

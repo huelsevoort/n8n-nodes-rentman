@@ -165,7 +165,7 @@ const w1cases = [
 		name: `${T} task`, order: '1', priority: 'low_priority', recurperiode: 1, recurhoe: 'once', synchronization_id: 'e2e-sync', synchronization_uri: 'https://example.com/e2e', time_budget: 3600, custom: '{}' } } },
 	{ name: 'taskStatus.create.full', track: ['taskstatuses', true], params: { resource: 'taskStatus', operation: 'create', color: '#00AA00', additionalFields: { name: `${T} status`, order: '99', type: 'custom' } } },
 	{ name: 'timeRegistration.create.full', track: ['timeregistration', true], params: { resource: 'timeRegistration', operation: 'create', crewmember: ref.crew, start: d1, end: d2, additionalFields: { break_duration: 0, custom: '{}', distance: 0, is_lunch_included: true, leavetype: ref.leavetypeWork, remark: T, travel_time: 120 } } },
-	{ name: 'timeRegistration.create[correction]', track: ['timeregistration', true], params: { resource: 'timeRegistration', operation: 'create', crewmember: ref.crew, start: '2027-03-03T09:00:00', end: '2027-03-03T09:10:00', additionalFields: { correction_duration: 600, leavetype: ref.leavetypeCorrection, remark: `${T} correction` } } },
+	{ name: 'timeRegistration.create[correction]', track: ['timeregistration', true], params: { resource: 'timeRegistration', operation: 'create', crewmember: ref.crew, start: '2027-03-03T09:00:00', end: '2027-03-03T09:00:00', additionalFields: { correction_duration: 600, leavetype: ref.leavetypeCorrection, remark: `${T} correction` } } },
 	{ name: 'vehicle.create.min', track: ['vehicles', true], params: { resource: 'vehicle', operation: 'create', costRate: ref.rateCost } },
 	{ name: 'vehicle.create.full', track: ['vehicles', true], params: { resource: 'vehicle', operation: 'create', costRate: ref.rateCost, additionalFields: { custom: '{}',
 		folder: ref.folderVeh, height: 2, in_planner: true, inspection_date: '2027-03-01T00:00:00', length: 5, licenseplate: 'E2E-1', multiple: 'plannable_once', name: `${T} vehicle`,
@@ -200,7 +200,7 @@ const w1bCases = [
 	{ name: 'cost.create.full', track: ['costs', true], params: { resource: 'cost', operation: 'create', projectId: P1, subproject: P1sub ? `/subprojects/${P1sub}` : undefined, additionalFields: {
 		custom: '{}', discount: 0.1, is_template: false, ledger: ref.ledger, ledger_debit: ref.ledgerDebit, name: T, purchase_price: 2, quantity: 1, remark: 'e2e', sale_price: 3, taxclass: ref.taxclass } } },
 	{ name: 'stockMovement.create.full', track: ['stockmovements', true], params: { resource: 'stockMovement', operation: 'create', equipmentId: E1, date: '2027-03-01T00:00:00', additionalFields: {
-		api_client: 'n8n-e2e', details: 'e2e', quantity: 1, remark: T, stock_location: `/stocklocations/${ref.stockLocationId}` } } },
+		details: 'e2e', quantity: 1, remark: T, stock_location: `/stocklocations/${ref.stockLocationId}` } } },
 	{ name: 'payment.create.full', track: ['payments', false], params: { resource: 'payment', operation: 'create', invoiceId: String(ref.invoiceId), moment: '2027-03-01T00:00:00', additionalFields: {
 		amount: 0, payment_import_source: 'quickbooks', remark: T } } },
 	{ name: 'subproject.create.full', track: ['subprojects', false], params: { resource: 'subproject', operation: 'create', projectId: P1, additionalFields: { custom: '{}', name: `${T} subproject` } } },
@@ -311,7 +311,7 @@ const w3cases = [
 		code: 'E2E-EQ2', critical_stock_level: 2, external_remark: 'e2e ext 2', in_planner: false, in_shop: true, internal_remark: 'e2e int 2', list_price: 11, name: `${T} equipment upd`, price: 6,
 		rental_sales: 'Sale', unit: 'Pcs', can_edit_content_during_planning: false, country_of_origin: 'nl', current: 2.5, custom: '{"custom_1": "n8n-e2e custom 2"}', defaultgroup: 'e2e group 2',
 		empty_weight: 2, height: 0.7, in_archive: false, ledger_debit: ref.ledgerDebit, length: 0.8, packed_per: 3, power: 200, shop_description_long: 'e2e long 2', shop_description_short: 'e2e short 2',
-		shop_featured: false, shop_seo_description: 'e2e seo desc 2', shop_seo_keyword: 'e2e2', shop_seo_title: 'e2e seo 2', subrental_costs: 4, surface_article: true, temporary: true, volume: 0.3,
+		shop_featured: false, shop_seo_description: 'e2e seo desc 2', shop_seo_keyword: 'e2e2', shop_seo_title: 'e2e seo 2', subrental_costs: 4, surface_article: true, temporary: false, volume: 0.3,
 		weight: 3, width: 0.5 } }),
 	u('equipmentSetsContent.update', 'equipmentSetsContent', 'equipmentSetsContentId', ESC, 'equipmentsetscontent', { setContentEquipment: ref.eqB, updateFields: { is_fixed: 'Available outside this combination', is_physically_connected: 'Will be removed when emptying combinations', order: '2', quantity: '2' } }),
 	u('folder.update', 'folder', 'folderId', F1, 'folders', { additionalFields: { itemtype: 'equipment', name: `${T} folder upd`, order: '98', parent: ref.folderEq } }),
@@ -329,7 +329,7 @@ const w3cases = [
 		usageperiod_end: '2027-03-02T17:00:00', usageperiod_start: '2027-03-02T11:00:00' } }),
 	u('projectRequestEquipment.update', 'projectRequestEquipment', 'projectRequestEquipmentId', PRE1, 'projectrequestequipment', { updateFields: { discount: 0.2, factor: '2', is_comment: false, is_kit: false, linked_equipment: ref.eqB, name: `${T} upd`, order: '2', quantity: 2, quantity_total: 2, remark: 'e2e upd', unit_price: 6 } }),
 	u('serialNumber.update', 'serialNumber', 'serialNumberId', SN, 'serialnumbers', { updateFields: { active: false, book_value: 2, depreciation_monthly: 1, purchase_costs: 2, purchasedate: '2025-01-02T00:00:00', ref: 'E2E2', remark: `${T} upd`, residual_value: 1, serial: 'E2E-SN-2', custom: '{}' } }),
-	u('stockMovement.update', 'stockMovement', 'stockMovementId', SM1, 'stockmovements', { date: '2027-03-02T00:00:00', updateFields: { api_client: 'n8n-e2e 2', quantity: 2, remark: `${T} upd`, details: 'e2e', stock_location: `/stocklocations/${ref.stockLocationId}` } }),
+	u('stockMovement.update', 'stockMovement', 'stockMovementId', SM1, 'stockmovements', { date: '2027-03-02T00:00:00', updateFields: { quantity: 2, remark: `${T} upd`, details: 'e2e', stock_location: `/stocklocations/${ref.stockLocationId}` } }),
 	u('subtask.update', 'subtask', 'subtaskId', ST1, 'subtasks', { updateFields: { completed: true, title: `${T} subtask upd` } }),
 	u('supplier.update', 'supplier', 'supplierId', SUP, 'suppliers', { contact: `/contacts/${C1}`, updateFields: { details: 'e2e upd', price: 2 } }),
 	u('task.update', 'task', 'taskId', T1, 'tasks', { color: '#AA0000', additionalFields: { name: `${T} task upd`, details: 'e2e upd', priority: 'high_priority', completed_by: ref.crew, completed_at: '2027-03-02T12:00:00', custom: '{}' } }),
@@ -344,6 +344,9 @@ const w3cases = [
 	u('equipment.update[can_edit_content_during_planning]', 'equipment', 'equipmentId', E1, 'equipment', { additionalFields: { can_edit_content_during_planning: true } }),
 	u('equipment.update[type=item]', 'equipment', 'equipmentId', E1, 'equipment', { additionalFields: { type: 'item' } }),
 	u('equipment.update[stock_management]', 'equipment', 'equipmentId', E1, 'equipment', { additionalFields: { stock_management: 'Exclude from stock tracking' } }),
+	// Rentman hides temporary equipment from every read, so only the switch back is read back.
+	{ ...u('equipment.update[temporary]', 'equipment', 'equipmentId', E1, 'equipment', { additionalFields: { temporary: true } }), noReadBack: true },
+	u('equipment.update[temporary=false]', 'equipment', 'equipmentId', E1, 'equipment', { additionalFields: { temporary: false } }),
 ];
 const runnable = w3cases.filter((c) => {
 	if (c.id) return true;
@@ -356,7 +359,7 @@ const w3 = {};
 for (const c of runnable) {
 	Object.assign(w3, run([c]));
 	// Read back straight away: a later update (e.g. equipment stock tracking) can remove the record.
-	if (w3[c.name].ok) readBack(c.name, c.coll, c.id, c.params);
+	if (w3[c.name].ok && !c.noReadBack) readBack(c.name, c.coll, c.id, c.params);
 }
 
 // ── W4: deletes of everything deletable (node deletes; helper-only kinds too) ──

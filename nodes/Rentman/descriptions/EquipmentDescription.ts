@@ -687,6 +687,7 @@ export const equipmentFields: INodeProperties[] = [
 				name: 'temporary',
 				type: 'boolean',
 				default: false,
+				description: 'Whether the equipment is temporary. Rentman then sets its code to TEMP and hides it from every read (Get answers 404) until Temporary is set back to false.',
 				routing: { request: { body: { temporary: '={{ $value }}' } } },
 			},
 			{
