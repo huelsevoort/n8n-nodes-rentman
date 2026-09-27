@@ -402,7 +402,7 @@ const accessories = buildCrud(
 // trigger global "workflow has issues" validation errors even when this
 // resource isn't selected (n8n's validator does not consult the parent
 // collection's displayOptions when evaluating required inner items).
-const equipmentSetsContentBodyFields: INodeProperties['options'] = [
+const equipmentSetsContentBodyFields: INodeProperties[] = [
 	{
 		displayName: 'Is Fixed',
 		name: 'is_fixed',
@@ -455,7 +455,7 @@ const equipmentSetsContentWithEquipment: INodeProperties['options'] = [
 		description: 'Resource path of the equipment item that is part of this set. Rentman requires it on create and on every update.',
 		routing: { request: { body: { equipment: '={{ $value }}' } } },
 	},
-	...equipmentSetsContentBodyFields!,
+	...equipmentSetsContentBodyFields,
 ];
 const equipmentSetsContent = buildCrud(
 	'equipmentSetsContent',

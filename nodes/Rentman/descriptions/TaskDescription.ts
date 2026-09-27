@@ -22,7 +22,7 @@ const taskParentOptions = [
 	{ name: 'Vehicle', value: 'vehicles' },
 ];
 
-const taskBodyFields: INodeProperties['options'] = [
+const taskBodyFields: INodeProperties[] = [
 	{
 		displayName: 'Assignment Type',
 		name: 'assignment_type',
@@ -504,9 +504,9 @@ export const taskFields: INodeProperties[] = [
 		name: 'color',
 		type: 'color',
 		required: true,
-		displayOptions: { show: { resource: ['task'], operation: ['create', 'createForParent', 'update'] } },
+		displayOptions: { show: { resource: ['task'], operation: ['create', 'createForParent'] } },
 		default: '#000000',
-		description: 'Task color as hex code, e.g. #FF6600. Rentman requires it on create and on every update.',
+		description: 'Task color as hex code, e.g. #FF6600',
 		routing: { request: { body: { color: '={{ $value }}' } } },
 	},
 	// ── Pagination ───────────────────────────────────────────────────────────
@@ -635,6 +635,18 @@ export const taskFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['task'], operation: ['create', 'createForParent', 'update'] } },
 		default: {},
-		options: taskBodyFields,
+		options: [
+			{
+				displayName: 'Color',
+				name: 'color',
+				type: 'color',
+				// Update only: on create Color is a required top-level field
+				displayOptions: { show: { '/operation': ['update'] } },
+				default: '',
+				description: 'Task color as hex code. Rentman requires it on every update; take the current value from Get to keep it.',
+				routing: { request: { body: { color: '={{ $value }}' } } },
+			},
+			...taskBodyFields,
+		],
 	},
 ];

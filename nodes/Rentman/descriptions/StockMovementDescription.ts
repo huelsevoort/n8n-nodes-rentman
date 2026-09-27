@@ -103,7 +103,7 @@ export const stockMovementOperations: INodeProperties[] = [
 	},
 ];
 
-const stockMovementBodyFields: INodeProperties['options'] = [
+const stockMovementBodyFields: INodeProperties[] = [
 	{
 		displayName: 'Description',
 		name: 'remark',
@@ -392,7 +392,7 @@ export const stockMovementFields: INodeProperties[] = [
 				description: 'Date of the stock movement. Rentman requires it on every update.',
 				routing: { request: { body: { date: '={{ $value }}' } } },
 			},
-			...stockMovementBodyFields!,
+			...stockMovementBodyFields,
 		],
 	},
 	customQueryParamsField('stockMovement'),

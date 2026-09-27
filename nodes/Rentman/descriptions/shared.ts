@@ -1,3 +1,4 @@
+import { NodeOperationError } from 'n8n-workflow';
 import type {
 	IDataObject,
 	IExecuteSingleFunctions,
@@ -84,11 +85,28 @@ const DATE_TIME_KEYS = new Set([
 	'recurrence_enddate', 'reviewed_on', 'start', 'usageperiod_end', 'usageperiod_start',
 ]);
 
+/**
+ * Body fields Rentman requires that live in an optional collection (to keep 26.5.0 workflows
+ * valid), keyed by resource.operation. Without them Rentman only answers with a bare HTTP 500.
+ */
+export const REQUIRED_BODY_FIELDS: Record<string, Array<[key: string, label: string]>> = {
+	'vehicle.create': [['cost_rate', 'Additional Fields → Cost Rate']],
+	'vehicle.createForStockLocation': [['cost_rate', 'Additional Fields → Cost Rate']],
+};
+
 async function prepareWriteBody(
 	this: IExecuteSingleFunctions,
 	requestOptions: IHttpRequestOptions,
 ): Promise<IHttpRequestOptions> {
 	const body = requestOptions.body as Record<string, unknown> | undefined;
+	const required = REQUIRED_BODY_FIELDS[`${this.getNodeParameter('resource')}.${this.getNodeParameter('operation')}`];
+	for (const [key, label] of required ?? []) {
+		if (body?.[key] === undefined || body[key] === '') {
+			throw new NodeOperationError(this.getNode(), `Rentman requires ${label}`, {
+				description: `Set ${label}; Rentman rejects the request without it (HTTP 500).`,
+			});
+		}
+	}
 	if (body && typeof body === 'object' && !Array.isArray(body)) {
 		const timeZone = this.getTimezone();
 		for (const [key, value] of Object.entries(body)) {

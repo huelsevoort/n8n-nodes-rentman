@@ -46,6 +46,26 @@ function lastExecutionId() {
 	return execFileSync('python3', ['-c', 'import sqlite3,sys;print(sqlite3.connect(sys.argv[1]).execute("select max(id) from execution_entity").fetchone()[0])', process.env.N8N_USER_FOLDER + '/.n8n/database.sqlite']).toString().trim();
 }
 
+// Parameters n8n drops when it loads the workflow (unknown or hidden keys) never reach Rentman, so a
+// case that sets one would test less than it claims. Returns the dropped parameter paths.
+let description;
+function droppedParams(params) {
+	const { NodeHelpers } = require(path.join(process.env.N8N_MODS, 'n8n-workflow'));
+	description ??= new (require(path.join(process.env.N8N_USER_FOLDER, '.n8n/nodes/node_modules/n8n-nodes-rentman/dist/nodes/Rentman/Rentman.node.js')).Rentman)().description;
+	const node = { id: 'x', name: 'x', type: 'n8n-nodes-rentman.rentman', typeVersion: 1, position: [0, 0], parameters: {} };
+	const kept = NodeHelpers.getNodeParameters(description.properties, params, true, false, node, description) || {};
+	const dropped = [];
+	const walk = (given, have, pre) => {
+		for (const [k, v] of Object.entries(given)) {
+			if (v === undefined) continue;
+			if (!have || !(k in have)) dropped.push(pre + k);
+			else if (v && typeof v === 'object' && !Array.isArray(v)) walk(v, have[k], `${pre}${k}.`);
+		}
+	};
+	walk(params, kept, '');
+	return dropped;
+}
+
 /** Runs cases [{name, params}] and returns {name: {ok, error, items, first}}. */
 function runBatch(cases, dir) {
 	const id = `rentmanLive${Date.now()}${counter++}`;
@@ -66,7 +86,9 @@ function runBatch(cases, dir) {
 		const items = run?.data?.main?.[0] || [];
 		const first = items[0]?.json;
 		let error;
-		if (!run) error = 'node did not run';
+		const dropped = droppedParams(c.params);
+		if (dropped.length) error = `test case sets parameters the node does not have: ${dropped.join(', ')}`;
+		else if (!run) error = 'node did not run';
 		else if (run.error) error = run.error.message + (run.error.description ? ' | ' + run.error.description : '');
 		else if (first && first.error) {
 			error = typeof first.error === 'string' ? first.error : JSON.stringify(first.error);

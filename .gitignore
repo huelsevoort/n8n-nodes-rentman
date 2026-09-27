@@ -7,3 +7,4 @@ test/e2e/env.sh
 test/e2e/*.pem
 test/e2e/out/
 test/e2e/requests.jsonl
+test/e2e/live-out/

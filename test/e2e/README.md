@@ -25,11 +25,17 @@ Remove the `/etc/hosts` line afterwards, otherwise n8n on this machine keeps tal
 
 # Upgrade check
 
-`upgrade-check.js` makes sure workflows saved with the previous release keep running: it generates every operation of the old build (required only and all optional fields) and runs n8n's parameter validator on those parameters against the new build. A new required parameter, or a field moved out of a collection, shows up here as "The workflow has issues".
+`upgrade-check.js` makes sure workflows saved with the previous release keep running. It generates every operation of the old build (required only and all optional fields), loads those parameters into the new build the way n8n opens a saved workflow, and fails when
+- n8n's parameter validator reports issues ("The workflow has issues"), e.g. a new required parameter,
+- a value the old workflow set is dropped (a field moved or renamed) or an options value is no longer offered,
+- a value the old workflow did not set is now sent by default.
+
+Removals the CHANGELOG lists as breaking are allowed in its `ALLOWED` list.
 
 ```bash
+npm run build
 git worktree add /tmp/old v26.5.0-1.13.0 && (cd /tmp/old && npm ci && npm run build)
-node upgrade-check.js /tmp/old "$PWD/../.." /path/to/n8n/node_modules /tmp/upgrade-check
+node test/e2e/upgrade-check.js /tmp/old "$PWD" /path/to/n8n/node_modules /tmp/upgrade-check
 ```
 
 # Live run against the real Rentman API

@@ -7,6 +7,10 @@ const repo = process.argv[2];
 const outDir = process.argv[3];
 const { Rentman } = require(path.join(repo, 'dist/nodes/Rentman/Rentman.node.js'));
 const d = new Rentman().description;
+// Collection fields the node itself requires before sending (see REQUIRED_BODY_FIELDS in shared.ts);
+// the "min" variant fills them too. Older builds have none.
+let requiredBody = {};
+try { requiredBody = require(path.join(repo, 'dist/nodes/Rentman/descriptions/shared.js')).REQUIRED_BODY_FIELDS || {}; } catch {}
 
 const visible = (p, vals) => {
 	const show = p.displayOptions?.show;
@@ -98,6 +102,10 @@ for (const r of resources) {
 						const val = p.type === 'collection' ? fillCollection(p, expect, '') : dummy(p);
 						vals[p.name] = val;
 						for (const s of sinks(p)) expect.push({ ...s, field: p.name, value: val });
+					} else if (variant === 'min' && p.type === 'collection' && requiredBody[`${r.value}.${op.value}`]) {
+						const keys = requiredBody[`${r.value}.${op.value}`].map(([k]) => k);
+						const only = { ...p, options: p.options.filter((o) => sinks(o).some((s) => keys.includes(s.key))) };
+						if (only.options.length) vals[p.name] = fillCollection(only, expect, '');
 					} else if (variant === 'full') {
 						let val;
 						if (p.type === 'collection') val = fillCollection(p, expect, '');

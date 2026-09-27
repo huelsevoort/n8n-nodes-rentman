@@ -54,7 +54,7 @@ export const paymentOperations: INodeProperties[] = [
 	},
 ];
 
-const paymentBodyFields: INodeProperties['options'] = [
+const paymentBodyFields: INodeProperties[] = [
 	{
 		displayName: 'Amount',
 		name: 'amount',
@@ -237,7 +237,7 @@ export const paymentFields: INodeProperties[] = [
 				description: 'When the payment was made. Rentman requires it on every update.',
 				routing: { request: { body: { moment: '={{ $value }}' } } },
 			},
-			...paymentBodyFields!,
+			...paymentBodyFields,
 		],
 	},
 	customQueryParamsField('payment'),

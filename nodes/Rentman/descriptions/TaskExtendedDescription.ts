@@ -115,7 +115,7 @@ export const taskStatusOperations: INodeProperties[] = [
 	},
 ];
 
-const taskStatusBodyFields: INodeProperties['options'] = [
+const taskStatusBodyFields: INodeProperties[] = [
 	{
 		displayName: 'Name',
 		name: 'name',
@@ -160,9 +160,9 @@ export const taskStatusFields: INodeProperties[] = [
 		name: 'color',
 		type: 'color',
 		required: true,
-		displayOptions: { show: { resource: ['taskStatus'], operation: ['create', 'update'] } },
+		displayOptions: { show: { resource: ['taskStatus'], operation: ['create'] } },
 		default: '#000000',
-		description: 'Status color as hex code, e.g. #00AA00. Rentman requires it on create and on every update.',
+		description: 'Status color as hex code, e.g. #00AA00',
 		routing: { request: { body: { color: '={{ $value }}' } } },
 	},
 	{
@@ -216,7 +216,19 @@ export const taskStatusFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['taskStatus'], operation: ['create', 'update'] } },
 		default: {},
-		options: taskStatusBodyFields,
+		options: [
+			{
+				displayName: 'Color',
+				name: 'color',
+				type: 'color',
+				// Update only: on create Color is a required top-level field
+				displayOptions: { show: { '/operation': ['update'] } },
+				default: '',
+				description: 'Status color as hex code. Rentman requires it on every update; take the current value from Get to keep it.',
+				routing: { request: { body: { color: '={{ $value }}' } } },
+			},
+			...taskStatusBodyFields,
+		],
 	},
 ];
 

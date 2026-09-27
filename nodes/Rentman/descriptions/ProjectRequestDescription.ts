@@ -75,7 +75,7 @@ export const projectRequestOperations: INodeProperties[] = [
 	},
 ];
 
-const projectRequestBodyFields: INodeProperties['options'] = [
+const projectRequestBodyFields: INodeProperties[] = [
 	{
 		displayName: 'Contact City',
 		name: 'contact_mailing_city',
@@ -423,7 +423,7 @@ export const projectRequestFields: INodeProperties[] = [
 				description: 'Start of the planning period. Rentman requires start and end on create.',
 				routing: { request: { body: { planperiod_start: '={{ $value }}' } } },
 			},
-			...projectRequestBodyFields!.filter((field) => field.name !== 'name'),
+			...projectRequestBodyFields.filter((field) => field.name !== 'name'),
 		],
 	},
 	{
