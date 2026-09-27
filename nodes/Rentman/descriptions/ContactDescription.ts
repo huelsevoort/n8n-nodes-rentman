@@ -961,7 +961,6 @@ export const contactFields: INodeProperties[] = [
 			options: [
 			{ name: 'Company', value: 'company' },
 			{ name: 'Private', value: 'private' },
-			{ name: 'Other', value: 'other' },
 			],
 			default: 'company',
 			routing: {

@@ -4,7 +4,8 @@
 //   get       -> must return X
 //   getAll    -> min (limit 1), offset (limit 1, offset 1), and "full": every filter, Fields, Sort,
 //                Expand and Custom Query Parameters (plus a blank row) set to values taken from X,
-//                which must return X and nothing that contradicts the filters.
+//                which must return X and nothing that contradicts the filters; plus every value of every choice
+//                filter on its own, whose results must match it.
 //   sub-collection getters (getFiles, getForEquipment, getForParent ...) -> must succeed, once plain and once with
 //                every filter, Fields, Sort, Expand and Custom Query Parameters set to values that match everything.
 const fs = require('fs');
@@ -123,6 +124,13 @@ for (const r of resources) {
 					}
 				}
 				cases.push({ name: `${r.value}.getAll.full`, params, check: 'hasX', x: x.id, applied });
+				// Every value of every choice filter (options, booleans): accepted, and what comes back matches it.
+				for (const o of props.find((p) => p.name === 'filters')?.options ?? []) {
+					if (o.type !== 'options' && o.type !== 'boolean') continue;
+					const field = Object.keys(o.routing?.request?.qs || {})[0];
+					for (const value of o.type === 'boolean' ? [true, false] : o.options.map((v) => v.value))
+						cases.push({ name: `${r.value}.getAll.filter[${o.name}=${value}]`, params: { ...base, returnAll: false, limit: 3, filters: { [o.name]: value } }, check: 'match', field, value });
+				}
 				continue;
 			}
 			// get / sub-collection getters: need a real id of the resource the URL points at
@@ -146,6 +154,10 @@ for (const c of cases) {
 	if (!problem && c.check === 'isX' && o.first?.id !== c.x) problem = `expected record ${c.x}, got ${o.first?.id}`;
 	if (!problem && c.check === 'hasX' && !o.all.some((i) => i.id === c.x)) problem = `filtered by record ${c.x}'s own values but it was not returned (${o.items} items)`;
 	if (!problem && c.check === 'hasX' && o.first && Object.keys(o.first).some((k) => !['id', 'displayname', 'link', 'updateHash', 'custom', 'created', 'modified', 'creator'].includes(k))) problem = `Fields=id,displayname ignored: got ${Object.keys(o.first).join(',')}`;
+	if (!problem && c.check === 'match') {
+		const wrong = o.all.find((i) => c.field in i && (typeof c.value === 'boolean' ? Boolean(i[c.field]) !== c.value : i[c.field] !== c.value));
+		if (wrong) problem = `filter ${c.field}=${c.value} returned record ${wrong.id} with ${c.field}=${JSON.stringify(wrong[c.field])}`;
+	}
 	if (!problem && c.notId !== undefined && o.first && o.first.id === c.notId) problem = 'offset ignored';
 	report.push({ name: c.name, ok: !problem, problem, items: o.items, params: c.params, applied: c.applied });
 }

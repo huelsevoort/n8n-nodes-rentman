@@ -318,11 +318,11 @@ export const timeRegistrationFields: INodeProperties[] = [
 				name: 'status',
 				type: 'options',
 				options: [
-					{ name: 'Open', value: 'open' },
+					{ name: 'Pending', value: 'pending' },
 					{ name: 'Approved', value: 'approved' },
 					{ name: 'Rejected', value: 'rejected' },
 				],
-				default: 'open',
+				default: 'pending',
 				description: 'Filter by approval status',
 				routing: {
 					request: {

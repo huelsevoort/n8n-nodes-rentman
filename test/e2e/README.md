@@ -34,7 +34,7 @@ export GENERIC_TIMEZONE=Europe/Berlin
 ./run-live.sh /tmp/rentman-live
 ```
 
-- `live-reads.js`: every read operation. For each resource it picks a real record X, checks that Get returns X, and runs Get Collection three times: limit 1, offset 1, and with every filter, Fields, Sort, Expand and Custom Query Parameters (plus a blank row) set from X's own values, which must still return X. Every sub-collection getter and every Get For Parent (each parent type of each resource) runs against a real parent.
+- `live-reads.js`: every read operation. For each resource it picks a real record X, checks that Get returns X, and runs Get Collection three times: limit 1, offset 1, and with every filter, Fields, Sort, Expand and Custom Query Parameters (plus a blank row) set from X's own values, which must still return X. Every value of every choice filter (options and booleans) runs on its own and must only return matching records. Every sub-collection getter and every Get For Parent (each parent type of each resource) runs against a real parent, plain and with all its filters, Fields, Sort, Expand and Custom Query Parameters.
 - `live-pagination.js`: Return All with small pages (Custom Query Parameter `limit`) combined with filters, Fields, Sort and Expand, compared item by item with the same list read directly.
 - `live-writes.js`: every create, update and delete. Records are named `n8n-e2e TEST` and logged to `created.json`. After each create and update the record is read back and every sent field is compared with what Rentman stored. Everything that can be deleted is deleted at the end; `live-cleanup.js <dir>` deletes leftovers after an aborted run.
 
