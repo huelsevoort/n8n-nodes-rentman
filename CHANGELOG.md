@@ -4,7 +4,7 @@ All notable changes to the **n8n-nodes-rentman** community node are documented i
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows a CalVer scheme `YY.Major.Minor-RentmanAPIVersion`.
 
-## [26.6.0-1.16.0] – unreleased
+## [26.6.0-1.16.0] – 2026-09-27
 
 Tracks Rentman API **v1.16.0** (covers v1.14.0, v1.15.0 and v1.16.0).
 
@@ -248,6 +248,7 @@ Tracks Rentman API **v1.9.0**.
 ### Changed
 - Aligned package metadata and README with Rentman branding.
 
+[26.6.0-1.16.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.6.0-1.16.0
 [26.5.0-1.13.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.5.0-1.13.0
 [26.4.2-1.12.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.4.2-1.12.0
 [26.3.0-1.11.0]: https://github.com/huelsevoort/n8n-nodes-rentman/releases/tag/v26.3.0-1.11.0

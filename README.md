@@ -151,7 +151,7 @@ All **Get Collection** operations support:
 | **Filters** | Per-resource filters: name, code, status, date ranges, path references |
 | **Date filters** | `Modified After/Before`, `Created After` using Rentman's relational operators |
 | **Incremental sync** | `ID Greater Than` filter for efficient delta syncs |
-| **Field selection** | `Fields` filter to request only specific fields (reduces payload), including custom fields as `custom_N` |
+| **Field selection** | `Fields` filter to request only specific fields (reduces payload), including custom fields as `custom_N`; with Expand, dot notation limits an expanded record (e.g. `equipment.name`) |
 | **Custom field filters** | `Custom Query Parameters` accept custom fields with the normal operators (e.g. `custom_3[gt]`) |
 
 ### Expanding linked items
@@ -174,6 +174,24 @@ Item, link and child fields can be expanded, as can custom fields of an item typ
 | Requests per second | 10 |
 | Max concurrent requests | 20 |
 | Max items per page | 1,500 |
+
+---
+
+## Upgrading
+
+Workflows saved with 26.5.0 keep validating and keep every value they set after upgrading to 26.6.0. A few behaviors changed because Rentman rejected the old ones (e.g. Time Registration → Break Duration is in seconds, some option values were replaced, the Crew filter External is gone). Check the **Removed (breaking)**, **Changed (breaking)** and **Upgrading from 26.5.0** sections of [CHANGELOG.md](CHANGELOG.md) before upgrading.
+
+---
+
+## Development
+
+```bash
+npm ci
+npm run build && npm run lint
+npm test                 # unit tests of the request hooks
+```
+
+`test/e2e` runs every operation inside a real n8n instance, against a mock of the Rentman API and against a live test account, and checks that workflows saved with the previous release still run. See [test/e2e/README.md](test/e2e/README.md).
 
 ---
 
