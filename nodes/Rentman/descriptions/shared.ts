@@ -35,7 +35,8 @@ async function stripBlankQueryKeys(
  *
  * Comma-separated list of linkable field names; dot notation for nested
  * expansion up to 3 levels (e.g. `equipment,equipment.creator`). Only `item`/
- * `link` fields are expandable.
+ * `link` fields are expandable. Since v1.16.0, child fields and custom fields of
+ * an item type (`custom_<number>`) are expandable too.
  */
 export function expandField(): INodeProperties {
 	return {
@@ -45,7 +46,7 @@ export function expandField(): INodeProperties {
 		default: '',
 		placeholder: 'equipment,equipment.creator',
 		description:
-			'Comma-separated list of linkable fields to inline in the response instead of returning a path. Supports dot notation for nested expansion up to 3 levels (e.g. equipment,equipment.creator). Only item/link fields can be expanded.',
+			'Comma-separated list of linkable fields to inline in the response instead of returning a path. Supports dot notation for nested expansion up to 3 levels (e.g. equipment,equipment.creator). Item, link, child and item-type custom fields (custom_N) can be expanded.',
 		displayOptions: {
 			show: {
 				operation: [
@@ -81,7 +82,7 @@ export function customQueryParamsField(resource: string): INodeProperties {
 		displayOptions: { show: { resource: [resource], operation: ['getAll'] } },
 		default: {},
 		typeOptions: { multipleValues: true },
-		description: 'Add custom query parameters for field-value filtering (e.g. country=nl) or relational operators (e.g. modified[gt]=2024-01-01).',
+		description: 'Add custom query parameters for field-value filtering (e.g. country=nl), relational operators (e.g. modified[gt]=2024-01-01) or custom fields (e.g. custom_3=value).',
 		options: [
 			{
 				name: 'params',
@@ -92,7 +93,7 @@ export function customQueryParamsField(resource: string): INodeProperties {
 						name: 'key',
 						type: 'string',
 						default: '',
-						placeholder: 'e.g. country or modified[gt]',
+						placeholder: 'e.g. country, modified[gt] or custom_3',
 						description: 'Query parameter key. Use field[gt] or field[lt] for relational operators.',
 					},
 					{

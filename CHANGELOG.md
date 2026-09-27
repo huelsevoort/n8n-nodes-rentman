@@ -4,6 +4,30 @@ All notable changes to the **n8n-nodes-rentman** community node are documented i
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows a CalVer scheme `YY.Major.Minor-RentmanAPIVersion`.
 
+## [26.6.0-1.16.0] – unreleased
+
+Tracks Rentman API **v1.16.0** (covers v1.14.0, v1.15.0 and v1.16.0).
+
+### Added
+- **Project Status** resource (`GET /projectstatuses`, `GET /projectstatuses/{id}`) for project lifecycle statuses (Inquiry, Concept, Option, Confirmed). API v1.15.0.
+- **Warehouse Status** resource (`GET /warehousestatuses`, `GET /warehousestatuses/{id}`) for warehouse statuses (Confirmed, Prepped, On Location, Returned, …). API v1.15.0.
+- Custom fields (API v1.16.0): the **Fields** filter accepts `custom_N`, **Custom Query Parameters** accept custom fields with the normal operators (e.g. `custom_3[gt]`), and **Expand** accepts item-type custom fields and child fields. Field descriptions and the README were updated accordingly.
+
+### Removed (breaking)
+- **Crew → Get Collection → Filters → External**. Rentman removed the `external` field from `/crew` in API v1.14.0, so the filter no longer has any effect. Workflows that set it should drop it.
+
+### Fixed
+- **Custom Query Parameters**: the blank-row fix from 26.5.0 only covered resources that used the shared helper. 30 resources (all lookup resources such as Rate, Project Crew or Status, the equipment sub-resources Accessory, Actual Content, Equipment Assigned Serial, Equipment Sets Content, Repair and Serial Number, and File, File Folder and Folder) had their own copy of the field and still sent a malformed `&=` for an empty row, which Rentman rejects with HTTP 400. They now all use the shared, sanitized `customQueryParamsField`.
+
+### Testing
+- New `test/e2e` harness runs every resource and operation (210 operations, each with only required and with all optional fields) inside a real n8n 2.40.7 instance against an HTTPS mock of `api.rentman.net`, checks method, URL, auth and every query/body field, runs n8n's parameter validator on every parameter set, and checks Return All pagination. Result: 420/420 cases pass. It found the Custom Query Parameters bug above.
+
+### Notes
+- API v1.15.0 moves `planperiod_start`, `planperiod_end`, `usageperiod_start`, `usageperiod_end`, `is_delayed` and `duration` from **Project Equipment Group** to **Project Equipment**. Both endpoints return them until Q4 2026, after that only Project Equipment does. Both resources are read-only in this node, so the fields show up automatically; workflows that read them from Project Equipment Group should switch to Project Equipment.
+- API v1.15.0 no longer allows writing a warehouse status to a subproject's `status`. This node does not write subproject statuses.
+- The existing **Status** resource (`/statuses`) is kept for backwards compatibility.
+- `created`/`modified` nullability corrections (v1.13.0, v1.14.0) only affect response schemas; no node change needed.
+
 ## [26.5.0-1.13.0] – 2026-06-02
 
 Tracks Rentman API **v1.13.0**.

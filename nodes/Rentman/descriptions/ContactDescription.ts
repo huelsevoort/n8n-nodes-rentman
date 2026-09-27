@@ -262,7 +262,7 @@ export const contactFields: INodeProperties[] = [
 			type: 'string',
 			default: '',
 			placeholder: 'ID,displayname,modified',
-			description: 'Comma-separated list of fields to return. Leave empty for all fields.',
+			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
 			routing: {
 			request: {
 			qs: {
