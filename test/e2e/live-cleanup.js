@@ -3,14 +3,15 @@
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
+const { authHeader } = require('./live-lib');
 
 const file = path.join(process.argv[2], 'created.json');
 const ledger = JSON.parse(fs.readFileSync(file, 'utf8'));
 const order = ['subtasks', 'taskassignments', 'tasks', 'taskstatuses', 'accessories', 'alternatives', 'equipmentsetscontent', 'serialnumbers', 'suppliers', 'stockmovements', 'costs', 'appointmentcrew', 'appointments', 'contactpersons', 'projectrequestequipment', 'projectrequests', 'crewavailability', 'timeregistration', 'vehicles', 'contacts'];
 const status = (method, p) => {
 	const args = ['-sS', '-o', '/dev/null', '-w', '%{http_code}', '-X', method, `https://api.rentman.net${p}`];
-	if (process.env.RENTMAN_API_TOKEN) args.push('-H', `Authorization: Bearer ${process.env.RENTMAN_API_TOKEN}`);
-	return Number(execFileSync('curl', args).toString());
+	if (process.env.RENTMAN_API_TOKEN) args.push('-H', '@-'); // header via stdin, not visible in the process list
+	return Number(execFileSync('curl', args, { input: authHeader() }).toString());
 };
 for (const kind of order) {
 	for (const l of ledger.filter((x) => x.kind === kind && x.deletable && !x.deleted)) {

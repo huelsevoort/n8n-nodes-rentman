@@ -12,9 +12,9 @@ const { execFileSync } = require('child_process');
 const [oldRepo, newRepo, mods, dir] = process.argv.slice(2);
 execFileSync('node', [path.join(__dirname, 'gen.js'), oldRepo, dir], { stdio: 'inherit' });
 const { NodeHelpers } = require(path.join(mods, 'n8n-workflow'));
-const load = (repo) => new (require(path.join(repo, 'dist/nodes/Rentman/Rentman.node.js')).Rentman)().description;
-const oldDesc = load(oldRepo);
-const desc = load(newRepo);
+const { loadDescription, validate } = require('./validate');
+const oldDesc = loadDescription(oldRepo);
+const desc = loadDescription(newRepo);
 const cases = require(path.join(dir, 'expectations.json'));
 
 // <resource>.<operation> <parameter path>[=<value>]; each entry is listed under "Removed (breaking)"
@@ -75,17 +75,14 @@ function leaves(obj, pre = '', out = {}) {
 let bad = 0;
 for (const c of cases) {
 	const op = `${c.params.resource}.${c.params.operation}`;
-	const node = { id: 'x', name: 'x', type: 'n8n-nodes-rentman.rentman', typeVersion: 1, position: [0, 0], parameters: {} };
-	node.parameters = NodeHelpers.getNodeParameters(desc.properties, c.params, true, false, node, desc) || {};
 	const problems = [];
-	const issues = NodeHelpers.getNodeParametersIssues(desc.properties, node, desc);
+	const { parameters, issues } = validate(NodeHelpers, desc, c.params);
 	if (issues) problems.push(`validator: ${JSON.stringify(issues.parameters)}`);
 
 	// What n8n keeps of the old values, and what it adds with defaults.
-	const oldNode = { ...node, parameters: NodeHelpers.getNodeParameters(oldDesc.properties, c.params, true, false, node, oldDesc) || {} };
-	const before = leaves(oldNode.parameters);
-	const after = leaves(node.parameters);
-	const offered = optionValues(desc, node.parameters);
+	const before = leaves(validate(NodeHelpers, oldDesc, c.params).parameters);
+	const after = leaves(parameters);
+	const offered = optionValues(desc, parameters);
 	for (const [k, v] of Object.entries(before)) {
 		if (['resource', 'operation'].includes(k) || isEmpty(v)) continue;
 		if (!(k in after)) {
@@ -96,7 +93,7 @@ for (const c of cases) {
 	}
 	for (const [k, v] of Object.entries(after)) {
 		if (k in before || isEmpty(v) || ALLOWED.has(`${op} +${k}`)) continue;
-		const prop = desc.properties.find((p) => p.name === k && vis(p, node.parameters));
+		const prop = desc.properties.find((p) => p.name === k && vis(p, parameters));
 		if (prop?.routing) problems.push(`new value sent by default: ${k}=${JSON.stringify(v)}`);
 	}
 	if (problems.length) {

@@ -31,7 +31,8 @@
     "format": "prettier nodes credentials --write",
     "lint": "eslint --ext .ts nodes credentials",
     "lint:fix": "eslint --ext .ts --fix nodes credentials",
-    "prepublishOnly": "npm run build && npm run lint"
+    "prepublishOnly": "npm run build && npm run lint",
+    "test": "npm run build && node --test test/unit/*.test.js"
   },
   "files": [
     "dist",

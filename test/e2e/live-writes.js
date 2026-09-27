@@ -8,7 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
-const { runBatch } = require('./live-lib');
+const { runBatch, authHeader } = require('./live-lib');
 const repo = path.join(__dirname, '../..');
 const { Rentman } = require(path.join(repo, 'dist/nodes/Rentman/Rentman.node.js'));
 const { withUtcOffset } = require(path.join(repo, 'dist/nodes/Rentman/descriptions/shared.js'));
@@ -23,15 +23,27 @@ const T = 'n8n-e2e TEST';
 
 function api(method, p, body) {
 	const args = ['-sS', '-X', method, `https://api.rentman.net${p}`, '-H', 'Content-Type: application/json'];
-	if (process.env.RENTMAN_API_TOKEN) args.push('-H', `Authorization: Bearer ${process.env.RENTMAN_API_TOKEN}`);
+	if (process.env.RENTMAN_API_TOKEN) args.push('-H', '@-'); // header via stdin, not visible in the process list
 	if (body) args.push('--data', JSON.stringify(body));
 	args.push('-w', '\n%{http_code}');
-	const out = execFileSync('curl', args, { maxBuffer: 1 << 28 }).toString();
+	const out = execFileSync('curl', args, { maxBuffer: 1 << 28, input: authHeader() }).toString();
 	const i = out.lastIndexOf('\n');
 	const status = Number(out.slice(i + 1));
 	let json;
 	try { json = JSON.parse(out.slice(0, i)); } catch { json = out.slice(0, i); }
 	return { status, json };
+}
+// Writes create records in the account behind the token, some of which the API cannot delete. Show the
+// account and require an explicit go: RENTMAN_LIVE_WRITE_ACK=<the account's first project name>.
+{
+	const project = api('GET', '/projects?limit=1&sort=%2Bid').json.data?.[0];
+	const contact = api('GET', '/contacts?limit=1&sort=%2Bid').json.data?.[0];
+	const account = project?.name ?? '(no project)';
+	console.log(`Rentman account: first project "${account}", first contact "${contact?.displayname ?? '-'}"`);
+	if (process.env.RENTMAN_LIVE_WRITE_ACK !== account) {
+		console.error(`Refusing to write. Run only against a test account, then set RENTMAN_LIVE_WRITE_ACK="${account}".`);
+		process.exit(2);
+	}
 }
 const firstId = (coll, q = '') => api('GET', `${coll}?limit=1&sort=%2Bid${q}`).json.data?.[0]?.id;
 
@@ -118,6 +130,13 @@ function readBack(name, coll, id, params) {
 	}
 	if (miss.length) ignored[name] = miss;
 }
+// Fields Rentman accepts but stores differently, each reproduced directly against the API (README.md).
+// Any other difference between what was sent and what Rentman stored fails the case.
+const KNOWN_NOT_STORED = [
+	[/^equipment\./, 'type'], // derived from Is Combination
+	[/^equipment\./, 'strict_container_content'], // not stored
+];
+const knownNotStored = (name, line) => KNOWN_NOT_STORED.some(([re, key]) => re.test(name) && line.includes(`→${key}`));
 
 // ── W1: creates without dependencies ─────────────────────────────────────────
 const d1 = '2027-03-01T09:00:00';
@@ -402,8 +421,13 @@ for (const c of w4cases) {
 }
 saveLedger();
 
+for (const [name, lines] of Object.entries(ignored)) {
+	const unexpected = lines.filter((l) => !knownNotStored(name, l));
+	const r = results.find((x) => x.name === name);
+	if (unexpected.length && r?.ok) { r.ok = false; r.error = `read-back: ${unexpected.join('; ')}`; console.log(`FAIL ${name}: ${r.error}`); }
+}
 fs.writeFileSync(path.join(outDir, 'writes.json'), JSON.stringify({ results, ignored, ref }, null, 1));
-console.log('\nFields sent but not stored:');
+console.log('\nFields sent but not stored (known Rentman behavior unless the case failed):');
 for (const [k, v] of Object.entries(ignored)) console.log(`  ${k}: ${v.join('; ')}`);
 console.log('\nLeft in the account:');
 for (const l of ledger.filter((x) => !x.deleted)) console.log(`  /${l.kind}/${l.id}${l.deletable ? ' (deletable, cleanup failed)' : ' (no API delete)'}`);

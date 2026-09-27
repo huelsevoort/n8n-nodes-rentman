@@ -3,15 +3,15 @@
 // Usage: node live-pagination.js <outDir>
 const path = require('path');
 const { execFileSync } = require('child_process');
-const { runBatch } = require('./live-lib');
+const { runBatch, authHeader } = require('./live-lib');
 
 function apiAll(p) {
 	const out = [];
 	let url = `https://api.rentman.net${p}`;
 	while (url) {
 		const args = ['-sS', url];
-		if (process.env.RENTMAN_API_TOKEN) args.push('-H', `Authorization: Bearer ${process.env.RENTMAN_API_TOKEN}`);
-		const r = JSON.parse(execFileSync('curl', args, { maxBuffer: 1 << 28 }).toString());
+		if (process.env.RENTMAN_API_TOKEN) args.push('-H', '@-'); // header via stdin, not visible in the process list
+		const r = JSON.parse(execFileSync('curl', args, { maxBuffer: 1 << 28, input: authHeader() }).toString());
 		out.push(...r.data);
 		url = r.next_page_url;
 	}

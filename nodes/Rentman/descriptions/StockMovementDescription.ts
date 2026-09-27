@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination } from './shared';
+import { customQueryParamsField, rentmanPagination, sortByDisplayName } from './shared';
 
 export const stockMovementOperations: INodeProperties[] = [
 	{
@@ -288,7 +288,7 @@ export const stockMovementFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: 'ID,displayname,modified',
-				description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
+				description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N; together with Expand, dot notation limits an expanded record (e.g. equipment.name). Leave empty for all fields.',
 				routing: {
 					request: {
 						qs: {
@@ -383,7 +383,7 @@ export const stockMovementFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['stockMovement'], operation: ['update'] } },
 		default: {},
-		options: [
+		options: sortByDisplayName([
 			{
 				displayName: 'Date',
 				name: 'date',
@@ -393,7 +393,7 @@ export const stockMovementFields: INodeProperties[] = [
 				routing: { request: { body: { date: '={{ $value }}' } } },
 			},
 			...stockMovementBodyFields,
-		],
+		]),
 	},
 	customQueryParamsField('stockMovement'),
 ];

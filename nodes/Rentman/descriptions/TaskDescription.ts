@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination } from './shared';
+import { customQueryParamsField, rentmanPagination, sortByDisplayName } from './shared';
 
 const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'data' } }];
 
@@ -588,7 +588,7 @@ export const taskFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: 'ID,displayname,modified',
-				description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
+				description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N; together with Expand, dot notation limits an expanded record (e.g. equipment.name). Leave empty for all fields.',
 				routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 			{
@@ -635,7 +635,7 @@ export const taskFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['task'], operation: ['create', 'createForParent', 'update'] } },
 		default: {},
-		options: [
+		options: sortByDisplayName([
 			{
 				displayName: 'Color',
 				name: 'color',
@@ -647,6 +647,6 @@ export const taskFields: INodeProperties[] = [
 				routing: { request: { body: { color: '={{ $value }}' } } },
 			},
 			...taskBodyFields,
-		],
+		]),
 	},
 ];

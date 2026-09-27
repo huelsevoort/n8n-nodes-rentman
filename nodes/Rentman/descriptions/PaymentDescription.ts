@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination } from './shared';
+import { customQueryParamsField, rentmanPagination, sortByDisplayName } from './shared';
 
 export const paymentOperations: INodeProperties[] = [
 	{
@@ -163,7 +163,7 @@ export const paymentFields: INodeProperties[] = [
 			type: 'string',
 			default: '',
 			placeholder: 'ID,displayname,modified',
-			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
+			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N; together with Expand, dot notation limits an expanded record (e.g. equipment.name). Leave empty for all fields.',
 			routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 			{
@@ -227,7 +227,7 @@ export const paymentFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['payment'], operation: ['update'] } },
 		default: {},
-		options: [
+		options: sortByDisplayName([
 			{
 				displayName: 'Payment Date',
 				// Named "date" as in 26.5.0, so saved workflows keep their value; Rentman's field is "moment".
@@ -238,7 +238,7 @@ export const paymentFields: INodeProperties[] = [
 				routing: { request: { body: { moment: '={{ $value }}' } } },
 			},
 			...paymentBodyFields,
-		],
+		]),
 	},
 	customQueryParamsField('payment'),
 ];

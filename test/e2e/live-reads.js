@@ -11,7 +11,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
-const { runBatch } = require('./live-lib');
+const { runBatch, authHeader } = require('./live-lib');
 
 const repo = process.argv[2];
 const outDir = process.argv[3];
@@ -20,8 +20,8 @@ const d = new Rentman().description;
 
 function api(p) {
 	const args = ['-sS', `https://api.rentman.net${p}`];
-	if (process.env.RENTMAN_API_TOKEN) args.push('-H', `Authorization: Bearer ${process.env.RENTMAN_API_TOKEN}`);
-	return JSON.parse(execFileSync('curl', args, { maxBuffer: 1 << 28 }).toString());
+	if (process.env.RENTMAN_API_TOKEN) args.push('-H', '@-'); // header via stdin, not visible in the process list
+	return JSON.parse(execFileSync('curl', args, { maxBuffer: 1 << 28, input: authHeader() }).toString());
 }
 const firstCache = {};
 function first(coll) {

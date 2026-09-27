@@ -102,4 +102,7 @@ function runBatch(cases, dir) {
 	return res;
 }
 
-module.exports = { runBatch };
+/** Authorization header for curl's `-H @-` (read from stdin, so the token stays out of the process list). */
+const authHeader = () => (process.env.RENTMAN_API_TOKEN ? `Authorization: Bearer ${process.env.RENTMAN_API_TOKEN}\n` : '');
+
+module.exports = { runBatch, authHeader };

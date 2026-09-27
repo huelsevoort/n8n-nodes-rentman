@@ -93,7 +93,6 @@ for (const r of resources) {
 			for (const variant of ['min', 'full']) {
 				const vals = { resource: r.value, operation: op.value };
 				const expect = [];
-				if (variant === 'full' || true) vals.returnAll = false;
 				for (const p of d.properties) {
 					if (['resource', 'operation'].includes(p.name)) continue;
 					if (!visible(p, vals)) continue;

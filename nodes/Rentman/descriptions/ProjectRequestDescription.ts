@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination } from './shared';
+import { customQueryParamsField, rentmanPagination, sortByDisplayName } from './shared';
 
 // ─── PROJECT REQUESTS ─────────────────────────────────────────────────────────
 
@@ -351,7 +351,7 @@ export const projectRequestFields: INodeProperties[] = [
 			type: 'string',
 			default: '',
 			placeholder: 'ID,displayname,modified',
-			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
+			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N; together with Expand, dot notation limits an expanded record (e.g. equipment.name). Leave empty for all fields.',
 			routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 			{
@@ -406,7 +406,7 @@ export const projectRequestFields: INodeProperties[] = [
 		placeholder: 'Add Field',
 		displayOptions: { show: { resource: ['projectRequest'], operation: ['create'] } },
 		default: {},
-		options: [
+		options: sortByDisplayName([
 			{
 				displayName: 'Plan Period End',
 				name: 'planperiod_end',
@@ -424,7 +424,7 @@ export const projectRequestFields: INodeProperties[] = [
 				routing: { request: { body: { planperiod_start: '={{ $value }}' } } },
 			},
 			...projectRequestBodyFields.filter((field) => field.name !== 'name'),
-		],
+		]),
 	},
 	{
 		displayName: 'Plan Period Start',
@@ -699,7 +699,7 @@ export const projectRequestEquipmentFields: INodeProperties[] = [
 			type: 'string',
 			default: '',
 			placeholder: 'ID,displayname,modified',
-			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N. Leave empty for all fields.',
+			description: 'Comma-separated list of fields to return. Custom fields can be requested as custom_N; together with Expand, dot notation limits an expanded record (e.g. equipment.name). Leave empty for all fields.',
 			routing: { request: { qs: { fields: '={{ $value || undefined }}' } } },
 			},
 			{
