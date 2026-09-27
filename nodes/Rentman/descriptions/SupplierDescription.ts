@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const supplierOperations: INodeProperties[] = [
 	{
@@ -152,7 +152,7 @@ export const supplierFields: INodeProperties[] = [
 		name: 'contact',
 		type: 'string',
 		required: true,
-		displayOptions: { show: { resource: ['supplier'], operation: ['create'] } },
+		displayOptions: { show: { resource: ['supplier'], operation: ['create', 'update'] } },
 		default: '',
 		placeholder: '/contacts/42',
 		description: 'Resource path of the supplier contact',
@@ -205,15 +205,6 @@ export const supplierFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
-				displayName: 'Contact (Path)',
-				name: 'contact',
-				type: 'string',
-				default: '',
-				placeholder: '/contacts/42',
-				description: 'Resource path of the supplier contact',
-				routing: { request: { body: { contact: '={{ $value }}' } } },
-			},
-			{
 				displayName: 'Contact Person (Path)',
 				name: 'contactperson',
 				type: 'string',
@@ -257,13 +248,7 @@ export const supplierFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},

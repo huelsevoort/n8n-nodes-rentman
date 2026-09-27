@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const stockMovementOperations: INodeProperties[] = [
 	{
@@ -134,15 +134,7 @@ export const stockMovementFields: INodeProperties[] = [
 				paginate: true,
 			},
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: {
-							url: '={{ $response.body?.next_page_url ?? $request.url }}',
-						},
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -295,6 +287,16 @@ export const stockMovementFields: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: 'Date',
+		name: 'date',
+		type: 'dateTime',
+		required: true,
+		displayOptions: { show: { resource: ['stockMovement'], operation: ['update'] } },
+		default: '',
+		description: 'Date of the stock movement. Rentman requires it on every update.',
+		routing: { request: { body: { date: '={{ $value }}' } } },
+	},
+	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
 		type: 'collection',
@@ -308,20 +310,7 @@ export const stockMovementFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
-				displayName: 'Quantity',
-				name: 'quantity',
-				type: 'number',
-				default: 0,
-				routing: {
-					request: {
-						body: {
-							quantity: '={{ $value }}',
-						},
-					},
-				},
-			},
-			{
-				displayName: 'Remark',
+				displayName: 'Description',
 				name: 'remark',
 				type: 'string',
 				typeOptions: {
@@ -331,10 +320,46 @@ export const stockMovementFields: INodeProperties[] = [
 				routing: {
 					request: {
 						body: {
-							remark: '={{ $value }}',
+							description: '={{ $value }}',
 						},
 					},
 				},
+			},
+			{
+				displayName: 'Details',
+				name: 'details',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { details: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Project Equipment (Path)',
+				name: 'projectequipment',
+				type: 'string',
+				default: '',
+				placeholder: '/projectequipment/42',
+				routing: { request: { body: { projectequipment: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Quantity',
+				name: 'quantity',
+				type: 'number',
+				default: 0,
+				routing: {
+					request: {
+						body: {
+							amount: '={{ $value }}',
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Stock Location (Path)',
+				name: 'stock_location',
+				type: 'string',
+				default: '',
+				placeholder: '/stocklocations/1',
+				routing: { request: { body: { stock_location: '={{ $value }}' } } },
 			},
 		],
 	},

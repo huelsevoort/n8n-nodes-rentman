@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const projectOperations: INodeProperties[] = [
 	{
@@ -117,15 +117,7 @@ export const projectFields: INodeProperties[] = [
 				paginate: true,
 			},
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: {
-							url: '={{ $response.body?.next_page_url ?? $request.url }}',
-						},
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -340,112 +332,23 @@ export const projectFields: INodeProperties[] = [
 			},
 		},
 		default: {},
+		description: 'Rentman accepts only name, reference and number when creating a project. Customer, status, project type and similar fields are managed in Rentman itself and are rejected by the API.',
 		options: [
 			{
-			displayName: 'Color',
-			name: 'color',
-			type: 'color',
-			default: '',
-			description: 'Color code for the project in the planner',
-			routing: {
-			request: {
-			body: {
-			color: '={{ $value }}',
-			},
-			},
-			},
+				displayName: 'Custom Reference',
+				name: 'reference',
+				type: 'string',
+				default: '',
+				description: 'Custom reference field for the project',
+				routing: { request: { body: { reference: '={{ $value }}' } } },
 			},
 			{
-			displayName: 'Conditions',
-			name: 'conditions',
-			type: 'string',
-			typeOptions: {
-			rows: 4,
-			},
-			default: '',
-			description: 'Terms and conditions for the project',
-			routing: {
-			request: {
-			body: {
-			conditions: '={{ $value }}',
-			},
-			},
-			},
-			},
-			{
-			displayName: 'Custom Reference',
-			name: 'reference',
-			type: 'string',
-			default: '',
-			description: 'Custom reference field for the project',
-			routing: {
-			request: {
-			body: {
-			reference: '={{ $value }}',
-			},
-			},
-			},
-			},
-			{
-			displayName: 'Customer (Contact Path)',
-			name: 'customer',
-			type: 'string',
-			default: '',
-			placeholder: '/contacts/42',
-			description: 'Resource path of the customer contact, e.g. /contacts/42',
-			routing: {
-			request: {
-			body: {
-			customer: '={{ $value }}',
-			},
-			},
-			},
-			},
-			{
-			displayName: 'Project Type (Path)',
-			name: 'project_type',
-			type: 'string',
-			default: '',
-			placeholder: '/projecttypes/1',
-			description: 'Resource path of the project type, e.g. /projecttypes/1',
-			routing: {
-			request: {
-			body: {
-			project_type: '={{ $value }}',
-			},
-			},
-			},
-			},
-			{
-			displayName: 'Remark',
-			name: 'remark',
-			type: 'string',
-			typeOptions: {
-			rows: 4,
-			},
-			default: '',
-			routing: {
-			request: {
-			body: {
-			remark: '={{ $value }}',
-			},
-			},
-			},
-			},
-			{
-			displayName: 'Status (Path)',
-			name: 'status',
-			type: 'string',
-			default: '',
-			placeholder: '/statuses/1',
-			description: 'Resource path of the project status, e.g. /statuses/1',
-			routing: {
-			request: {
-			body: {
-			status: '={{ $value }}',
-			},
-			},
-			},
+				displayName: 'Number',
+				name: 'number',
+				type: 'string',
+				default: '',
+				description: 'Project number. Leave empty to let Rentman assign the next number.',
+				routing: { request: { body: { number: '={{ $value }}' } } },
 			},
 		],
 	},

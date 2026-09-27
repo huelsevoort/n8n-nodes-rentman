@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const invoiceLineOperations: INodeProperties[] = [
 	{
@@ -54,13 +54,7 @@ export const invoiceLineFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -141,7 +135,7 @@ export const invoiceLineFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: '/invoices/42',
-				routing: { request: { qs: { invoice: '={{ $value }}' } } },
+				routing: { request: { qs: { item: '={{ $value }}' } } },
 			},
 			{
 				displayName: 'Modified After',

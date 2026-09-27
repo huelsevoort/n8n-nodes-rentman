@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const timeRegistrationOperations: INodeProperties[] = [
 	{
@@ -157,15 +157,7 @@ export const timeRegistrationFields: INodeProperties[] = [
 				paginate: true,
 			},
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: {
-							url: '={{ $response.body?.next_page_url ?? $request.url }}',
-						},
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -555,24 +547,6 @@ export const timeRegistrationFields: INodeProperties[] = [
 					request: {
 						body: {
 							start: '={{ $value }}',
-						},
-					},
-				},
-			},
-			{
-				displayName: 'Status',
-				name: 'status',
-				type: 'options',
-				options: [
-					{ name: 'Open', value: 'open' },
-					{ name: 'Approved', value: 'approved' },
-					{ name: 'Rejected', value: 'rejected' },
-				],
-				default: 'open',
-				routing: {
-					request: {
-						body: {
-							status: '={{ $value }}',
 						},
 					},
 				},

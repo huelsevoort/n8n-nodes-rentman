@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'data' } }];
 
@@ -193,17 +193,6 @@ const taskBodyFields: INodeProperties['options'] = [
 		],
 		default: 'no_priority',
 		routing: { request: { body: { priority: '={{ $value }}' } } },
-	},
-	{
-		displayName: 'Public',
-		name: 'public',
-		type: 'options',
-		options: [
-			{ name: 'Private', value: 0 },
-			{ name: 'Public', value: 1 },
-		],
-		default: 1,
-		routing: { request: { body: { public: '={{ $value }}' } } },
 	},
 	{
 		displayName: 'Recurrence Period',
@@ -506,9 +495,9 @@ export const taskFields: INodeProperties[] = [
 		name: 'color',
 		type: 'color',
 		required: true,
-		displayOptions: { show: { resource: ['task'], operation: ['create', 'createForParent'] } },
+		displayOptions: { show: { resource: ['task'], operation: ['create', 'createForParent', 'update'] } },
 		default: '#000000',
-		description: 'Required: task color (any CSS-style hex code, e.g. #FF6600)',
+		description: 'Task color as hex code, e.g. #FF6600. Rentman requires it on create and on every update.',
 		routing: { request: { body: { color: '={{ $value }}' } } },
 	},
 	// ── Pagination ───────────────────────────────────────────────────────────
@@ -527,13 +516,7 @@ export const taskFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},

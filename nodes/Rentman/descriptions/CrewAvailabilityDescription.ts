@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const crewAvailabilityOperations: INodeProperties[] = [
 	{
@@ -15,7 +15,7 @@ export const crewAvailabilityOperations: INodeProperties[] = [
 				action: 'Create a crew availability entry',
 				description: 'Create a new crew availability entry',
 				routing: {
-					request: { method: 'POST', url: '/crewavailability' },
+					request: { method: 'POST' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
 				},
 			},
@@ -94,13 +94,7 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -202,15 +196,15 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create'] } },
 		default: '',
 		placeholder: '/crew/42',
-		description: 'Resource path of the crew member, e.g. /crew/42',
-		routing: { request: { body: { crewmember: '={{ $value }}' } } },
+		description: 'Crew member as resource path (/crew/42) or ID (42). Availability is created under /crew/{ID}/crewavailability.',
+		routing: { request: { url: '=/crew/{{ String($value).split("/").filter(Boolean).pop() }}/crewavailability' } },
 	},
 	{
 		displayName: 'Start Date/Time',
 		name: 'start',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create'] } },
+		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create', 'update'] } },
 		default: '',
 		description: 'Start of the availability period',
 		routing: { request: { body: { start: '={{ $value }}' } } },
@@ -220,7 +214,7 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		name: 'end',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create'] } },
+		displayOptions: { show: { resource: ['crewAvailability'], operation: ['create', 'update'] } },
 		default: '',
 		description: 'End of the availability period',
 		routing: { request: { body: { end: '={{ $value }}' } } },
@@ -246,8 +240,9 @@ export const crewAvailabilityFields: INodeProperties[] = [
 				name: 'status',
 				type: 'options',
 				options: [
+					{ name: 'Available', value: 'B' },
 					{ name: 'Not Available', value: 'N' },
-					{ name: 'Available', value: 'Y' },
+					{ name: 'Unknown', value: 'O' },
 				],
 				default: 'N',
 				description: 'Availability status of the crew member',
@@ -265,13 +260,6 @@ export const crewAvailabilityFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
-				displayName: 'End Date/Time',
-				name: 'end',
-				type: 'dateTime',
-				default: '',
-				routing: { request: { body: { end: '={{ $value }}' } } },
-			},
-			{
 				displayName: 'Remark',
 				name: 'remark',
 				type: 'string',
@@ -280,19 +268,13 @@ export const crewAvailabilityFields: INodeProperties[] = [
 				routing: { request: { body: { remark: '={{ $value }}' } } },
 			},
 			{
-				displayName: 'Start Date/Time',
-				name: 'start',
-				type: 'dateTime',
-				default: '',
-				routing: { request: { body: { start: '={{ $value }}' } } },
-			},
-			{
 				displayName: 'Status',
 				name: 'status',
 				type: 'options',
 				options: [
+					{ name: 'Available', value: 'B' },
 					{ name: 'Not Available', value: 'N' },
-					{ name: 'Available', value: 'Y' },
+					{ name: 'Unknown', value: 'O' },
 				],
 				default: 'N',
 				description: 'Availability status of the crew member',

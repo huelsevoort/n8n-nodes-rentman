@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const equipmentOperations: INodeProperties[] = [
 	{
@@ -133,15 +133,7 @@ export const equipmentFields: INodeProperties[] = [
 				paginate: true,
 			},
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: {
-							url: '={{ $response.body?.next_page_url ?? $request.url }}',
-						},
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -270,7 +262,7 @@ export const equipmentFields: INodeProperties[] = [
 			routing: {
 			request: {
 			qs: {
-			in_archive: '={{ $value }}',
+			in_archive: '={{ $value ? 1 : 0 }}',
 			},
 			},
 			},
@@ -284,7 +276,7 @@ export const equipmentFields: INodeProperties[] = [
 			routing: {
 			request: {
 			qs: {
-			in_planner: '={{ $value }}',
+			in_planner: '={{ $value ? 1 : 0 }}',
 			},
 			},
 			},
@@ -352,11 +344,11 @@ export const equipmentFields: INodeProperties[] = [
 			name: 'type',
 			type: 'options',
 			options: [
-			{ name: 'Normal', value: 'normal' },
+			{ name: 'Case', value: 'case' },
+			{ name: 'Item', value: 'item' },
 			{ name: 'Set', value: 'set' },
-			{ name: 'Consumable', value: 'consumable' },
 			],
-			default: 'normal',
+			default: 'item',
 			description: 'Filter by equipment type',
 			routing: {
 			request: {
@@ -547,11 +539,11 @@ export const equipmentFields: INodeProperties[] = [
 				name: 'type',
 				type: 'options',
 				options: [
-					{ name: 'Normal', value: 'normal' },
+					{ name: 'Case', value: 'case' },
+					{ name: 'Item', value: 'item' },
 					{ name: 'Set', value: 'set' },
-					{ name: 'Consumable', value: 'consumable' },
 				],
-				default: 'normal',
+				default: 'item',
 				routing: { request: { body: { type: '={{ $value }}' } } },
 			},
 			{

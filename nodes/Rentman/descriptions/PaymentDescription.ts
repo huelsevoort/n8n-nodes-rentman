@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const paymentOperations: INodeProperties[] = [
 	{
@@ -65,13 +65,7 @@ export const paymentFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -156,6 +150,16 @@ export const paymentFields: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: 'Payment Date',
+		name: 'moment',
+		type: 'dateTime',
+		required: true,
+		displayOptions: { show: { resource: ['payment'], operation: ['update'] } },
+		default: '',
+		description: 'When the payment was made. Rentman requires it on every update.',
+		routing: { request: { body: { moment: '={{ $value }}' } } },
+	},
+	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
 		type: 'collection',
@@ -171,19 +175,26 @@ export const paymentFields: INodeProperties[] = [
 				routing: { request: { body: { amount: '={{ $value }}' } } },
 			},
 			{
-				displayName: 'Date',
-				name: 'date',
-				type: 'dateTime',
-				default: '',
-				routing: { request: { body: { date: '={{ $value }}' } } },
-			},
-			{
-				displayName: 'Remark',
+				displayName: 'Description',
 				name: 'remark',
 				type: 'string',
 				typeOptions: { rows: 3 },
 				default: '',
-				routing: { request: { body: { remark: '={{ $value }}' } } },
+				routing: { request: { body: { description: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Import Source',
+				name: 'payment_import_source',
+				type: 'options',
+				options: [
+					{ name: 'Exact Online', value: 'exactonline' },
+					{ name: 'None', value: 'none' },
+					{ name: 'Public API', value: 'publicapi' },
+					{ name: 'QuickBooks', value: 'quickbooks' },
+					{ name: 'Xero', value: 'xero' },
+				],
+				default: 'publicapi',
+				routing: { request: { body: { payment_import_source: '={{ $value }}' } } },
 			},
 		],
 	},

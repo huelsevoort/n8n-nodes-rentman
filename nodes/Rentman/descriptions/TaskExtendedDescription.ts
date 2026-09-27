@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'data' } }];
 const deletePostReceive = [
@@ -160,9 +160,9 @@ export const taskStatusFields: INodeProperties[] = [
 		name: 'color',
 		type: 'color',
 		required: true,
-		displayOptions: { show: { resource: ['taskStatus'], operation: ['create'] } },
+		displayOptions: { show: { resource: ['taskStatus'], operation: ['create', 'update'] } },
 		default: '#000000',
-		description: 'Required: status color (any CSS-style hex code, e.g. #00AA00)',
+		description: 'Status color as hex code, e.g. #00AA00. Rentman requires it on create and on every update.',
 		routing: { request: { body: { color: '={{ $value }}' } } },
 	},
 	{
@@ -175,13 +175,7 @@ export const taskStatusFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -290,13 +284,7 @@ export const subtaskFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -431,13 +419,7 @@ export const taskAssignmentFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -492,22 +474,14 @@ export const taskAssignmentFields: INodeProperties[] = [
 	},
 	customQueryParamsField('taskAssignment'),
 	{
-		displayName: 'Update Fields',
-		name: 'updateFields',
-		type: 'collection',
-		placeholder: 'Add Field',
+		displayName: 'Crew (Path)',
+		name: 'crew',
+		type: 'string',
+		required: true,
 		displayOptions: { show: { resource: ['taskAssignment'], operation: ['update'] } },
-		default: {},
-		options: [
-			{
-				displayName: 'Crew (Path)',
-				name: 'crew',
-				type: 'string',
-				default: '',
-				placeholder: '/crew/0',
-				description: 'Resource path of the assigned crew member',
-				routing: { request: { body: { crew: '={{ $value }}' } } },
-			},
-		],
+		default: '',
+		placeholder: '/crew/42',
+		description: 'Resource path of the assigned crew member. Rentman requires it on every update.',
+		routing: { request: { body: { crew: '={{ $value }}' } } },
 	},
 ];

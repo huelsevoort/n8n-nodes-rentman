@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const contactPersonOperations: INodeProperties[] = [
 	{
@@ -84,13 +84,7 @@ export const contactPersonFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -191,6 +185,22 @@ export const contactPersonFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
+				displayName: 'City',
+				name: 'city',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { city: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Country',
+				name: 'country',
+				type: 'string',
+				placeholder: 'de',
+				description: 'Two-letter ISO country code in lowercase',
+				default: '',
+				routing: { request: { body: { country: '={{ $value }}' } } },
+			},
+			{
 				displayName: 'Email',
 				name: 'email',
 				type: 'string',
@@ -206,18 +216,39 @@ export const contactPersonFields: INodeProperties[] = [
 				routing: { request: { body: { firstname: '={{ $value }}' } } },
 			},
 			{
+				displayName: 'Function',
+				name: 'function',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { function: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'House Number',
+				name: 'number',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { number: '={{ $value }}' } } },
+			},
+			{
 				displayName: 'Last Name',
 				name: 'surname',
 				type: 'string',
 				default: '',
-				routing: { request: { body: { surname: '={{ $value }}' } } },
+				routing: { request: { body: { lastname: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Middle Name',
+				name: 'middle_name',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { middle_name: '={{ $value }}' } } },
 			},
 			{
 				displayName: 'Mobile',
 				name: 'mobile',
 				type: 'string',
 				default: '',
-				routing: { request: { body: { mobile: '={{ $value }}' } } },
+				routing: { request: { body: { mobilephone: '={{ $value }}' } } },
 			},
 			{
 				displayName: 'Phone',
@@ -227,12 +258,25 @@ export const contactPersonFields: INodeProperties[] = [
 				routing: { request: { body: { phone: '={{ $value }}' } } },
 			},
 			{
-				displayName: 'Remark',
-				name: 'remark',
+				displayName: 'Postal Code',
+				name: 'postalcode',
 				type: 'string',
-				typeOptions: { rows: 3 },
 				default: '',
-				routing: { request: { body: { remark: '={{ $value }}' } } },
+				routing: { request: { body: { postalcode: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'State',
+				name: 'state',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { state: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Street',
+				name: 'street',
+				type: 'string',
+				default: '',
+				routing: { request: { body: { street: '={{ $value }}' } } },
 			},
 		],
 	},

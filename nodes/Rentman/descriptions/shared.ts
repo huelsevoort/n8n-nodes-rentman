@@ -1,4 +1,10 @@
-import type { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties } from 'n8n-workflow';
+import type {
+	IDataObject,
+	IExecuteSingleFunctions,
+	IHttpRequestOptions,
+	IN8nRequestOperationPaginationGeneric,
+	INodeProperties,
+} from 'n8n-workflow';
 
 /**
  * preSend sanitizer: drops query parameters whose key is empty/whitespace.
@@ -23,6 +29,114 @@ async function stripBlankQueryKeys(
 	}
 	return requestOptions;
 }
+
+const LOCAL_DATE_TIME = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(\.\d+)?)?)?$/;
+
+/** Offset of `timeZone` from UTC in minutes at the given wall-clock time. */
+function zoneOffsetMinutes(timeZone: string, wallClockAsUtc: number): number {
+	const fmt = new Intl.DateTimeFormat('en-US', {
+		timeZone,
+		hourCycle: 'h23',
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+	});
+	const offsetAt = (instant: number) => {
+		const parts = Object.fromEntries(fmt.formatToParts(new Date(instant)).map((p) => [p.type, p.value]));
+		const asUtc = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute, +parts.second);
+		return Math.round((asUtc - instant) / 60000);
+	};
+	// Two passes so wall-clock times right after a DST switch resolve to the right offset.
+	const first = offsetAt(wallClockAsUtc);
+	return offsetAt(wallClockAsUtc - first * 60000);
+}
+
+/**
+ * Rentman only accepts date-times with a UTC offset (yyyy-MM-dd'T'HH:mm:ssZ) and rejects the
+ * zone-less values n8n's date picker produces ("2027-03-01T09:00:00") with HTTP 400. This adds the
+ * offset of the workflow's timezone to every zone-less date or date-time in the request body.
+ */
+export function withUtcOffset(value: string, timeZone: string): string {
+	const m = LOCAL_DATE_TIME.exec(value);
+	if (!m) return value;
+	const [, y, mo, d, h = '00', mi = '00', s = '00', frac = ''] = m;
+	let offset = 0;
+	try {
+		offset = zoneOffsetMinutes(timeZone, Date.UTC(+y, +mo - 1, +d, +h, +mi, +s));
+	} catch {
+		offset = 0;
+	}
+	const sign = offset < 0 ? '-' : '+';
+	const abs = Math.abs(offset);
+	const hh = String(Math.floor(abs / 60)).padStart(2, '0');
+	const mm = String(abs % 60).padStart(2, '0');
+	return `${y}-${mo}-${d}T${h}:${mi}:${s}${frac}${sign}${hh}:${mm}`;
+}
+
+/** Request-body keys Rentman parses as date-times (OpenAPI v1.16.0 `format: date-time`, plus the
+ * date fields it documents only as strings but returns and validates as date-times). */
+const DATE_TIME_KEYS = new Set([
+	'completed_at', 'date', 'deadline', 'end', 'expiry_notification_date', 'in', 'inspection_date', 'last_updated',
+	'moment', 'mutation_date', 'out', 'planperiod_end', 'planperiod_start', 'purchasedate', 'recureind',
+	'recurrence_enddate', 'reviewed_on', 'start', 'usageperiod_end', 'usageperiod_start',
+]);
+
+async function prepareWriteBody(
+	this: IExecuteSingleFunctions,
+	requestOptions: IHttpRequestOptions,
+): Promise<IHttpRequestOptions> {
+	const body = requestOptions.body as Record<string, unknown> | undefined;
+	if (body && typeof body === 'object' && !Array.isArray(body)) {
+		const timeZone = this.getTimezone();
+		for (const [key, value] of Object.entries(body)) {
+			if (DATE_TIME_KEYS.has(key) && typeof value === 'string') body[key] = withUtcOffset(value, timeZone);
+		}
+	}
+	// With no optional field filled in, n8n sends no body at all (an empty object is dropped too),
+	// which Rentman rejects with "Unknown error parsing request body". A literal "{}" is accepted.
+	if (!body || (typeof body === 'object' && Object.keys(body).length === 0)) requestOptions.body = '{}';
+	return requestOptions;
+}
+
+/**
+ * Adds request hooks every write operation needs. Called once on the assembled node properties
+ * so no create/update operation can be added without them.
+ */
+export function withWriteHooks(properties: INodeProperties[]): INodeProperties[] {
+	for (const prop of properties) {
+		if (prop.name !== 'operation' || prop.type !== 'options') continue;
+		for (const option of prop.options ?? []) {
+			const op = option as { routing?: NonNullable<INodeProperties['routing']> };
+			const method = op.routing?.request?.method;
+			if (method !== 'POST' && method !== 'PUT') continue;
+			op.routing!.send = { ...op.routing!.send, preSend: [...(op.routing!.send?.preSend ?? []), prepareWriteBody] };
+		}
+	}
+	return properties;
+}
+
+/**
+ * "Return All" pagination shared by every collection operation.
+ *
+ * Rentman's next_page_url already carries every filter plus a cursor, and Rentman rejects a cursor
+ * combined with sort, limit or offset ("The cursor parameter cannot be combined with sort, limit, or
+ * offset"). n8n would re-append the first request's query string to that URL, so follow-up pages
+ * are requested with an empty query string.
+ */
+export const rentmanPagination: IN8nRequestOperationPaginationGeneric = {
+	type: 'generic',
+	properties: {
+		continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
+		request: {
+			url: '={{ $response.body?.next_page_url ?? $request.url }}',
+			// Expression resolves to an object at runtime; the type only models literal objects.
+			qs: '={{ $response.body?.next_page_url ? {} : $request.qs }}' as unknown as IDataObject,
+		},
+	},
+};
 
 /**
  * Returns the global "Expand" field (Rentman API v1.13.0).

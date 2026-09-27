@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const appointmentCrewOperations: INodeProperties[] = [
 	{
@@ -84,13 +84,7 @@ export const appointmentCrewFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -184,22 +178,15 @@ export const appointmentCrewFields: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: 'Update Fields',
-		name: 'updateFields',
-		type: 'collection',
-		placeholder: 'Add Field',
+		displayName: 'Crew Member (Path)',
+		name: 'crew',
+		type: 'string',
+		required: true,
 		displayOptions: { show: { resource: ['appointmentCrew'], operation: ['update'] } },
-		default: {},
-		options: [
-			{
-				displayName: 'Remark',
-				name: 'remark',
-				type: 'string',
-				typeOptions: { rows: 3 },
-				default: '',
-				routing: { request: { body: { remark: '={{ $value }}' } } },
-			},
-		],
+		default: '',
+		placeholder: '/crew/42',
+		description: 'Crew member assigned to the appointment. Rentman requires it on every update.',
+		routing: { request: { body: { crew: '={{ $value }}' } } },
 	},
 	customQueryParamsField('appointmentCrew'),
 ];

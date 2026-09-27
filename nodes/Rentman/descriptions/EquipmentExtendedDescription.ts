@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'data' } }];
 
@@ -125,13 +125,7 @@ function buildReadOnly(
 			routing: {
 				send: { paginate: true },
 				operations: {
-					pagination: {
-						type: 'generic',
-						properties: {
-							continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-							request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-						},
-					},
+					pagination: rentmanPagination,
 				},
 			},
 		},
@@ -275,13 +269,7 @@ function buildCrud(
 			routing: {
 				send: { paginate: true },
 				operations: {
-					pagination: {
-						type: 'generic',
-						properties: {
-							continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-							request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-						},
-					},
+					pagination: rentmanPagination,
 				},
 			},
 		},
@@ -416,15 +404,6 @@ const accessories = buildCrud(
 // collection's displayOptions when evaluating required inner items).
 const equipmentSetsContentBodyFields: INodeProperties['options'] = [
 	{
-		displayName: 'Equipment (Path)',
-		name: 'equipment',
-		type: 'string',
-		default: '',
-		placeholder: '/equipment/0',
-		description: 'Required by the API. Resource path of the equipment item that is part of this set.',
-		routing: { request: { body: { equipment: '={{ $value }}' } } },
-	},
-	{
 		displayName: 'Is Fixed',
 		name: 'is_fixed',
 		type: 'options',
@@ -470,8 +449,21 @@ const equipmentSetsContent = buildCrud(
 	'equipmentsetscontent',
 	'Equipment Sets Content',
 	equipmentSetsContentBodyFields,
-	equipmentSetsContentBodyFields.filter((f) => 'name' in (f as INodeProperties) ? (f as INodeProperties).name !== 'equipment' : true),
+	equipmentSetsContentBodyFields,
 );
+// Rentman requires the content item on create and on every update, so it is a top-level required
+// field rather than an optional collection entry (required fields inside a collection break the UI).
+equipmentSetsContent.fields.push({
+	displayName: 'Content Equipment (Path)',
+	name: 'setContentEquipment',
+	type: 'string',
+	required: true,
+	displayOptions: { show: { resource: ['equipmentSetsContent'], operation: ['create', 'update'] } },
+	default: '',
+	placeholder: '/equipment/42',
+	description: 'Resource path of the equipment item that is part of this set',
+	routing: { request: { body: { equipment: '={{ $value }}' } } },
+});
 
 // ─── SERIAL NUMBER (CRUD) ────────────────────────────────────────────────────
 const serialNumberBodyFields: INodeProperties['options'] = [

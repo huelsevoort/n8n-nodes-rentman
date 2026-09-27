@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 export const contactOperations: INodeProperties[] = [
 	{
@@ -157,15 +157,7 @@ export const contactFields: INodeProperties[] = [
 				paginate: true,
 			},
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: {
-							url: '={{ $response.body?.next_page_url ?? $request.url }}',
-						},
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -472,7 +464,7 @@ export const contactFields: INodeProperties[] = [
 				routing: {
 					request: {
 						body: {
-							visit_country: '={{ $value }}',
+							country: '={{ $value }}',
 						},
 					},
 				},

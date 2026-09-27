@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 // ─── PROJECT REQUESTS ─────────────────────────────────────────────────────────
 
@@ -96,13 +96,7 @@ export const projectRequestFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -205,13 +199,13 @@ export const projectRequestFields: INodeProperties[] = [
 		default: {},
 		options: [
 			{
-				displayName: 'Customer (Path)',
+				displayName: 'Linked Contact (Path)',
 				name: 'customer',
 				type: 'string',
 				default: '',
 				placeholder: '/contacts/42',
-				description: 'Resource path of the customer contact, e.g. /contacts/42',
-				routing: { request: { body: { customer: '={{ $value }}' } } },
+				description: 'Resource path of the contact this request belongs to, e.g. /contacts/42',
+				routing: { request: { body: { linked_contact: '={{ $value }}' } } },
 			},
 			{
 				displayName: 'Remark',
@@ -228,9 +222,9 @@ export const projectRequestFields: INodeProperties[] = [
 		name: 'planperiod_start',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['projectRequest'], operation: ['update'] } },
+		displayOptions: { show: { resource: ['projectRequest'], operation: ['create', 'update'] } },
 		default: '',
-		description: 'Start of the planning period (required by the API for updates)',
+		description: 'Start of the planning period (required by the API)',
 		routing: { request: { body: { planperiod_start: '={{ $value }}' } } },
 	},
 	{
@@ -238,9 +232,9 @@ export const projectRequestFields: INodeProperties[] = [
 		name: 'planperiod_end',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['projectRequest'], operation: ['update'] } },
+		displayOptions: { show: { resource: ['projectRequest'], operation: ['create', 'update'] } },
 		default: '',
-		description: 'End of the planning period (required by the API for updates)',
+		description: 'End of the planning period (required by the API)',
 		routing: { request: { body: { planperiod_end: '={{ $value }}' } } },
 	},
 	{
@@ -355,13 +349,7 @@ export const projectRequestEquipmentFields: INodeProperties[] = [
 		routing: {
 			send: { paginate: true },
 			operations: {
-				pagination: {
-					type: 'generic',
-					properties: {
-						continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-						request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-					},
-				},
+				pagination: rentmanPagination,
 			},
 		},
 	},
@@ -441,7 +429,7 @@ export const projectRequestEquipmentFields: INodeProperties[] = [
 			default: '',
 			placeholder: '/projectrequests/42',
 			description: 'Filter by project request resource path',
-			routing: { request: { qs: { projectrequest: '={{ $value }}' } } },
+			routing: { request: { qs: { project_request: '={{ $value }}' } } },
 			},
 			{
 			displayName: 'Sort',
@@ -470,12 +458,12 @@ export const projectRequestEquipmentFields: INodeProperties[] = [
 				routing: { request: { body: { quantity: '={{ $value }}' } } },
 			},
 			{
-				displayName: 'Remark',
+				displayName: 'External Remark',
 				name: 'remark',
 				type: 'string',
 				typeOptions: { rows: 3 },
 				default: '',
-				routing: { request: { body: { remark: '={{ $value }}' } } },
+				routing: { request: { body: { external_remark: '={{ $value }}' } } },
 			},
 		],
 	},

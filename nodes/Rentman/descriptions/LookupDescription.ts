@@ -3,7 +3,7 @@
  * Each uses the same Get + Get Collection pattern with cursor pagination.
  */
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField } from './shared';
+import { customQueryParamsField, rentmanPagination } from './shared';
 
 function buildReadOnly(
 	resourceValue: string,
@@ -62,13 +62,7 @@ function buildReadOnly(
 			routing: {
 				send: { paginate: true },
 				operations: {
-					pagination: {
-						type: 'generic',
-						properties: {
-							continue: '={{ !!$response.body?.next_page_url && $parameter["returnAll"] }}',
-							request: { url: '={{ $response.body?.next_page_url ?? $request.url }}' },
-						},
-					},
+					pagination: rentmanPagination,
 				},
 			},
 		},
@@ -169,7 +163,7 @@ const projectCrew = buildReadOnly('projectCrew', 'projectcrew', 'Project Crew', 
 		default: '',
 		placeholder: '/projectfunctions/42',
 		description: 'Filter by project function resource path',
-		routing: { request: { qs: { projectfunction: '={{ $value }}' } } },
+		routing: { request: { qs: { function: '={{ $value }}' } } },
 	},
 ]);
 export const projectCrewOperations = projectCrew.operations;
@@ -183,7 +177,7 @@ const projectEquipment = buildReadOnly('projectEquipment', 'projectequipment', '
 		default: '',
 		placeholder: '/projectequipmentgroup/42',
 		description: 'Filter by project equipment group resource path',
-		routing: { request: { qs: { projectequipmentgroup: '={{ $value }}' } } },
+		routing: { request: { qs: { equipment_group: '={{ $value }}' } } },
 	},
 ]);
 export const projectEquipmentOperations = projectEquipment.operations;
@@ -225,7 +219,7 @@ const projectFunctions = buildReadOnly('projectFunction', 'projectfunctions', 'P
 		default: '',
 		placeholder: '/projectfunctiongroups/42',
 		description: 'Filter by project function group resource path',
-		routing: { request: { qs: { projectfunctiongroup: '={{ $value }}' } } },
+		routing: { request: { qs: { group: '={{ $value }}' } } },
 	},
 ]);
 export const projectFunctionOperations = projectFunctions.operations;
@@ -305,7 +299,7 @@ const subRentalEquipment = buildReadOnly('subRentalEquipment', 'subrentalequipme
 		default: '',
 		placeholder: '/subrentalequipmentgroup/42',
 		description: 'Filter by sub rental equipment group resource path',
-		routing: { request: { qs: { subrentalequipmentgroup: '={{ $value }}' } } },
+		routing: { request: { qs: { subrental_group: '={{ $value }}' } } },
 	},
 ]);
 export const subRentalEquipmentOperations = subRentalEquipment.operations;
