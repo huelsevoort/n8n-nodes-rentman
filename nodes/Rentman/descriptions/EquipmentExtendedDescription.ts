@@ -66,7 +66,7 @@ const standardFilterOptions = (extra: INodeProperties['options'] = []): INodePro
 
 
 /**
- * Helper to build a minimal read-only (Get + Get Collection) resource description.
+ * Helper to build a minimal read-only (Get + Get Many) resource description.
  * Used for equipment sub-resources that are GET-only.
  */
 function buildReadOnly(
@@ -93,9 +93,9 @@ function buildReadOnly(
 					routing: { request: { method: 'GET' }, output: { postReceive } },
 				},
 				{
-					name: 'Get Collection',
+					name: 'Get Many',
 					value: 'getAll',
-					action: `Get collection of ${label}s`,
+					action: `Get many ${label}s`,
 					description: `Get a list of ${label}s`,
 					routing: { request: { method: 'GET', url: `/${apiPath}` }, output: { postReceive } },
 				},
@@ -166,7 +166,7 @@ function buildReadOnly(
 
 /**
  * Helper to build a CRUD resource description for equipment sub-resources.
- * Supports: Get, Get Collection, Create (POST /equipment/{id}/{subPath}), Update (PUT), Delete (DELETE).
+ * Supports: Get, Get Many, Create (POST /equipment/{id}/{subPath}), Update (PUT), Delete (DELETE).
  *
  * @param resourceValue The internal resource value (e.g. 'accessory')
  * @param apiPath The top-level path of the resource (e.g. 'accessories')
@@ -217,9 +217,9 @@ function buildCrud(
 					routing: { request: { method: 'GET' }, output: { postReceive } },
 				},
 				{
-					name: 'Get Collection',
+					name: 'Get Many',
 					value: 'getAll',
-					action: `Get collection of ${label}s`,
+					action: `Get many ${label}s`,
 					description: `Get a list of ${label}s`,
 					routing: { request: { method: 'GET', url: `/${apiPath}` }, output: { postReceive } },
 				},

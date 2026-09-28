@@ -49,22 +49,22 @@ export const alternativeOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Collection',
-				value: 'getAll',
-				action: 'Get collection of alternatives',
-				description: 'Get a list of alternatives',
-				routing: {
-					request: { method: 'GET', url: '/alternatives' },
-					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
-				},
-			},
-			{
 				name: 'Get For Equipment',
 				value: 'getForEquipment',
 				action: 'Get alternatives for an equipment item',
 				description: 'Get all alternatives linked to a specific equipment item',
 				routing: {
 					request: { method: 'GET' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
+			},
+			{
+				name: 'Get Many',
+				value: 'getAll',
+				action: 'Get many alternatives',
+				description: 'Get a list of alternatives',
+				routing: {
+					request: { method: 'GET', url: '/alternatives' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
 				},
 			},

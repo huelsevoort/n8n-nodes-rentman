@@ -1,6 +1,6 @@
 /**
  * Compact read-only descriptions for all remaining Rentman lookup/sub-resources.
- * Each uses the same Get + Get Collection pattern with cursor pagination.
+ * Each uses the same Get + Get Many pattern with cursor pagination.
  */
 import type { INodeProperties } from 'n8n-workflow';
 import { customQueryParamsField, rentmanPagination } from './shared';
@@ -30,9 +30,9 @@ function buildReadOnly(
 					routing: { request: { method: 'GET' }, output: { postReceive } },
 				},
 				{
-					name: 'Get Collection',
+					name: 'Get Many',
 					value: 'getAll',
-					action: `Get collection of ${label}s`,
+					action: `Get many ${label}s`,
 					description: `Get a list of ${label}s`,
 					routing: { request: { method: 'GET', url: `/${apiPath}` }, output: { postReceive } },
 				},

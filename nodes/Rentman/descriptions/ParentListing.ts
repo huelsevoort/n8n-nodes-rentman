@@ -1,7 +1,7 @@
 /**
  * "Get For Parent" operations for the Rentman sub-collection endpoints GET /{parent}/{ID}/{collection}
  * (e.g. GET /projects/42/projectcrew). They are added to each child resource by `withParentListings`,
- * which reuses the resource's Get Collection fields (Return All, Limit, Offset, Filters, Custom Query
+ * which reuses the resource's Get Many fields (Return All, Limit, Offset, Filters, Custom Query
  * Parameters) for the new operation.
  */
 import type { INodeProperties, INodePropertyOptions } from 'n8n-workflow';
@@ -117,8 +117,9 @@ const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'd
 
 function parentFields(resource: string, collection: string, parents: Parent[]): INodeProperties[] {
 	const show = { resource: [resource], operation: ['getForParent'] };
+	// Saved workflows omit values equal to the default, so it must stay the first parent type
+	const defaultParent = parents[0];
 	return [
-		// eslint-disable-next-line n8n-nodes-base/node-param-default-missing -- default is the first parent type
 		{
 			displayName: 'Parent Resource',
 			name: 'parentResource',
@@ -128,7 +129,7 @@ function parentFields(resource: string, collection: string, parents: Parent[]): 
 			options: parents
 				.map((value) => ({ name: parentNames[value], value }))
 				.sort((a, b) => a.name.localeCompare(b.name)),
-			default: parents[0],
+			default: defaultParent,
 			description: 'The type of record the entries belong to',
 		},
 		{
@@ -146,7 +147,7 @@ function parentFields(resource: string, collection: string, parents: Parent[]): 
 
 /**
  * Adds a "Get For Parent" operation to every resource in `parentListings` and shows the resource's
- * Get Collection fields for it as well.
+ * Get Many fields for it as well.
  */
 export function withParentListings(properties: INodeProperties[]): INodeProperties[] {
 	const resourceNames = new Map(

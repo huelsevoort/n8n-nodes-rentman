@@ -51,9 +51,9 @@ export const projectRequestOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Collection',
+				name: 'Get Many',
 				value: 'getAll',
-				action: 'Get collection of project requests',
+				action: 'Get many project requests',
 				description: 'Get a list of project requests',
 				routing: {
 					request: { method: 'GET', url: '/projectrequests' },
@@ -507,9 +507,9 @@ export const projectRequestEquipmentOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Collection',
+				name: 'Get Many',
 				value: 'getAll',
-				action: 'Get collection of project request equipment entries',
+				action: 'Get many project request equipment entries',
 				description: 'Get a list of project request equipment entries',
 				routing: {
 					request: { method: 'GET', url: '/projectrequestequipment' },

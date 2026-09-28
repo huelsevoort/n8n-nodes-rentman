@@ -70,77 +70,77 @@ npm install n8n-nodes-rentman
 
 | Category | Resource | Operations |
 |---|---|---|
-| **Contacts** | Contact ✏️ | Create, Delete, Get, Get Collection, Update |
-| | Contact Person ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
-| **Projects** | Project ✏️ | Create, Get, Get Collection |
-| | Subproject ✏️ | Create, Get, Get Collection, Get For Parent |
-| | Contract | Get, Get Collection, Get For Parent |
-| | Quote | Get, Get Collection, Get For Parent |
-| | Project Crew | Get, Get Collection, Get For Parent |
-| | Project Equipment | Get, Get Collection, Get For Parent |
-| | Project Equipment Group | Get, Get Collection, Get For Parent |
-| | Project Function ✏️ | Create, Get, Get Collection, Get For Parent |
-| | Project Function Group ✏️ | Create, Get, Get Collection, Get For Parent |
-| | Project Request ✏️ | Create, Delete, Get, Get Collection, Update |
-| | Project Request Equipment ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
-| | Project Type | Get, Get Collection |
-| | Project Vehicle | Get, Get Collection, Get For Parent |
-| **Crew & HR** | Crew | Get, Get Collection |
-| | Crew Availability ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
-| | Crew Rate | Get, Get Collection, Get For Parent |
-| | Appointment ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
-| | Appointment Crew ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
-| | Invitation | Get, Get Collection, Get For Parent |
-| | Leave Mutation ✏️ | Create, Get, Get Collection |
-| | Leave Request ✏️ | Create, Get, Get Collection, Update |
-| | Leave Type | Get, Get Collection |
-| | Time Registration ✏️ | Create, Create For Leave Request, Delete, Get, Get Collection, Get For Parent, Update |
-| | Time Registration Activity | Get, Get Collection, Get For Parent |
-| **Equipment & Stock** | Equipment ✏️ | Create, Get, Get Collection, Update |
-| | Accessory ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
-| | Actual Content | Get, Get Collection, Get For Parent |
-| | Alternative ✏️ | Create, Delete, Get, Get Collection, Get For Equipment, Update |
-| | Equipment Assigned Serial | Get, Get Collection, Get For Parent |
-| | Equipment Sets Content ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
-| | Repair | Get, Get Collection, Get For Parent |
-| | Serial Number ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
-| | Stock Location | Get, Get Collection |
-| | Stock Movement ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
-| | Supplier ✏️ | Create, Delete, Get, Get Collection, Get File Folders, Get Files, Get For Equipment, Update |
-| **Financial** | Invoice | Get, Get Collection |
-| | Invoice Line | Get, Get Collection, Get For Parent |
-| | Payment ✏️ | Create, Get, Get Collection, Get For Parent, Update |
-| | Cost ✏️ | Create, Delete, Get, Get Collection, Get For Parent, Update |
-| | Purchase Order | Get, Get Collection, Get File Folders, Get Files, Get Global Costs, Get Invoice Lines, Get Order Costs |
-| | Purchase Order Cost | Get, Get Collection |
-| | Purchase Order Global Cost | Get, Get Collection |
-| **Sub-Rentals** | Sub Rental | Get, Get Collection |
-| | Sub Rental Equipment | Get, Get Collection, Get For Parent |
-| | Sub Rental Equipment Group | Get, Get Collection, Get For Parent |
-| **Files & Folders** | File | Get, Get Collection, Get For Parent |
-| | File Folder | Get, Get Collection, Get For Parent |
-| | Folder ✏️ | Create, Get, Get Collection, Update |
-| **Rates & Pricing** | Factor | Get, Get Collection, Get For Parent |
-| | Factor Group | Get, Get Collection |
-| | Rate | Get, Get Collection |
-| | Rate Factor | Get, Get Collection, Get For Parent |
-| | Tax Class | Get, Get Collection |
-| | Ledger Code | Get, Get Collection |
-| **Tasks** | Task ✏️ | Create, Create For Parent, Create Subtask, Create Task Assignment, Delete, Get, Get Collection, Get File Folders, Get Files, Get For Parent, Get Subtasks, Get Task Assignments, Update |
-| | Task Status ✏️ | Create, Delete, Get, Get Collection, Update |
-| | Subtask ✏️ | Delete, Get, Get Collection, Update |
-| | Task Assignment ✏️ | Delete, Get, Get Collection, Update |
-| **Misc** | Extra Input Field | Get, Get Collection |
-| | Project Status | Get, Get Collection |
-| | Status | Get, Get Collection |
-| | Warehouse Status | Get, Get Collection |
-| | Vehicle ✏️ | Create, Create For Stock Location, Delete, Get, Get Collection, Get For Parent, Update |
+| **Contacts** | Contact ✏️ | Create, Delete, Get, Get Many, Update |
+| | Contact Person ✏️ | Create, Delete, Get, Get Many, Get For Parent, Update |
+| **Projects** | Project ✏️ | Create, Get, Get Many |
+| | Subproject ✏️ | Create, Get, Get Many, Get For Parent |
+| | Contract | Get, Get Many, Get For Parent |
+| | Quote | Get, Get Many, Get For Parent |
+| | Project Crew | Get, Get Many, Get For Parent |
+| | Project Equipment | Get, Get Many, Get For Parent |
+| | Project Equipment Group | Get, Get Many, Get For Parent |
+| | Project Function ✏️ | Create, Get, Get Many, Get For Parent |
+| | Project Function Group ✏️ | Create, Get, Get Many, Get For Parent |
+| | Project Request ✏️ | Create, Delete, Get, Get Many, Update |
+| | Project Request Equipment ✏️ | Create, Delete, Get, Get Many, Get For Parent, Update |
+| | Project Type | Get, Get Many |
+| | Project Vehicle | Get, Get Many, Get For Parent |
+| **Crew & HR** | Crew | Get, Get Many |
+| | Crew Availability ✏️ | Create, Delete, Get, Get Many, Get For Parent, Update |
+| | Crew Rate | Get, Get Many, Get For Parent |
+| | Appointment ✏️ | Create, Delete, Get, Get Many, Get For Parent, Update |
+| | Appointment Crew ✏️ | Create, Delete, Get, Get Many, Get For Parent, Update |
+| | Invitation | Get, Get Many, Get For Parent |
+| | Leave Mutation ✏️ | Create, Get, Get Many |
+| | Leave Request ✏️ | Create, Get, Get Many, Update |
+| | Leave Type | Get, Get Many |
+| | Time Registration ✏️ | Create, Create For Leave Request, Delete, Get, Get Many, Get For Parent, Update |
+| | Time Registration Activity | Get, Get Many, Get For Parent |
+| **Equipment & Stock** | Equipment ✏️ | Create, Get, Get Many, Update |
+| | Accessory ✏️ | Create, Delete, Get, Get Many, Get For Parent, Update |
+| | Actual Content | Get, Get Many, Get For Parent |
+| | Alternative ✏️ | Create, Delete, Get, Get Many, Get For Equipment, Update |
+| | Equipment Assigned Serial | Get, Get Many, Get For Parent |
+| | Equipment Sets Content ✏️ | Create, Delete, Get, Get Many, Get For Parent, Update |
+| | Repair | Get, Get Many, Get For Parent |
+| | Serial Number ✏️ | Create, Delete, Get, Get Many, Get For Parent, Update |
+| | Stock Location | Get, Get Many |
+| | Stock Movement ✏️ | Create, Delete, Get, Get Many, Get For Parent, Update |
+| | Supplier ✏️ | Create, Delete, Get, Get Many, Get File Folders, Get Files, Get For Equipment, Update |
+| **Financial** | Invoice | Get, Get Many |
+| | Invoice Line | Get, Get Many, Get For Parent |
+| | Payment ✏️ | Create, Get, Get Many, Get For Parent, Update |
+| | Cost ✏️ | Create, Delete, Get, Get Many, Get For Parent, Update |
+| | Purchase Order | Get, Get Many, Get File Folders, Get Files, Get Global Costs, Get Invoice Lines, Get Order Costs |
+| | Purchase Order Cost | Get, Get Many |
+| | Purchase Order Global Cost | Get, Get Many |
+| **Sub-Rentals** | Sub Rental | Get, Get Many |
+| | Sub Rental Equipment | Get, Get Many, Get For Parent |
+| | Sub Rental Equipment Group | Get, Get Many, Get For Parent |
+| **Files & Folders** | File | Get, Get Many, Get For Parent |
+| | File Folder | Get, Get Many, Get For Parent |
+| | Folder ✏️ | Create, Get, Get Many, Update |
+| **Rates & Pricing** | Factor | Get, Get Many, Get For Parent |
+| | Factor Group | Get, Get Many |
+| | Rate | Get, Get Many |
+| | Rate Factor | Get, Get Many, Get For Parent |
+| | Tax Class | Get, Get Many |
+| | Ledger Code | Get, Get Many |
+| **Tasks** | Task ✏️ | Create, Create For Parent, Create Subtask, Create Task Assignment, Delete, Get, Get Many, Get File Folders, Get Files, Get For Parent, Get Subtasks, Get Task Assignments, Update |
+| | Task Status ✏️ | Create, Delete, Get, Get Many, Update |
+| | Subtask ✏️ | Delete, Get, Get Many, Update |
+| | Task Assignment ✏️ | Delete, Get, Get Many, Update |
+| **Misc** | Extra Input Field | Get, Get Many |
+| | Project Status | Get, Get Many |
+| | Status | Get, Get Many |
+| | Warehouse Status | Get, Get Many |
+| | Vehicle ✏️ | Create, Create For Stock Location, Delete, Get, Get Many, Get For Parent, Update |
 
 ---
 
 ## Features
 
-All **Get Collection** operations support:
+All **Get Many** operations support:
 
 | Feature | Details |
 |---|---|
@@ -156,7 +156,7 @@ All **Get Collection** operations support:
 
 ### Expanding linked items
 
-All **read** operations (Get, Get Collection, and read sub-resource operations) expose an **Expand** field. By default a field that references another resource returns a path string (e.g. `"/equipment/12"`); pass one or more field names to `Expand` to inline the full linked object instead. Accepts a comma-separated list and supports dot notation for nested expansion up to 3 levels.
+All **read** operations (Get, Get Many, and read sub-resource operations) expose an **Expand** field. By default a field that references another resource returns a path string (e.g. `"/equipment/12"`); pass one or more field names to `Expand` to inline the full linked object instead. Accepts a comma-separated list and supports dot notation for nested expansion up to 3 levels.
 
 ```
 Expand: equipment,equipment.creator

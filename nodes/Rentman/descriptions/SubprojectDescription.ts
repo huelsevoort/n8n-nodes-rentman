@@ -39,9 +39,9 @@ export const subprojectOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Collection',
+				name: 'Get Many',
 				value: 'getAll',
-				action: 'Get collection of subprojects',
+				action: 'Get many subprojects',
 				description: 'Get a list of subprojects',
 				routing: {
 					request: {
