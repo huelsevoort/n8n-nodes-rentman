@@ -56,9 +56,9 @@ export const vehicleOperations: INodeProperties[] = [
 				routing: { request: { method: 'GET' }, output: { postReceive } },
 			},
 			{
-				name: 'Get Collection',
+				name: 'Get Many',
 				value: 'getAll',
-				action: 'Get collection of vehicles',
+				action: 'Get many vehicles',
 				description: 'Get a list of vehicles',
 				routing: { request: { method: 'GET', url: '/vehicles' }, output: { postReceive } },
 			},

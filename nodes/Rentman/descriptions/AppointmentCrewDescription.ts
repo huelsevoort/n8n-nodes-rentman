@@ -49,9 +49,9 @@ export const appointmentCrewOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Collection',
+				name: 'Get Many',
 				value: 'getAll',
-				action: 'Get collection of appointment crew entries',
+				action: 'Get many appointment crew entries',
 				description: 'Get a list of appointment crew entries',
 				routing: {
 					request: { method: 'GET', url: '/appointmentcrew' },

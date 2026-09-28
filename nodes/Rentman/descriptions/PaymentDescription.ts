@@ -30,9 +30,9 @@ export const paymentOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Collection',
+				name: 'Get Many',
 				value: 'getAll',
-				action: 'Get collection of payments',
+				action: 'Get many payments',
 				description: 'Get a list of payments',
 				routing: {
 					request: { method: 'GET', url: '/payments' },

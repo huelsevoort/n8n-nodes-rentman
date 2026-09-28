@@ -49,9 +49,9 @@ export const contactPersonOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Collection',
+				name: 'Get Many',
 				value: 'getAll',
-				action: 'Get collection of contact persons',
+				action: 'Get many contact persons',
 				description: 'Get a list of contact persons',
 				routing: {
 					request: { method: 'GET', url: '/contactpersons' },

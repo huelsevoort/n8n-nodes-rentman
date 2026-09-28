@@ -32,9 +32,9 @@ export const leaveMutationOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Collection',
+				name: 'Get Many',
 				value: 'getAll',
-				action: 'Get collection of leave mutations',
+				action: 'Get many leave mutations',
 				description: 'Get a list of leave mutations',
 				routing: {
 					request: { method: 'GET', url: '/leavemutation' },
@@ -253,9 +253,9 @@ export const leaveRequestOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Collection',
+				name: 'Get Many',
 				value: 'getAll',
-				action: 'Get collection of leave requests',
+				action: 'Get many leave requests',
 				description: 'Get a list of leave requests',
 				routing: {
 					request: { method: 'GET', url: '/leaverequest' },

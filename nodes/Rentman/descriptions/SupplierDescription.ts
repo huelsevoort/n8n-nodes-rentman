@@ -49,16 +49,6 @@ export const supplierOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Collection',
-				value: 'getAll',
-				action: 'Get collection of suppliers',
-				description: 'Get a list of suppliers',
-				routing: {
-					request: { method: 'GET', url: '/suppliers' },
-					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
-				},
-			},
-			{
 				name: 'Get File Folders',
 				value: 'getFileFolders',
 				action: 'Get supplier file folders',
@@ -85,6 +75,16 @@ export const supplierOperations: INodeProperties[] = [
 				description: 'Get all supplier links for a specific equipment item',
 				routing: {
 					request: { method: 'GET' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
+				},
+			},
+			{
+				name: 'Get Many',
+				value: 'getAll',
+				action: 'Get many suppliers',
+				description: 'Get a list of suppliers',
+				routing: {
+					request: { method: 'GET', url: '/suppliers' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
 				},
 			},

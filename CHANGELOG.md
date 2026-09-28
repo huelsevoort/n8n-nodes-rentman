@@ -4,6 +4,19 @@ All notable changes to the **n8n-nodes-rentman** community node are documented i
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows a CalVer scheme `YY.Major.Minor-RentmanAPIVersion`.
 
+## [26.6.1-1.16.0] – 2026-09-28
+
+Tracks Rentman API **v1.16.0**. Fixes the findings of n8n's community package scanner, which n8n's verification runs without honouring inline `eslint-disable` comments. Saved workflows keep working unchanged: no parameter value, option value or default changed.
+
+### Changed
+- The list operation of every resource is now called **Get Many** instead of Get Collection, as n8n requires (`node-param-option-name-wrong-for-get-many`). Only the label changed; the operation value is still `getAll`.
+
+### Fixed
+- **Get For Parent → Parent Resource** now has a `default` the scanner can see (`node-param-default-missing`). The default is still the first parent type of each resource.
+
+### Internal
+- `test/n8n-scan.sh` runs n8n's community package scanner (`@n8n/scan-community-package`) against the local source and the packed package, the same checks n8n runs before approving a version; the publish workflow runs it before every release. The repo's lint no longer switches off the Get Many rule.
+
 ## [26.6.0-1.16.0] – 2026-09-27
 
 Tracks Rentman API **v1.16.0** (covers v1.14.0, v1.15.0 and v1.16.0).

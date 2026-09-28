@@ -20,9 +20,9 @@ export const invoiceLineOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Get Collection',
+				name: 'Get Many',
 				value: 'getAll',
-				action: 'Get collection of invoice lines',
+				action: 'Get many invoice lines',
 				description: 'Get a list of invoice lines. Lines are generated based on tax rates and ledgers and sum up to the invoice total.',
 				routing: {
 					request: { method: 'GET', url: '/invoicelines' },

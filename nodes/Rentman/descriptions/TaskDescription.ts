@@ -339,9 +339,9 @@ export const taskOperations: INodeProperties[] = [
 				routing: { request: { method: 'GET' }, output: { postReceive } },
 			},
 			{
-				name: 'Get Collection',
+				name: 'Get Many',
 				value: 'getAll',
-				action: 'Get collection of tasks',
+				action: 'Get many tasks',
 				description: 'Get a list of tasks',
 				routing: { request: { method: 'GET', url: '/tasks' }, output: { postReceive } },
 			},
