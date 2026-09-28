@@ -48,6 +48,10 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      # The same scan n8n runs before approving a version; it ignores eslint-disable comments.
+      - name: n8n community package scan
+        run: test/n8n-scan.sh
+
       # The version scheme (26.6.0-1.16.0) reads as a prerelease to npm, which since npm 11
       # refuses to publish one without an explicit dist-tag.
       - name: Publish

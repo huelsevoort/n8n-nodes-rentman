@@ -15,7 +15,7 @@ Tracks Rentman API **v1.16.0**. Fixes the findings of n8n's community package sc
 - **Get For Parent → Parent Resource** now has a `default` the scanner can see (`node-param-default-missing`). The default is still the first parent type of each resource.
 
 ### Internal
-- `test/n8n-scan.sh` runs n8n's community package scanner (`@n8n/scan-community-package`) against the local source and the packed package, the same checks n8n runs before approving a version. The repo's lint no longer switches off the Get Many rule.
+- `test/n8n-scan.sh` runs n8n's community package scanner (`@n8n/scan-community-package`) against the local source and the packed package, the same checks n8n runs before approving a version; the publish workflow runs it before every release. The repo's lint no longer switches off the Get Many rule.
 
 ## [26.6.0-1.16.0] – 2026-09-27
 
