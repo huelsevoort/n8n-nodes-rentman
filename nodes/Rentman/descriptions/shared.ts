@@ -98,13 +98,20 @@ export function toLocalDate(value: string, timeZone: string): string {
 
 /**
  * An expression such as `{{ $today.plus({ days: 7 }) }}` yields a Luxon DateTime (or a JS Date),
- * not a string. Turn it into an ISO string so the date hooks below see it.
+ * not a string. n8n deep-merges the request body, which turns a DateTime into a plain object
+ * (`isLuxonDateTime`, `ts` in epoch ms, `o` as UTC offset in minutes). Turn either into an ISO
+ * string with the DateTime's own offset so the date hooks below see it.
  */
 export function dateToString(value: unknown): unknown {
 	if (value instanceof Date) return Number.isNaN(value.getTime()) ? value : value.toISOString();
-	if (value && typeof value === 'object' && typeof (value as { toISO?: unknown }).toISO === 'function') {
-		const iso = (value as { toISO: () => string | null }).toISO();
-		return iso ?? value;
+	if (!value || typeof value !== 'object') return value;
+	const dt = value as { toISO?: unknown; isLuxonDateTime?: unknown; ts?: unknown; o?: unknown };
+	if (typeof dt.toISO === 'function') return (dt.toISO as () => string | null).call(value) ?? value;
+	if (dt.isLuxonDateTime === true && typeof dt.ts === 'number' && typeof dt.o === 'number' && Number.isFinite(dt.ts)) {
+		const local = new Date(dt.ts + dt.o * 60_000).toISOString().slice(0, 23);
+		const sign = dt.o < 0 ? '-' : '+';
+		const abs = Math.abs(dt.o);
+		return `${local}${sign}${String(Math.floor(abs / 60)).padStart(2, '0')}:${String(abs % 60).padStart(2, '0')}`;
 	}
 	return value;
 }

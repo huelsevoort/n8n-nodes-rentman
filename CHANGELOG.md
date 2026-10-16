@@ -19,6 +19,10 @@ Tracks Rentman API **v1.18.0** (covers v1.17.0 and v1.18.0). The node offers all
 ### Changed
 - Rentman API v1.17.0 changed three query rules on its side, with no change in the node: a Fields value with a field the item type does not have is ignored instead of answered with HTTP 400; item-type custom fields can be expanded; a non-integer Limit or Offset gives HTTP 400 instead of HTTP 500.
 
+### Fixed
+- **Date fields set by an expression** such as `{{ $now }}`, `{{ $today.plus({ days: 7 }) }}` or a JS `Date` were sent to Rentman as a serialized Luxon object instead of a date, and Rentman rejected the request (HTTP 400 "Invalid request body"; reproduced live on Create From Template). They are now sent like a picked date: as an ISO date-time with the expression's own UTC offset, or as `YYYY-MM-DD` for plain-date fields. Applies to every date field of every write operation.
+- **Project → Create From Template** stops with a clear error when Project Template is empty or not an ID or path, instead of sending `"template": null`.
+
 ### Upgrading from 26.6.x
 - Workflows saved with 26.6.1 keep working: every parameter set of every 26.6.1 operation passes n8n's parameter validator on this version and keeps every value it sets, except Task → Item Type = Container (see Removed). No new value is sent by default.
 

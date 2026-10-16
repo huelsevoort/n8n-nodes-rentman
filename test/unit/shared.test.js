@@ -93,6 +93,16 @@ test('dates from expressions (Luxon DateTime, JS Date) are converted like string
 	assert.equal(out.body.start_date, '2027-03-01');
 	out = await hook.call(ctx('appointment', 'create'), { body: { start: luxon } });
 	assert.equal(out.body.start, '2027-03-01T00:30:00.000+01:00');
+	// What actually reaches the hook: n8n's deep merge of the body copies the DateTime into a plain object.
+	const merged = JSON.parse(JSON.stringify({ ...luxon, isLuxonDateTime: true }));
+	assert.equal(typeof merged.toISO, 'undefined');
+	out = await hook.call(ctx('project', 'createFromTemplate'), { body: { template: 13, start_date: merged } });
+	assert.equal(out.body.start_date, '2027-03-01');
+	out = await hook.call(ctx('appointment', 'create'), { body: { start: { ...merged } } });
+	assert.equal(out.body.start, '2027-03-01T00:30:00.000+01:00');
+	const ny = JSON.parse(JSON.stringify({ ...DateTime.fromISO('2027-07-15T09:00:00', { zone: 'America/New_York' }), isLuxonDateTime: true }));
+	out = await hook.call(ctx('appointment', 'create'), { body: { start: ny } });
+	assert.equal(out.body.start, '2027-07-15T09:00:00.000-04:00');
 });
 
 test('create from template stops on a template that is not an ID or path', async () => {
