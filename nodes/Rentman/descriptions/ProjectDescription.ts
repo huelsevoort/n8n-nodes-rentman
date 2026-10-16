@@ -395,7 +395,7 @@ export const projectFields: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: '/projecttemplates/13',
-		description: 'ID (13) or path (/projecttemplates/13) of the project template. Templates are listed under Project Template → Get Many. Rentman itself only accepts the ID, so a path is sent as its ID.',
+		description: 'ID (13) or path (/projecttemplates/13) of the project template. Templates are listed under Project Template → Get Many. A path is sent as its ID: Rentman answers HTTP 400 to a path here.',
 		routing: {
 			request: {
 				body: {
@@ -416,7 +416,7 @@ export const projectFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'First date of the new project. Only the date counts (in the workflow timezone); the template sets the times. Rentman answers with the path of the new project, e.g. {"path": "/projects/42"}.',
+		description: 'First date of the new project. Only the date counts, as written (a value without a date-time format is read in the workflow timezone); the template sets the times. Rentman answers with the path of the new project, e.g. {"path": "/projects/42"}.',
 		routing: {
 			request: {
 				body: {
