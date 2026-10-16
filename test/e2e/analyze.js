@@ -46,6 +46,17 @@ for (const c of cases) {
 		// Boolean filters Rentman reads as 1/0 (it takes "true" as false).
 		if (/^=\{\{\s*\$value \? 1 : 0\s*\}\}$/.test(x.expr || '')) { if (String(got) !== (x.value ? '1' : '0')) problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${x.value ? 1 : 0}`); continue; }
 		if (got && typeof got === 'object') { if (JSON.stringify(got) !== JSON.stringify(JSON.parse(x.value))) problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${x.value}`); continue; }
+		// Link fields Rentman only takes as an ID: a path is sent as its last segment.
+		if (/split\("\/"\)/.test(x.expr || '') && x.in === 'body') {
+			const id = String(x.value).split('/').filter(Boolean).pop();
+			if (String(got) !== id || typeof got !== 'number') problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${id}`);
+			continue;
+		}
+		// Plain-date keys (format: date) are sent as the date alone.
+		if (x.in === 'body' && x.key === 'start_date') {
+			if (String(got) !== String(x.value).slice(0, 10)) problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${String(x.value).slice(0, 10)}`);
+			continue;
+		}
 		// Dates in bodies get the workflow timezone's offset (Europe/Berlin in env.sh: +01:00 in January).
 		if (x.in === 'body' && typeof x.value === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d$/.test(x.value)) {
 			if (String(got) !== `${x.value}+01:00`) problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${x.value}+01:00`);

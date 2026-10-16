@@ -4,6 +4,27 @@ All notable changes to the **n8n-nodes-rentman** community node are documented i
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows a CalVer scheme `YY.Major.Minor-RentmanAPIVersion`.
 
+## [26.7.0-1.18.0] – unreleased
+
+Tracks Rentman API **v1.18.0** (covers v1.17.0 and v1.18.0). The node offers all 317 operations of Rentman's OpenAPI spec 1.18.0.
+
+### Added
+- **Project → Create From Template** (`POST /projects/:createFromTemplate`, API v1.18.0) creates a project from a project template. Project Template takes the template's ID (`13`) or path (`/projecttemplates/13`); Rentman itself only accepts the ID, so a path is sent as its ID. Start Date is sent as a plain date (`YYYY-MM-DD`) in the workflow's timezone; the template sets the times. Rentman answers with the path of the new project (`{"path": "/projects/42"}`).
+- **Project Template** resource (`GET /projecttemplates`, `GET /projecttemplates/{id}`, API v1.17.0) with Get and Get Many, to look up the templates for Create From Template.
+- **Task → Item Type → Default Service** (`DefaultService`, API v1.17.0) on Create, Create For Parent and Update.
+
+### Removed (breaking)
+- **Task → Item Type → Container**. Rentman removed the value in API v1.17.0 and now rejects it (HTTP 400 "instance value (\"Container\") not found in enum"). A saved workflow that still uses it keeps that value, because n8n does not flag a value that is no longer offered, and keeps failing until another item type is chosen.
+
+### Changed
+- Rentman API v1.17.0 changed three query rules on its side, with no change in the node: a Fields value with a field the item type does not have is ignored instead of answered with HTTP 400; item-type custom fields can be expanded; a non-integer Limit or Offset gives HTTP 400 instead of HTTP 500.
+
+### Upgrading from 26.6.x
+- Workflows saved with 26.6.1 keep working: every parameter set of every 26.6.1 operation passes n8n's parameter validator on this version and keeps every value it sets, except Task → Item Type = Container (see Removed). No new value is sent by default.
+
+### Testing
+- Mock run in n8n 2.40.7: RESULT_MOCK. Upgrade check against the published 26.6.1-1.16.0: RESULT_UPGRADE. Live run against the real Rentman API: reads RESULT_READS, Return All RESULT_PAGES, writes RESULT_WRITES. Project → Create From Template is read back: the new project starts on the given date. Task → Item Type = Default Service passes Rentman's validation, but the test account has no default service to link to (the API does not list default services), so a task linked to one could not be created live.
+
 ## [26.6.1-1.16.0] – 2026-09-28
 
 Tracks Rentman API **v1.16.0**. Fixes the findings of n8n's community package scanner, which n8n's verification runs without honouring inline `eslint-disable` comments. Saved workflows keep working unchanged: no parameter value, option value or default changed.

@@ -77,6 +77,28 @@ export function withUtcOffset(value: string, timeZone: string): string {
 	return `${y}-${mo}-${d}T${h}:${mi}:${s}${frac}${sign}${hh}:${mm}`;
 }
 
+const PLAIN_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Rentman parses some body keys as plain dates (OpenAPI `format: date`, YYYY-MM-DD). n8n's date
+ * picker produces a date-time, and an expression may produce an ISO instant. This turns either into
+ * the calendar date in the workflow's timezone.
+ */
+export function toLocalDate(value: string, timeZone: string): string {
+	if (PLAIN_DATE.test(value)) return value;
+	if (LOCAL_DATE_TIME.test(value)) return value.slice(0, 10);
+	const instant = Date.parse(value);
+	if (Number.isNaN(instant)) return value;
+	try {
+		return new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(instant));
+	} catch {
+		return value.slice(0, 10);
+	}
+}
+
+/** Request-body keys Rentman parses as plain dates (OpenAPI v1.18.0 `format: date`). */
+const DATE_KEYS = new Set(['start_date']);
+
 /** Request-body keys Rentman parses as date-times (OpenAPI v1.16.0 `format: date-time`, plus the
  * date fields it documents only as strings but returns and validates as date-times). */
 const DATE_TIME_KEYS = new Set([
@@ -111,6 +133,7 @@ async function prepareWriteBody(
 		const timeZone = this.getTimezone();
 		for (const [key, value] of Object.entries(body)) {
 			if (DATE_TIME_KEYS.has(key) && typeof value === 'string') body[key] = withUtcOffset(value, timeZone);
+			if (DATE_KEYS.has(key) && typeof value === 'string') body[key] = toLocalDate(value, timeZone);
 		}
 	}
 	// With no optional field filled in, n8n sends no body at all (an empty object is dropped too),

@@ -66,13 +66,13 @@ npm install n8n-nodes-rentman
 
 ## Supported Resources
 
-65 resources covering the full Rentman API v1.16.0: every one of its 314 operations, and every writable field except three that have no effect: Task Public (Rentman rejects every value), Crew Availability Last Updated/Last Updater and Stock Movement API Client (Rentman sets them itself). Resources marked **✏️** support write operations. **Get For Parent** lists the records of a parent through Rentman's sub-collection endpoints (e.g. the crew of a project or the payments of an invoice).
+66 resources covering the full Rentman API v1.18.0: every one of its 317 operations, and every writable field except three that have no effect: Task Public (Rentman rejects every value), Crew Availability Last Updated/Last Updater and Stock Movement API Client (Rentman sets them itself). Resources marked **✏️** support write operations. **Get For Parent** lists the records of a parent through Rentman's sub-collection endpoints (e.g. the crew of a project or the payments of an invoice).
 
 | Category | Resource | Operations |
 |---|---|---|
 | **Contacts** | Contact ✏️ | Create, Delete, Get, Get Many, Update |
 | | Contact Person ✏️ | Create, Delete, Get, Get Many, Get For Parent, Update |
-| **Projects** | Project ✏️ | Create, Get, Get Many |
+| **Projects** | Project ✏️ | Create, Create From Template, Get, Get Many |
 | | Subproject ✏️ | Create, Get, Get Many, Get For Parent |
 | | Contract | Get, Get Many, Get For Parent |
 | | Quote | Get, Get Many, Get For Parent |
@@ -132,6 +132,7 @@ npm install n8n-nodes-rentman
 | | Task Assignment ✏️ | Delete, Get, Get Many, Update |
 | **Misc** | Extra Input Field | Get, Get Many |
 | | Project Status | Get, Get Many |
+| | Project Template | Get, Get Many |
 | | Status | Get, Get Many |
 | | Warehouse Status | Get, Get Many |
 | | Vehicle ✏️ | Create, Create For Stock Location, Delete, Get, Get Many, Get For Parent, Update |
@@ -178,6 +179,8 @@ Item, link and child fields can be expanded, as can custom fields of an item typ
 ---
 
 ## Upgrading
+
+Workflows saved with 26.6.x keep validating and keep every value they set after upgrading to 26.7.0. The one exception is a Task whose Item Type is Container: Rentman removed that value in API v1.17.0 and rejects it, so such a task has to be linked to another item type. Check the **26.7.0-1.18.0** section of [CHANGELOG.md](CHANGELOG.md).
 
 Workflows saved with 26.5.0 keep validating and keep every value they set after upgrading to 26.6.0. A few behaviors changed because Rentman rejected the old ones (e.g. Time Registration → Break Duration is in seconds, some option values were replaced, the Crew filter External is gone). Check the **Removed (breaking)**, **Changed (breaking)** and **Upgrading from 26.5.0** sections of [CHANGELOG.md](CHANGELOG.md) before upgrading.
 

@@ -1,7 +1,7 @@
 // Unit tests for the request hooks every Rentman operation relies on. Run with `npm test` (builds first).
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { withUtcOffset, withWriteHooks, rentmanPagination } = require('../../dist/nodes/Rentman/descriptions/shared.js');
+const { withUtcOffset, toLocalDate, withWriteHooks, rentmanPagination } = require('../../dist/nodes/Rentman/descriptions/shared.js');
 
 test('withUtcOffset adds the offset of the timezone at that wall-clock time', () => {
 	assert.equal(withUtcOffset('2027-01-15T09:00:00', 'Europe/Berlin'), '2027-01-15T09:00:00+01:00');
@@ -19,6 +19,16 @@ test('withUtcOffset handles the hours around a DST switch', () => {
 test('withUtcOffset leaves values that already carry an offset unchanged', () => {
 	assert.equal(withUtcOffset('2027-01-15T09:00:00+05:00', 'Europe/Berlin'), '2027-01-15T09:00:00+05:00');
 	assert.equal(withUtcOffset('2027-01-15T09:00:00Z', 'Europe/Berlin'), '2027-01-15T09:00:00Z');
+});
+
+test('toLocalDate turns date-times into the calendar date of the workflow timezone', () => {
+	assert.equal(toLocalDate('2027-03-01', 'Europe/Berlin'), '2027-03-01');
+	assert.equal(toLocalDate('2027-03-01T00:00:00', 'Europe/Berlin'), '2027-03-01');
+	assert.equal(toLocalDate('2027-03-01T23:30:00', 'Europe/Berlin'), '2027-03-01');
+	// An instant late on 28 Feb in UTC is already 1 March in Berlin.
+	assert.equal(toLocalDate('2027-02-28T23:30:00.000Z', 'Europe/Berlin'), '2027-03-01');
+	assert.equal(toLocalDate('2027-03-01T00:30:00+01:00', 'America/New_York'), '2027-02-28');
+	assert.equal(toLocalDate('not a date', 'Europe/Berlin'), 'not a date');
 });
 
 // Runs the write hook withWriteHooks adds to a POST operation.
@@ -44,6 +54,12 @@ test('zone-less dates in the body get the workflow timezone offset', async () =>
 	const out = await hook.call(ctx('appointment', 'create'), { body: { start: '2027-01-15T09:00:00', name: '2027-01-15T09:00:00' } });
 	assert.equal(out.body.start, '2027-01-15T09:00:00+01:00');
 	assert.equal(out.body.name, '2027-01-15T09:00:00', 'only date keys are touched');
+});
+
+test('plain-date keys are sent as the date alone', async () => {
+	const { hook } = writeHook();
+	const out = await hook.call(ctx('project', 'createFromTemplate'), { body: { template: 13, start_date: '2027-03-01T00:00:00' } });
+	assert.deepEqual(out.body, { template: 13, start_date: '2027-03-01' });
 });
 
 test('vehicle create without cost rate stops with a clear error', async () => {

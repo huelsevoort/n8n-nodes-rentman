@@ -34,6 +34,26 @@ export const projectOperations: INodeProperties[] = [
 				},
 			},
 			{
+				name: 'Create From Template',
+				value: 'createFromTemplate',
+				action: 'Create a project from a template',
+				description: 'Create a new project based on a project template (API v1.18.0)',
+				routing: {
+					request: {
+						method: 'POST',
+						url: '/projects/:createFromTemplate',
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
+					},
+				},
+			},
+			{
 				name: 'Get',
 				value: 'get',
 				action: 'Get a project',
@@ -359,6 +379,51 @@ export const projectFields: INodeProperties[] = [
 				routing: { request: { body: { number: '={{ $value }}' } } },
 			},
 		],
+	},
+
+	// ─── CREATE FROM TEMPLATE (API v1.18.0) ──────────────────────────────────
+	{
+		displayName: 'Project Template',
+		name: 'template',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['project'],
+				operation: ['createFromTemplate'],
+			},
+		},
+		default: '',
+		placeholder: '/projecttemplates/13',
+		description: 'ID (13) or path (/projecttemplates/13) of the project template. Templates are listed under Project Template → Get Many. Rentman itself only accepts the ID, so a path is sent as its ID.',
+		routing: {
+			request: {
+				body: {
+					template: '={{ parseInt(String($value).split("/").filter(Boolean).pop(), 10) }}',
+				},
+			},
+		},
+	},
+	{
+		displayName: 'Start Date',
+		name: 'start_date',
+		type: 'dateTime',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['project'],
+				operation: ['createFromTemplate'],
+			},
+		},
+		default: '',
+		description: 'First date of the new project. Only the date counts (in the workflow timezone); the template sets the times. Rentman answers with the path of the new project, e.g. {"path": "/projects/42"}.',
+		routing: {
+			request: {
+				body: {
+					start_date: '={{ $value }}',
+				},
+			},
+		},
 	},
 	customQueryParamsField('project'),
 ];
