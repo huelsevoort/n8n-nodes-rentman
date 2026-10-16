@@ -22,6 +22,7 @@ const cases = [
 	{ name: 'equipment: filter+fields, pages of 7', params: { resource: 'equipment', operation: 'getAll', returnAll: true, filters: { type: 'item', fields: 'id,displayname' }, customQueryParams: small(7) }, expect: '/equipment?type=item&fields=id' },
 	{ name: 'equipment: sort -id, pages of 30', params: { resource: 'equipment', operation: 'getAll', returnAll: true, filters: { sort: '-id' }, customQueryParams: small(30) }, expect: '/equipment?sort=-id&fields=id', ordered: true },
 	{ name: 'projectStatus: pages of 2', params: { resource: 'projectStatus', operation: 'getAll', returnAll: true, customQueryParams: small(2) }, expect: '/projectstatuses?fields=id' },
+	{ name: 'projectTemplate: pages of 1', params: { resource: 'projectTemplate', operation: 'getAll', returnAll: true, customQueryParams: small(1) }, expect: '/projecttemplates?fields=id' },
 	{ name: 'crew: active filter+expand, pages of 5', params: { resource: 'crew', operation: 'getAll', returnAll: true, filters: { active: true }, expand: 'creator', customQueryParams: small(5) }, expect: '/crew?active=1&fields=id' },
 	{ name: 'contact: default page size', params: { resource: 'contact', operation: 'getAll', returnAll: true }, expect: '/contacts?fields=id' },
 	{ name: 'equipmentSetsContent (buildCrud): pages of 20', params: { resource: 'equipmentSetsContent', operation: 'getAll', returnAll: true, customQueryParams: small(20) }, expect: '/equipmentsetscontent?fields=id' },

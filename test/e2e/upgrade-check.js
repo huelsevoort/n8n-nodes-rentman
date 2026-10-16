@@ -18,7 +18,7 @@ const desc = loadDescription(newRepo);
 const cases = require(path.join(dir, 'expectations.json'));
 
 // <resource>.<operation> <parameter path>[=<value>]; each entry is listed under "Removed (breaking)"
-// or "Upgrading from 26.5.0" in the CHANGELOG.
+// or "Upgrading" in the CHANGELOG (26.6.0 and later).
 const ALLOWED = new Set([
 	'appointmentCrew.update updateFields.remark',
 	'contactPerson.update updateFields.remark',
@@ -45,6 +45,8 @@ const ALLOWED = new Set([
 		`equipment.${p}.type=normal`,
 		`equipment.${p}.type=consumable`,
 	]),
+	// removed in 26.7.0: Rentman dropped the task item type Container in API v1.17.0
+	...['create', 'createForParent', 'update'].map((op) => `task.${op} additionalFields.itemtype=Container`),
 	// new required fields with a harmless default (documented under "Upgrading from 26.5.0")
 	'leaveRequest.create +approval_status',
 ]);

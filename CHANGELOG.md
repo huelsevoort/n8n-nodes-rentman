@@ -4,6 +4,37 @@ All notable changes to the **n8n-nodes-rentman** community node are documented i
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows a CalVer scheme `YY.Major.Minor-RentmanAPIVersion`.
 
+## [26.7.0-1.18.0] – unreleased
+
+Tracks Rentman API **v1.18.0** (covers v1.17.0 and v1.18.0). The node offers all 317 operations of Rentman's OpenAPI spec 1.18.0.
+
+### Added
+- **Project → Create From Template** (`POST /projects/:createFromTemplate`, API v1.18.0) creates a project from a project template. Project Template takes the template's ID (`13`) or path (`/projecttemplates/13`); A path is sent as its ID, because this endpoint answers HTTP 400 to a path (tested with curl), although Rentman's changelog says link fields accept paths. Start Date is sent as a plain date (`YYYY-MM-DD`): the date as written, including for an expression such as `{{ $today.plus({ days: 7 }) }}`; a JS `Date` is read in the workflow's timezone. The template sets the times. Rentman answers with the path of the new project (`{"path": "/projects/42"}`).
+- **Project Template** resource (`GET /projecttemplates`, `GET /projecttemplates/{id}`, API v1.17.0) with Get and Get Many, to look up the templates for Create From Template.
+- **Task → Item Type → Default Service** (`DefaultService`, API v1.17.0) on Create, Create For Parent and Update.
+
+### Removed (breaking)
+- **Task → Item Type → Container**. Rentman removed the value in API v1.17.0 and now rejects it (HTTP 400 "instance value (\"Container\") not found in enum"). A saved workflow that still uses it keeps that value (n8n runs it without complaint; only the editor shows “The value "Container" is not supported!” when the node is opened) and keeps failing until another item type is chosen.
+
+### Changed
+- Rentman API v1.17.0 changed three query rules on its side, with no change in the node: a Fields value with a field the item type does not have is ignored instead of answered with HTTP 400; item-type custom fields can be expanded; a non-integer Limit or Offset gives HTTP 400 instead of HTTP 500.
+
+### Fixed
+- **Date fields set by an expression** such as `{{ $now }}`, `{{ $today.plus({ days: 7 }) }}` or a JS `Date` were sent to Rentman as a serialized Luxon object instead of a date, and Rentman rejected the request (HTTP 400 "Invalid request body"; reproduced live on Create From Template). They are now sent like a picked date: as an ISO date-time with the expression's own UTC offset, or as `YYYY-MM-DD` for plain-date fields. Applies to every date field of every write operation.
+- **Project → Create From Template** stops with a clear error when Project Template is empty or not an ID or path, instead of sending `"template": null`.
+- **Project Request → Create** without Plan Period Start or End stops with a clear error naming the missing field. Rentman requires both; n8n only showed "Invalid request body".
+- **Limit above 1500** on any list operation stops with a clear error. Rentman returns at most 1500 items per request and answers more with HTTP 400, which n8n only showed as "Bad request". Return All is not affected.
+
+### Upgrading from 26.6.x
+- Workflows saved with 26.6.1 keep working: every parameter set of every 26.6.1 operation passes n8n's parameter validator on this version and keeps every value it sets, except Task → Item Type = Container (see Removed). No new value is sent by default.
+
+### Internal
+- publish.yml skips a tag whose version is already on npm instead of failing, so a tag can be added later to mark the commit a version was published from.
+- The package no longer ships `dist/tsconfig.tsbuildinfo`.
+
+### Testing
+- Unit tests 16/16; n8n community package scanner 0.39.0 passed (source and package); spec coverage 317/317 operations. Mock run in n8n 2.40.7: 516/516 cases, 516/516 parameter sets pass the validator, Return All 2/2. Upgrade check against the published 26.6.1-1.16.0: 510/510 parameter sets keep every value and pass the validator. Live run against the real Rentman API: reads 433/434 (9 skipped: no record in the account; the 1 failure is Rentman ignoring Fields on Crew when Expand is set, reproduced with curl), Return All 8/8, writes 134/137 (the 3 are Task Status Create, HTTP 401 because the API user lacks the right, reproduced with curl, and the Update and Delete that depend on it). Project → Create From Template is read back for a template given as path, as ID and a Start Date set by a `$today` expression: each new project starts on the given date. Task → Item Type = Default Service passes Rentman's validation, but the test account has no default service to link to (the API does not list default services), so a task linked to one could not be created live.
+
 ## [26.6.1-1.16.0] – 2026-09-28
 
 Tracks Rentman API **v1.16.0**. Fixes the findings of n8n's community package scanner, which n8n's verification runs without honouring inline `eslint-disable` comments. Saved workflows keep working unchanged: no parameter value, option value or default changed.

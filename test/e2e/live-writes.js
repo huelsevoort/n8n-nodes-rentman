@@ -2,7 +2,7 @@
 // Usage: node live-writes.js <outDir>   (env from env.sh; RENTMAN_API_TOKEN for direct API calls)
 //
 // Everything created is named "n8n-e2e TEST" and written to <outDir>/created.json as it happens.
-// Records Rentman cannot delete through the API (project, subproject, project function (group), equipment,
+// Records Rentman cannot delete through the API (project (also from a template), subproject, project function (group), equipment,
 // folder, leave mutation, leave request and its hours once approved, payment) are listed at the end for manual removal.
 // References to pre-existing records (crew, contacts, equipment, statuses ...) are looked up at start.
 const fs = require('fs');
@@ -196,6 +196,33 @@ const w1 = run(w1cases);
 // Creates are read back like updates: every field that was sent must be stored.
 const readBackCreates = (cases) => { for (const c of cases) if (c.track && c.result?.ok) readBack(c.name, c.track[0], c.result.first.id, c.params); };
 readBackCreates(w1cases);
+
+// ── W1a: Project → Create From Template (API v1.18.0) ─────────────────────────
+// Rentman answers with the new project's path only ({"path": "/projects/42"}); the project must start
+// on Start Date (in the workflow timezone). Template given as path (converted to the ID) and as ID.
+{
+	const tpl = firstId('/projecttemplates');
+	const cases = [
+		{ name: 'project.createFromTemplate[path]', date: '2027-04-05', params: { resource: 'project', operation: 'createFromTemplate', template: `/projecttemplates/${tpl}`, start_date: '2027-04-05T00:00:00' } },
+		{ name: 'project.createFromTemplate[id]', date: '2027-04-06', params: { resource: 'project', operation: 'createFromTemplate', template: String(tpl), start_date: '2027-04-06T23:30:00' } },
+		// An expression yields a Luxon DateTime, not a string; 00:30 in Berlin is the previous day in UTC.
+		{ name: 'project.createFromTemplate[expression]', date: '2027-04-07', params: { resource: 'project', operation: 'createFromTemplate', template: String(tpl), start_date: '={{ $today.set({ year: 2027, month: 4, day: 7, hour: 0, minute: 30 }) }}' } },
+	].filter(() => tpl);
+	if (!tpl) { results.push({ name: 'project.createFromTemplate', ok: null, error: 'no project template in account' }); console.log('SKIP project.createFromTemplate: no project template in account'); }
+	const res = run(cases);
+	for (const c of cases) {
+		const r = res[c.name];
+		const id = r.ok && /^\/projects\/(\d+)$/.exec(r.first?.path || '')?.[1];
+		const row = results.find((x) => x.name === c.name);
+		if (r.ok && !id) { row.ok = false; row.error = `unexpected response ${JSON.stringify(r.first)}`; continue; }
+		if (!id) continue;
+		row.id = id;
+		track('projects', id, false, 'node');
+		const start = api('GET', `/projects/${id}?fields=id,planperiod_start`).json.data?.planperiod_start;
+		const day = start && new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(start));
+		if (day !== c.date) { row.ok = false; row.error = `project ${id} starts ${start}, expected ${c.date}`; console.log(`FAIL ${c.name}: ${row.error}`); }
+	}
+}
 
 const C1 = idOf(w1['contact.create.full']);
 const A1 = idOf(w1['appointment.create.full']);

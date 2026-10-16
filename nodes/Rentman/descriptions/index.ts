@@ -94,6 +94,8 @@ export {
 	statusOperations, statusFields,
 	projectStatusOperations, projectStatusFields,
 	warehouseStatusOperations, warehouseStatusFields,
+	// Project templates
+	projectTemplateOperations, projectTemplateFields,
 	// Stock & locations
 	stockLocationOperations, stockLocationFields,
 	// Sub-rentals

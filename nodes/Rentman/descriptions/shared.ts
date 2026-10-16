@@ -77,6 +77,64 @@ export function withUtcOffset(value: string, timeZone: string): string {
 	return `${y}-${mo}-${d}T${h}:${mi}:${s}${frac}${sign}${hh}:${mm}`;
 }
 
+const PLAIN_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const OFFSET_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/;
+
+/**
+ * Rentman parses some body keys as plain dates (OpenAPI `format: date`, YYYY-MM-DD). n8n's date
+ * picker produces a zone-less date-time, an expression an ISO date-time with its own offset. Either
+ * way the date as written is sent; only other date strings are read in the workflow's timezone.
+ */
+export function toLocalDate(value: string, timeZone: string): string {
+	if (PLAIN_DATE.test(value)) return value;
+	if (LOCAL_DATE_TIME.test(value) || OFFSET_DATE_TIME.test(value)) return value.slice(0, 10);
+	const instant = Date.parse(value);
+	if (Number.isNaN(instant)) return value;
+	return dateInZone(new Date(instant), timeZone).slice(0, 10);
+}
+
+/** Wall-clock time of `date` in `timeZone` as `YYYY-MM-DDTHH:mm:ss.SSS` (UTC if the zone is unknown). */
+function dateInZone(date: Date, timeZone: string): string {
+	try {
+		const parts = new Intl.DateTimeFormat('en-CA', {
+			timeZone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit',
+		}).formatToParts(date);
+		const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '00';
+		const ms = String(date.getUTCMilliseconds()).padStart(3, '0');
+		return `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}:${get('second')}.${ms}`;
+	} catch {
+		return date.toISOString().slice(0, 23);
+	}
+}
+
+/**
+ * An expression such as `{{ $today.plus({ days: 7 }) }}` yields a Luxon DateTime (or a JS Date),
+ * not a string. n8n deep-merges the request body, which turns a DateTime into a plain object
+ * (`isLuxonDateTime`, `ts` in epoch ms, `o` as UTC offset in minutes). Turn either into an ISO
+ * string with the DateTime's own offset (a JS Date in the workflow's timezone) so the date hooks
+ * below see it.
+ */
+export function dateToString(value: unknown, timeZone: string): unknown {
+	// A JS Date has no zone of its own: it is written in the workflow's timezone.
+	if (value instanceof Date) return Number.isNaN(value.getTime()) ? value : withUtcOffset(dateInZone(value, timeZone), timeZone);
+	if (!value || typeof value !== 'object') return value;
+	const dt = value as { toISO?: unknown; isLuxonDateTime?: unknown; ts?: unknown; o?: unknown };
+	if (typeof dt.toISO === 'function') return (dt.toISO as () => string | null).call(value) ?? value;
+	if (dt.isLuxonDateTime === true && typeof dt.ts === 'number' && typeof dt.o === 'number' && Number.isFinite(dt.ts)) {
+		const local = new Date(dt.ts + dt.o * 60_000).toISOString().slice(0, 23);
+		const sign = dt.o < 0 ? '-' : '+';
+		const abs = Math.abs(dt.o);
+		return `${local}${sign}${String(Math.floor(abs / 60)).padStart(2, '0')}:${String(abs % 60).padStart(2, '0')}`;
+	}
+	return value;
+}
+
+/** Request-body keys Rentman parses as plain dates (OpenAPI v1.18.0 `format: date`), keyed by
+ * resource.operation so a date-time key of the same name elsewhere is not cut to a date. */
+const DATE_KEYS: Record<string, string[]> = {
+	'project.createFromTemplate': ['start_date'],
+};
+
 /** Request-body keys Rentman parses as date-times (OpenAPI v1.16.0 `format: date-time`, plus the
  * date fields it documents only as strings but returns and validates as date-times). */
 const DATE_TIME_KEYS = new Set([
@@ -87,11 +145,16 @@ const DATE_TIME_KEYS = new Set([
 
 /**
  * Body fields Rentman requires that live in an optional collection (to keep 26.5.0 workflows
- * valid), keyed by resource.operation. Without them Rentman only answers with a bare HTTP 500.
+ * valid), keyed by resource.operation. Without them Rentman answers with a bare HTTP 500 (vehicle)
+ * or a schema message n8n hides behind "Invalid request body" (project request).
  */
 export const REQUIRED_BODY_FIELDS: Record<string, Array<[key: string, label: string]>> = {
 	'vehicle.create': [['cost_rate', 'Additional Fields → Cost Rate']],
 	'vehicle.createForStockLocation': [['cost_rate', 'Additional Fields → Cost Rate']],
+	'projectRequest.create': [
+		['planperiod_start', 'Additional Fields → Plan Period Start'],
+		['planperiod_end', 'Additional Fields → Plan Period End'],
+	],
 };
 
 async function prepareWriteBody(
@@ -99,18 +162,33 @@ async function prepareWriteBody(
 	requestOptions: IHttpRequestOptions,
 ): Promise<IHttpRequestOptions> {
 	const body = requestOptions.body as Record<string, unknown> | undefined;
-	const required = REQUIRED_BODY_FIELDS[`${this.getNodeParameter('resource')}.${this.getNodeParameter('operation')}`];
+	const operation = `${this.getNodeParameter('resource')}.${this.getNodeParameter('operation')}`;
+	const required = REQUIRED_BODY_FIELDS[operation];
 	for (const [key, label] of required ?? []) {
 		if (body?.[key] === undefined || body[key] === '') {
 			throw new NodeOperationError(this.getNode(), `Rentman requires ${label}`, {
-				description: `Set ${label}; Rentman rejects the request without it (HTTP 500).`,
+				description: `Set ${label}; Rentman rejects the request without it.`,
+			});
+		}
+	}
+	if (operation === 'project.createFromTemplate') {
+		const template = body?.template;
+		if (typeof template !== 'number' || !Number.isInteger(template) || template <= 0) {
+			throw new NodeOperationError(this.getNode(), 'Project Template must be an ID or a path such as /projecttemplates/13', {
+				description: `Got "${String(this.getNodeParameter('template', ''))}". Templates are listed under Project Template → Get Many.`,
 			});
 		}
 	}
 	if (body && typeof body === 'object' && !Array.isArray(body)) {
 		const timeZone = this.getTimezone();
-		for (const [key, value] of Object.entries(body)) {
-			if (DATE_TIME_KEYS.has(key) && typeof value === 'string') body[key] = withUtcOffset(value, timeZone);
+		const dateKeys = DATE_KEYS[operation] ?? [];
+		for (const [key, raw] of Object.entries(body)) {
+			const isDate = dateKeys.includes(key);
+			if (!isDate && !DATE_TIME_KEYS.has(key)) continue;
+			const value = dateToString(raw, timeZone);
+			if (value !== raw) body[key] = value;
+			if (typeof value !== 'string') continue;
+			body[key] = isDate ? toLocalDate(value, timeZone) : withUtcOffset(value, timeZone);
 		}
 	}
 	// With no optional field filled in, n8n sends no body at all (an empty object is dropped too),
@@ -123,17 +201,38 @@ async function prepareWriteBody(
  * Adds request hooks every write operation needs. Called once on the assembled node properties
  * so no create/update operation can be added without them.
  */
+/** Most items Rentman returns per request; a larger Limit is answered with HTTP 400. */
+export const MAX_LIMIT = 1500;
+
+/**
+ * Stops a list request whose Limit is above Rentman's maximum with a clear message: n8n shows
+ * Rentman's own answer only as "Bad request". n8n's linter forbids `maxValue` on Limit fields.
+ */
+async function checkLimit(
+	this: IExecuteSingleFunctions,
+	requestOptions: IHttpRequestOptions,
+): Promise<IHttpRequestOptions> {
+	const limit = Number((requestOptions.qs as IDataObject | undefined)?.limit);
+	if (limit > MAX_LIMIT) {
+		throw new NodeOperationError(this.getNode(), `Limit must be ${MAX_LIMIT} or less`, {
+			description: `Rentman returns at most ${MAX_LIMIT} items per request. Use a smaller Limit, or Return All to get every item.`,
+		});
+	}
+	return requestOptions;
+}
+
 export function withWriteHooks(properties: INodeProperties[]): INodeProperties[] {
 	for (const prop of properties) {
 		if (prop.name !== 'operation' || prop.type !== 'options') continue;
 		for (const option of prop.options ?? []) {
 			const op = option as { routing?: NonNullable<INodeProperties['routing']> };
-			const method = op.routing?.request?.method;
-			if (method !== 'POST' && method !== 'PUT') continue;
-			const preSend = op.routing!.send?.preSend ?? [];
+			const method = op.routing?.request?.method ?? 'GET';
+			const hook = method === 'POST' || method === 'PUT' ? prepareWriteBody : method === 'GET' ? checkLimit : undefined;
+			if (!hook || !op.routing) continue;
+			const preSend = op.routing.send?.preSend ?? [];
 			// The option objects are module-level, so every `new Rentman()` passes here again.
-			if (preSend.includes(prepareWriteBody)) continue;
-			op.routing!.send = { ...op.routing!.send, preSend: [...preSend, prepareWriteBody] };
+			if (preSend.includes(hook)) continue;
+			op.routing.send = { ...op.routing.send, preSend: [...preSend, hook] };
 		}
 	}
 	return properties;

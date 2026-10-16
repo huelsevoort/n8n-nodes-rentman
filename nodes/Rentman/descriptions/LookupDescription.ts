@@ -562,6 +562,12 @@ const warehouseStatuses = buildReadOnly('warehouseStatus', 'warehousestatuses', 
 export const warehouseStatusOperations = warehouseStatuses.operations;
 export const warehouseStatusFields = warehouseStatuses.fields;
 
+// ─── PROJECT TEMPLATES (API v1.17.0) ──────────────────────────────────────────
+
+const projectTemplates = buildReadOnly('projectTemplate', 'projecttemplates', 'Project Template');
+export const projectTemplateOperations = projectTemplates.operations;
+export const projectTemplateFields = projectTemplates.fields;
+
 // ─── STOCK & LOCATIONS ────────────────────────────────────────────────────────
 
 const stockLocations = buildReadOnly('stockLocation', 'stocklocations', 'Stock Location');
