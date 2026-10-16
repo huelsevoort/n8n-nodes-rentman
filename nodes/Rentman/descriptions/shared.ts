@@ -96,6 +96,19 @@ export function toLocalDate(value: string, timeZone: string): string {
 	}
 }
 
+/**
+ * An expression such as `{{ $today.plus({ days: 7 }) }}` yields a Luxon DateTime (or a JS Date),
+ * not a string. Turn it into an ISO string so the date hooks below see it.
+ */
+export function dateToString(value: unknown): unknown {
+	if (value instanceof Date) return Number.isNaN(value.getTime()) ? value : value.toISOString();
+	if (value && typeof value === 'object' && typeof (value as { toISO?: unknown }).toISO === 'function') {
+		const iso = (value as { toISO: () => string | null }).toISO();
+		return iso ?? value;
+	}
+	return value;
+}
+
 /** Request-body keys Rentman parses as plain dates (OpenAPI v1.18.0 `format: date`). */
 const DATE_KEYS = new Set(['start_date']);
 
@@ -129,9 +142,20 @@ async function prepareWriteBody(
 			});
 		}
 	}
+	if (this.getNodeParameter('resource') === 'project' && this.getNodeParameter('operation') === 'createFromTemplate') {
+		const template = body?.template;
+		if (typeof template !== 'number' || !Number.isInteger(template) || template <= 0) {
+			throw new NodeOperationError(this.getNode(), 'Project Template must be an ID or a path such as /projecttemplates/13', {
+				description: `Got "${String(this.getNodeParameter('template', ''))}". Templates are listed under Project Template → Get Many.`,
+			});
+		}
+	}
 	if (body && typeof body === 'object' && !Array.isArray(body)) {
 		const timeZone = this.getTimezone();
-		for (const [key, value] of Object.entries(body)) {
+		for (const [key, raw] of Object.entries(body)) {
+			if (!DATE_TIME_KEYS.has(key) && !DATE_KEYS.has(key)) continue;
+			const value = dateToString(raw);
+			if (value !== raw) body[key] = value;
 			if (DATE_TIME_KEYS.has(key) && typeof value === 'string') body[key] = withUtcOffset(value, timeZone);
 			if (DATE_KEYS.has(key) && typeof value === 'string') body[key] = toLocalDate(value, timeZone);
 		}

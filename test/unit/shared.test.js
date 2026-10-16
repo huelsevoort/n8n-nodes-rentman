@@ -81,3 +81,23 @@ test('Return All follows next_page_url without re-sending the first query', () =
 	assert.match(p.request.url, /\$response\.body\?\.next_page_url/);
 	assert.match(p.request.qs, /next_page_url \? \{\} : \$request\.qs/);
 });
+
+test('dates from expressions (Luxon DateTime, JS Date) are converted like strings', async () => {
+	const { DateTime } = require('luxon');
+	const { hook } = writeHook();
+	// $today.plus(...) in Berlin: midnight local is the previous day in UTC.
+	const luxon = DateTime.fromISO('2027-03-01T00:30:00', { zone: 'Europe/Berlin' });
+	let out = await hook.call(ctx('project', 'createFromTemplate'), { body: { template: 13, start_date: luxon } });
+	assert.equal(out.body.start_date, '2027-03-01');
+	out = await hook.call(ctx('project', 'createFromTemplate'), { body: { template: 13, start_date: new Date('2027-02-28T23:30:00Z') } });
+	assert.equal(out.body.start_date, '2027-03-01');
+	out = await hook.call(ctx('appointment', 'create'), { body: { start: luxon } });
+	assert.equal(out.body.start, '2027-03-01T00:30:00.000+01:00');
+});
+
+test('create from template stops on a template that is not an ID or path', async () => {
+	const { hook } = writeHook();
+	for (const template of [NaN, null, undefined, 0, 1.5]) {
+		await assert.rejects(hook.call(ctx('project', 'createFromTemplate'), { body: { template, start_date: '2027-03-01' } }), /Project Template must be an ID/);
+	}
+});

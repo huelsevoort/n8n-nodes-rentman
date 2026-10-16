@@ -205,7 +205,10 @@ readBackCreates(w1cases);
 	const cases = [
 		{ name: 'project.createFromTemplate[path]', date: '2027-04-05', params: { resource: 'project', operation: 'createFromTemplate', template: `/projecttemplates/${tpl}`, start_date: '2027-04-05T00:00:00' } },
 		{ name: 'project.createFromTemplate[id]', date: '2027-04-06', params: { resource: 'project', operation: 'createFromTemplate', template: String(tpl), start_date: '2027-04-06T23:30:00' } },
+		// An expression yields a Luxon DateTime, not a string; 00:30 in Berlin is the previous day in UTC.
+		{ name: 'project.createFromTemplate[expression]', date: '2027-04-07', params: { resource: 'project', operation: 'createFromTemplate', template: String(tpl), start_date: '={{ $today.set({ year: 2027, month: 4, day: 7, hour: 0, minute: 30 }) }}' } },
 	].filter(() => tpl);
+	if (!tpl) { results.push({ name: 'project.createFromTemplate', ok: null, error: 'no project template in account' }); console.log('SKIP project.createFromTemplate: no project template in account'); }
 	const res = run(cases);
 	for (const c of cases) {
 		const r = res[c.name];

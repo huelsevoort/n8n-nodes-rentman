@@ -399,7 +399,7 @@ export const projectFields: INodeProperties[] = [
 		routing: {
 			request: {
 				body: {
-					template: '={{ parseInt(String($value).split("/").filter(Boolean).pop(), 10) }}',
+					template: '={{ Number(String($value).trim().split("/").filter(Boolean).pop()) }}',
 				},
 			},
 		},

@@ -14,7 +14,7 @@ Tracks Rentman API **v1.18.0** (covers v1.17.0 and v1.18.0). The node offers all
 - **Task → Item Type → Default Service** (`DefaultService`, API v1.17.0) on Create, Create For Parent and Update.
 
 ### Removed (breaking)
-- **Task → Item Type → Container**. Rentman removed the value in API v1.17.0 and now rejects it (HTTP 400 "instance value (\"Container\") not found in enum"). A saved workflow that still uses it keeps that value, because n8n does not flag a value that is no longer offered, and keeps failing until another item type is chosen.
+- **Task → Item Type → Container**. Rentman removed the value in API v1.17.0 and now rejects it (HTTP 400 "instance value (\"Container\") not found in enum"). A saved workflow that still uses it keeps that value (n8n runs it without complaint; only the editor shows “The value "Container" is not supported!” when the node is opened) and keeps failing until another item type is chosen.
 
 ### Changed
 - Rentman API v1.17.0 changed three query rules on its side, with no change in the node: a Fields value with a field the item type does not have is ignored instead of answered with HTTP 400; item-type custom fields can be expanded; a non-integer Limit or Offset gives HTTP 400 instead of HTTP 500.

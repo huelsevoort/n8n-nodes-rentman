@@ -46,7 +46,7 @@ const ALLOWED = new Set([
 		`equipment.${p}.type=consumable`,
 	]),
 	// removed in 26.7.0: Rentman dropped the task item type Container in API v1.17.0
-	...['create', 'createForParent', 'update'].flatMap((op) => [`task.${op} itemtype=Container`, `task.${op} additionalFields.itemtype=Container`, `task.${op} updateFields.itemtype=Container`]),
+	...['create', 'createForParent', 'update'].map((op) => `task.${op} additionalFields.itemtype=Container`),
 	// new required fields with a harmless default (documented under "Upgrading from 26.5.0")
 	'leaveRequest.create +approval_status',
 ]);
