@@ -15,7 +15,7 @@ The mock accepts every request, so this shows what the node sends, not whether R
 npm install n8n                     # in a scratch directory; n8n 2.x needs Node.js >= 24
 cp env.example.sh env.sh            # and fill in the paths
 openssl req -x509 -newkey rsa:2048 -nodes -keyout key.pem -out cert.pem -days 7 \
-  -subj "/CN=api.rentman.net" -addext "subjectAltName=DNS:api.rentman.net"
+  -subj "/CN=api.rentman.net" -addext "subjectAltName=DNS:api.rentman.net"   # again once it expires: every case then fails with "certificate has expired"
 echo "127.0.0.1 api.rentman.net" | sudo tee -a /etc/hosts
 sudo node mock.js requests.jsonl &  # port 443 needs root; reads key.pem/cert.pem next to mock.js
 OLD_BUILD=/tmp/old ./run-all.sh     # OLD_BUILD (optional): built previous release for the upgrade check
