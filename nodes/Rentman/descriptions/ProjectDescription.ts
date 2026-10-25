@@ -1,8 +1,8 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination, toId, ID_SEGMENT } from './shared';
+import { customQueryParamsField, idSegment, rentmanPagination, toId } from './shared';
 
 /** Project ID of the Set operations as a URL segment: an ID (42) or a path (/projects/42). */
-const PROJECT_ID = ID_SEGMENT.replace('$value', '$parameter.projectId');
+const PROJECT_ID = idSegment('projects', 'projectId');
 
 export const projectOperations: INodeProperties[] = [
 	{
@@ -103,7 +103,7 @@ export const projectOperations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: `=/projects/{{ ${PROJECT_ID} }}/:setClient`,
+						url: `=/projects/${PROJECT_ID}/:setClient`,
 					},
 					output: {
 						postReceive: [
@@ -123,7 +123,7 @@ export const projectOperations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: `=/projects/{{ ${PROJECT_ID} }}/:setLocation`,
+						url: `=/projects/${PROJECT_ID}/:setLocation`,
 					},
 					output: {
 						postReceive: [
@@ -143,7 +143,7 @@ export const projectOperations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: `=/projects/{{ ${PROJECT_ID} }}/:setType`,
+						url: `=/projects/${PROJECT_ID}/:setType`,
 					},
 					output: {
 						postReceive: [

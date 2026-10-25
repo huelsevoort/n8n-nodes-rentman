@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination, toId, ID_SEGMENT } from './shared';
+import { customQueryParamsField, idSegment, rentmanPagination, toId } from './shared';
 
 export const subprojectOperations: INodeProperties[] = [
 	{
@@ -137,7 +137,7 @@ export const subprojectFields: INodeProperties[] = [
 		displayOptions: { show: { resource: ['subproject'], operation: ['setLocation'] } },
 		default: '',
 		description: 'ID (42) or path (/subprojects/42) of the subproject',
-		routing: { request: { url: `=/subprojects/{{ ${ID_SEGMENT} }}/:setLocation` } },
+		routing: { request: { url: `=/subprojects/${idSegment('subprojects', 'subprojectId')}/:setLocation` } },
 	},
 	{
 		displayName: 'Location',

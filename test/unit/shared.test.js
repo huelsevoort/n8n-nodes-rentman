@@ -168,3 +168,15 @@ test('toId takes an ID or a path of its own collection only', () => {
 	assert.equal(run(toId('contactpersons', true), ''), undefined);
 	assert.equal(run(toId('contactpersons', true), '/contactpersons/7'), 7);
 });
+
+test('Set operations take a record ID only as a number or a path of its own collection', async () => {
+	const { idSegment } = require('../../dist/nodes/Rentman/descriptions/shared.js');
+	const seg = (id) => new Function('$parameter', `return ${idSegment('projects', 'projectId').slice(3, -3)}`)({ projectId: id });
+	assert.equal(seg('42'), '42');
+	assert.equal(seg(' /projects/42 '), '42');
+	assert.equal(seg(42), '42');
+	for (const bad of ['/subprojects/42', '229x', '12.5', '2026-0042', '', undefined]) assert.equal(seg(bad), 'invalid-id', String(bad));
+	const { hook } = writeHook();
+	await assert.rejects(hook.call(ctx('project', 'setClient'), { url: '/projects/invalid-id/:setClient', body: { client: 12 } }), /must be a number or a path of its own collection/);
+	await assert.doesNotReject(hook.call(ctx('project', 'setClient'), { url: '/projects/42/:setClient', body: { client: 12 } }));
+});

@@ -87,8 +87,18 @@ export function toId(collection: string, optional = false): string {
 	return `={{ (s => s === "" ? ${optional ? 'undefined' : 'NaN'} : /^(\\/${collection}\\/)?\\d+$/.test(s) ? Number(s.split("/").pop()) : NaN)(String($value ?? "").trim()) }}`;
 }
 
-/** URL segment for a record ID given as an ID (42) or a path (/projects/42), as Rentman returns it. */
-export const ID_SEGMENT = 'String($value).trim().split("/").filter(Boolean).pop()';
+/** Placeholder URL segment for an ID that is neither an ID nor a path of the expected collection. */
+export const INVALID_ID = 'invalid-id';
+
+/**
+ * URL segment for a record ID given as an ID (42) or a path of its collection (/projects/42), as
+ * Rentman answers module functions. Anything else becomes INVALID_ID, which prepareWriteBody stops:
+ * these endpoints read an ID loosely (229x or 229.5 is project 229), so a wrong input must never
+ * reach Rentman.
+ */
+export function idSegment(collection: string, parameter: string): string {
+	return `{{ (s => /^(\\/${collection}\\/)?\\d+$/.test(s) ? s.split("/").pop() : "${INVALID_ID}")(String($parameter.${parameter} ?? "").trim()) }}`;
+}
 
 const PLAIN_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const OFFSET_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/;
@@ -186,6 +196,11 @@ async function prepareWriteBody(
 ): Promise<IHttpRequestOptions> {
 	const body = requestOptions.body as Record<string, unknown> | undefined;
 	const operation = `${this.getNodeParameter('resource')}.${this.getNodeParameter('operation')}`;
+	if (requestOptions.url?.split('/').includes(INVALID_ID)) {
+		throw new NodeOperationError(this.getNode(), 'Project ID / Subproject ID must be a number or a path of its own collection, e.g. /projects/42', {
+			description: 'Only a number, or a path of the record\'s own collection, is accepted: Rentman would read a value such as 229x as record 229 and change that one.',
+		});
+	}
 	const required = REQUIRED_BODY_FIELDS[operation];
 	for (const [key, label] of required ?? []) {
 		if (body?.[key] === undefined || body[key] === '') {
