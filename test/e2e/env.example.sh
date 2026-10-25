@@ -1,6 +1,6 @@
 # Copy to env.sh and adjust. n8n 2.x needs Node.js >= 24.
 export PATH=/path/to/node24/bin:$PATH
-N8N=/path/to/n8n/node_modules/.bin/n8n
+export N8N=/path/to/n8n/node_modules/.bin/n8n
 export N8N_MODS=/path/to/n8n/node_modules
 export N8N_USER_FOLDER=/path/to/throwaway-n8n-home
 export N8N_ENCRYPTION_KEY=testkey123 N8N_DIAGNOSTICS_ENABLED=false DB_TYPE=sqlite

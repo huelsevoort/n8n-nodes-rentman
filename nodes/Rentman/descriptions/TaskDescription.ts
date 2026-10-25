@@ -154,9 +154,9 @@ const taskBodyFields: INodeProperties[] = [
 		options: [
 			{ name: 'Contact', value: 'Contact' },
 			{ name: 'Contact Person', value: 'ContactPerson' },
-			{ name: 'Container', value: 'Container' },
 			{ name: 'Contract', value: 'Contract' },
 			{ name: 'Crew', value: 'Crew' },
+			{ name: 'Default Service', value: 'DefaultService' },
 			{ name: 'Equipment', value: 'Equipment' },
 			{ name: 'Inspection Report Serial Number', value: 'InspectionReportSerialNumber' },
 			{ name: 'Inventory Count Job', value: 'InventoryCountJob' },

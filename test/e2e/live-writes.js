@@ -2,7 +2,7 @@
 // Usage: node live-writes.js <outDir>   (env from env.sh; RENTMAN_API_TOKEN for direct API calls)
 //
 // Everything created is named "n8n-e2e TEST" and written to <outDir>/created.json as it happens.
-// Records Rentman cannot delete through the API (project, subproject, project function (group), equipment,
+// Records Rentman cannot delete through the API (project (also from a template), subproject, project function (group), equipment,
 // folder, leave mutation, leave request and its hours once approved, payment) are listed at the end for manual removal.
 // References to pre-existing records (crew, contacts, equipment, statuses ...) are looked up at start.
 const fs = require('fs');
@@ -197,6 +197,33 @@ const w1 = run(w1cases);
 const readBackCreates = (cases) => { for (const c of cases) if (c.track && c.result?.ok) readBack(c.name, c.track[0], c.result.first.id, c.params); };
 readBackCreates(w1cases);
 
+// ── W1a: Project → Create From Template (API v1.18.0) ─────────────────────────
+// Rentman answers with the new project's path only ({"path": "/projects/42"}); the project must start
+// on Start Date (in the workflow timezone). Template given as path (converted to the ID) and as ID.
+{
+	const tpl = firstId('/projecttemplates');
+	const cases = [
+		{ name: 'project.createFromTemplate[path]', date: '2027-04-05', params: { resource: 'project', operation: 'createFromTemplate', template: `/projecttemplates/${tpl}`, start_date: '2027-04-05T00:00:00' } },
+		{ name: 'project.createFromTemplate[id]', date: '2027-04-06', params: { resource: 'project', operation: 'createFromTemplate', template: String(tpl), start_date: '2027-04-06T23:30:00' } },
+		// An expression yields a Luxon DateTime, not a string; 00:30 in Berlin is the previous day in UTC.
+		{ name: 'project.createFromTemplate[expression]', date: '2027-04-07', params: { resource: 'project', operation: 'createFromTemplate', template: String(tpl), start_date: '={{ $today.set({ year: 2027, month: 4, day: 7, hour: 0, minute: 30 }) }}' } },
+	].filter(() => tpl);
+	if (!tpl) { results.push({ name: 'project.createFromTemplate', ok: null, error: 'no project template in account' }); console.log('SKIP project.createFromTemplate: no project template in account'); }
+	const res = run(cases);
+	for (const c of cases) {
+		const r = res[c.name];
+		const id = r.ok && /^\/projects\/(\d+)$/.exec(r.first?.path || '')?.[1];
+		const row = results.find((x) => x.name === c.name);
+		if (r.ok && !id) { row.ok = false; row.error = `unexpected response ${JSON.stringify(r.first)}`; continue; }
+		if (!id) continue;
+		row.id = id;
+		track('projects', id, false, 'node');
+		const start = api('GET', `/projects/${id}?fields=id,planperiod_start`).json.data?.planperiod_start;
+		const day = start && new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(start));
+		if (day !== c.date) { row.ok = false; row.error = `project ${id} starts ${start}, expected ${c.date}`; console.log(`FAIL ${c.name}: ${row.error}`); }
+	}
+}
+
 const C1 = idOf(w1['contact.create.full']);
 const A1 = idOf(w1['appointment.create.full']);
 const E1 = idOf(w1['equipment.create.full']);
@@ -256,6 +283,46 @@ const w1cCases = runnableNow([
 run(w1cCases);
 readBackCreates(w1bCases);
 readBackCreates(w1cCases);
+
+// ── W1d: Project/Subproject → Set Client/Location/Type (API v1.19.0) ──────────
+// Rentman answers with the record's path only; the change is read back. Uses contacts of the account
+// (not C1, which is deleted later and can't be while a project links it); the subproject gets another
+// location than the project, so a location passed down from the project can't pass for it.
+{
+	const contactId = ref.contact.split('/')[2];
+	const otherContact = api('GET', '/contacts?limit=2&sort=%2Bid&fields=id').json.data?.[1]?.id;
+	const cpId = api('GET', `/contacts/${contactId}/contactpersons?limit=1&fields=id`).json.data?.[0]?.id;
+	const current = api('GET', `/projects/${P1}?fields=project_type`).json.data?.project_type;
+	const typeId = api('GET', '/projecttypes?limit=10&fields=id').json.data?.map((t) => t.id).find((id) => `/projecttypes/${id}` !== current);
+	const cases = [
+		// Project ID given as the path Rentman answers with.
+		{ name: 'project.setClient', params: { resource: 'project', operation: 'setClient', projectId: `/projects/${P1}`, client: ref.contact, options: { contact_person: cpId ? `/contactpersons/${cpId}` : undefined, copy_data: true } },
+			check: () => [`/projects/${P1}`, { customer: ref.contact, ...(cpId ? { cust_contact: `/contactpersons/${cpId}` } : {}) }] },
+		{ name: 'project.setLocation', params: { resource: 'project', operation: 'setLocation', projectId: P1, location: contactId, options: { apply_distances: true, copy_data: false } },
+			check: () => [`/projects/${P1}`, { location: ref.contact }] },
+		{ name: 'project.setType', params: { resource: 'project', operation: 'setType', projectId: P1, type: String(typeId), options: { copy_terms_and_conditions: true } },
+			check: () => [`/projects/${P1}`, { project_type: `/projecttypes/${typeId}` }] },
+		{ name: 'subproject.setLocation', params: { resource: 'subproject', operation: 'setLocation', subprojectId: P1sub, location: `/contacts/${otherContact}` },
+			check: () => [`/subprojects/${P1sub}`, { location: `/contacts/${otherContact}` }] },
+	];
+	const runnableSet = cases.filter((c) => {
+		const ready = { 'project.setType': typeId, 'subproject.setLocation': P1sub && otherContact }[c.name] ?? true;
+		if (P1 && ready) return true;
+		results.push({ name: c.name, ok: null, error: 'prerequisite record could not be created' }); console.log(`SKIP ${c.name}: prerequisite missing`);
+		return false;
+	});
+	const res = run(runnableSet);
+	for (const c of runnableSet) {
+		const r = res[c.name];
+		const row = results.find((x) => x.name === c.name);
+		if (!r.ok) continue;
+		const [p, want] = c.check();
+		if (r.first?.path !== p) { row.ok = false; row.error = `unexpected response ${JSON.stringify(r.first)}`; console.log(`FAIL ${c.name}: ${row.error}`); continue; }
+		const rec = api('GET', `${p}?fields=${Object.keys(want).join(',')}`).json.data || {};
+		const wrong = Object.entries(want).filter(([k, v]) => rec[k] !== v).map(([k, v]) => `${k}: want ${v}, got ${rec[k]}`);
+		if (wrong.length) { row.ok = false; row.error = wrong.join('; '); console.log(`FAIL ${c.name}: ${row.error}`); }
+	}
+}
 
 // ── W2: creates that hang off W1 records ─────────────────────────────────────
 const parents = ['contacts', 'contactpersons', 'contracts', 'crew', 'equipment', 'invoices', 'projects', 'purchaseorders', 'quotes', 'repairs', 'serialnumbers', 'subrentals', 'suppliers', 'vehicles'];

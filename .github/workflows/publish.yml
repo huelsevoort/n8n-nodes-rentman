@@ -32,27 +32,45 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
+      # A tag added later for a version that is already on npm (e.g. to mark the commit it was
+      # published from) must not fail the run: npm refuses to publish a version twice.
+      - name: Skip if this version is already on npm
+        id: published
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "$(npm view "n8n-nodes-rentman@$version" version 2>/dev/null)" = "$version" ]; then
+            echo "n8n-nodes-rentman@$version is already on npm, nothing to publish."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
       # Trusted publishing needs npm 11.5.1 or later.
       - name: Update npm
+        if: steps.published.outputs.skip != 'true'
         run: npm install -g npm@latest
 
       - name: Install dependencies
+        if: steps.published.outputs.skip != 'true'
         run: npm ci
 
       - name: Build
+        if: steps.published.outputs.skip != 'true'
         run: npm run build
 
       - name: Lint
+        if: steps.published.outputs.skip != 'true'
         run: npm run lint
 
       - name: Unit tests
+        if: steps.published.outputs.skip != 'true'
         run: npm test
 
       # The same scan n8n runs before approving a version; it ignores eslint-disable comments.
       - name: n8n community package scan
+        if: steps.published.outputs.skip != 'true'
         run: test/n8n-scan.sh
 
       # The version scheme (26.6.0-1.16.0) reads as a prerelease to npm, which since npm 11
       # refuses to publish one without an explicit dist-tag.
       - name: Publish
+        if: steps.published.outputs.skip != 'true'
         run: npm publish --access public --tag latest
