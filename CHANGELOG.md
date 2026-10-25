@@ -4,7 +4,7 @@ All notable changes to the **n8n-nodes-rentman** community node are documented i
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows a CalVer scheme `YY.Major.Minor-RentmanAPIVersion`.
 
-## [26.7.0-1.19.0] – unreleased
+## [26.7.0-1.19.0] – 2026-10-26
 
 Tracks Rentman API **v1.19.0** (covers v1.17.0, v1.18.0 and v1.19.0). The node offers all 321 operations of Rentman's OpenAPI spec 1.19.0.
 
