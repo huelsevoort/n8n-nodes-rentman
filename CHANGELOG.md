@@ -4,12 +4,14 @@ All notable changes to the **n8n-nodes-rentman** community node are documented i
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows a CalVer scheme `YY.Major.Minor-RentmanAPIVersion`.
 
-## [26.7.0-1.18.0] – unreleased
+## [26.7.0-1.19.0] – unreleased
 
-Tracks Rentman API **v1.18.0** (covers v1.17.0 and v1.18.0). The node offers all 317 operations of Rentman's OpenAPI spec 1.18.0.
+Tracks Rentman API **v1.19.0** (covers v1.17.0, v1.18.0 and v1.19.0). The node offers all 321 operations of Rentman's OpenAPI spec 1.19.0.
 
 ### Added
 - **Project → Create From Template** (`POST /projects/:createFromTemplate`, API v1.18.0) creates a project from a project template. Project Template takes the template's ID (`13`) or path (`/projecttemplates/13`); A path is sent as its ID, because this endpoint answers HTTP 400 to a path (tested with curl), although Rentman's changelog says link fields accept paths. Start Date is sent as a plain date (`YYYY-MM-DD`): the date as written, including for an expression such as `{{ $today.plus({ days: 7 }) }}`; a JS `Date` is read in the workflow's timezone. The template sets the times. Rentman answers with the path of the new project (`{"path": "/projects/42"}`).
+- **Project → Set Client**, **Set Location** and **Set Type** (`POST /projects/{id}/:setClient`, `:setLocation`, `:setType`, API v1.19.0) change the client, location or project type of an existing project. Client, Location and Project Type take an ID or a path, sent as its ID (these endpoints answer HTTP 400 to a path, tested with curl). Options: Contact Person (must belong to the client or location), Copy Data, Apply Distances, Copy Terms and Conditions. Rentman answers with the project's path.
+- **Subproject → Set Location** (`POST /subprojects/{id}/:setLocation`, API v1.19.0) with Location and the option Contact Person. Rentman answers with the subproject's path.
 - **Project Template** resource (`GET /projecttemplates`, `GET /projecttemplates/{id}`, API v1.17.0) with Get and Get Many, to look up the templates for Create From Template.
 - **Task → Item Type → Default Service** (`DefaultService`, API v1.17.0) on Create, Create For Parent and Update.
 

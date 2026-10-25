@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination } from './shared';
+import { customQueryParamsField, rentmanPagination, TO_ID } from './shared';
 
 export const subprojectOperations: INodeProperties[] = [
 	{
@@ -56,6 +56,16 @@ export const subprojectOperations: INodeProperties[] = [
 							},
 						],
 					},
+				},
+			},
+			{
+				name: 'Set Location',
+				value: 'setLocation',
+				action: 'Set the location of a subproject',
+				description: 'Set the location of an existing subproject (API v1.19.0)',
+				routing: {
+					request: { method: 'POST' },
+					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
 				},
 			},
 		],
@@ -117,6 +127,47 @@ export const subprojectFields: INodeProperties[] = [
 				url: '=/subprojects/{{$value}}',
 			},
 		},
+	},
+	// ─── SET LOCATION (API v1.19.0) ──────────────────────────────────────────
+	{
+		displayName: 'Subproject ID',
+		name: 'subprojectId',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['subproject'], operation: ['setLocation'] } },
+		default: '',
+		description: 'The ID of the subproject. Rentman answers with its path, e.g. {"path": "/subprojects/42"}.',
+		routing: { request: { url: '=/subprojects/{{$value}}/:setLocation' } },
+	},
+	{
+		displayName: 'Location',
+		name: 'location',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['subproject'], operation: ['setLocation'] } },
+		default: '',
+		placeholder: '/contacts/12',
+		description: 'ID (12) or path (/contacts/12) of the contact to set as location. A path is sent as its ID: Rentman answers HTTP 400 to a path here.',
+		routing: { request: { body: { location: `={{ ${TO_ID} }}` } } },
+	},
+	{
+		displayName: 'Options',
+		name: 'options',
+		type: 'collection',
+		placeholder: 'Add Option',
+		displayOptions: { show: { resource: ['subproject'], operation: ['setLocation'] } },
+		default: {},
+		options: [
+			{
+				displayName: 'Contact Person',
+				name: 'contact_person',
+				type: 'string',
+				default: '',
+				placeholder: '/contactpersons/7',
+				description: "ID or path of the contact person. Must belong to the location. Without it Rentman uses the location's default contact person.",
+				routing: { request: { body: { contact_person: `={{ ${TO_ID} }}` } } },
+			},
+		],
 	},
 	{
 		displayName: 'Return All',

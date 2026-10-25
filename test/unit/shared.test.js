@@ -145,3 +145,13 @@ test('a Limit above 1500 stops with a clear error before Rentman answers "Bad re
 		await assert.doesNotReject(hook.call(ctx('contact', option.value), { qs: {} }));
 	}
 });
+
+test('set client, location and type stop on an ID that is not an ID or path', async () => {
+	const { hook } = writeHook();
+	await assert.rejects(hook.call(ctx('project', 'setClient'), { body: { client: NaN } }), /Client must be an ID/);
+	await assert.rejects(hook.call(ctx('project', 'setClient'), { body: { client: 12, contact_person: NaN } }), /Contact Person must be an ID/);
+	await assert.doesNotReject(hook.call(ctx('project', 'setClient'), { body: { client: 12, copy_data: true } }));
+	await assert.rejects(hook.call(ctx('project', 'setType'), { body: { type: 0 } }), /Project Type must be an ID/);
+	await assert.rejects(hook.call(ctx('subproject', 'setLocation'), { body: { location: null } }), /Location must be an ID/);
+	await assert.doesNotReject(hook.call(ctx('subproject', 'setLocation'), { body: { location: 12, contact_person: 7 } }));
+});

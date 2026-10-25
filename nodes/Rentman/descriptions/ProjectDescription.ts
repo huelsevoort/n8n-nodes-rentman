@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination } from './shared';
+import { customQueryParamsField, rentmanPagination, TO_ID } from './shared';
 
 export const projectOperations: INodeProperties[] = [
 	{
@@ -92,6 +92,66 @@ export const projectOperations: INodeProperties[] = [
 					},
 				},
 			},
+			{
+				name: 'Set Client',
+				value: 'setClient',
+				action: 'Set the client of a project',
+				description: 'Set the client (customer) of an existing project (API v1.19.0)',
+				routing: {
+					request: {
+						method: 'POST',
+						url: '=/projects/{{$parameter.projectId}}/:setClient',
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
+					},
+				},
+			},
+			{
+				name: 'Set Location',
+				value: 'setLocation',
+				action: 'Set the location of a project',
+				description: 'Set the location of an existing project (API v1.19.0)',
+				routing: {
+					request: {
+						method: 'POST',
+						url: '=/projects/{{$parameter.projectId}}/:setLocation',
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
+					},
+				},
+			},
+			{
+				name: 'Set Type',
+				value: 'setType',
+				action: 'Set the project type of a project',
+				description: 'Set the project type of an existing project (API v1.19.0)',
+				routing: {
+					request: {
+						method: 'POST',
+						url: '=/projects/{{$parameter.projectId}}/:setType',
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
+					},
+				},
+			},
 		],
 		default: 'getAll',
 	},
@@ -117,6 +177,20 @@ export const projectFields: INodeProperties[] = [
 				url: '=/projects/{{$value}}',
 			},
 		},
+	},
+	{
+		displayName: 'Project ID',
+		name: 'projectId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['project'],
+				operation: ['setClient', 'setLocation', 'setType'],
+			},
+		},
+		default: '',
+		description: 'The ID of the project. Rentman answers with its path, e.g. {"path": "/projects/42"}.',
 	},
 
 	// ─── GET ALL ─────────────────────────────────────────────────────────────
@@ -399,7 +473,7 @@ export const projectFields: INodeProperties[] = [
 		routing: {
 			request: {
 				body: {
-					template: '={{ Number(String($value).trim().split("/").filter(Boolean).pop()) }}',
+					template: `={{ ${TO_ID} }}`,
 				},
 			},
 		},
@@ -424,6 +498,121 @@ export const projectFields: INodeProperties[] = [
 				},
 			},
 		},
+	},
+
+	// ─── SET CLIENT / LOCATION / TYPE (API v1.19.0) ──────────────────────────
+	{
+		displayName: 'Client',
+		name: 'client',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['project'], operation: ['setClient'] } },
+		default: '',
+		placeholder: '/contacts/12',
+		description: 'ID (12) or path (/contacts/12) of the contact to set as client. A path is sent as its ID: Rentman answers HTTP 400 to a path here.',
+		routing: { request: { body: { client: `={{ ${TO_ID} }}` } } },
+	},
+	{
+		displayName: 'Options',
+		name: 'options',
+		type: 'collection',
+		placeholder: 'Add Option',
+		displayOptions: { show: { resource: ['project'], operation: ['setClient'] } },
+		default: {},
+		options: [
+			{
+				displayName: 'Contact Person',
+				name: 'contact_person',
+				type: 'string',
+				default: '',
+				placeholder: '/contactpersons/7',
+				description: 'ID or path of the contact person. Must belong to the client.',
+				routing: { request: { body: { contact_person: `={{ ${TO_ID} }}` } } },
+			},
+			{
+				displayName: 'Copy Data',
+				name: 'copy_data',
+				type: 'boolean',
+				default: false,
+				description: "Whether to copy the client's tax schema, invoice moment, discounts and insurance percentage onto the project",
+				routing: { request: { body: { copy_data: '={{ $value }}' } } },
+			},
+		],
+	},
+	{
+		displayName: 'Location',
+		name: 'location',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['project'], operation: ['setLocation'] } },
+		default: '',
+		placeholder: '/contacts/12',
+		description: 'ID (12) or path (/contacts/12) of the contact to set as location. A path is sent as its ID: Rentman answers HTTP 400 to a path here.',
+		routing: { request: { body: { location: `={{ ${TO_ID} }}` } } },
+	},
+	{
+		displayName: 'Options',
+		name: 'options',
+		type: 'collection',
+		placeholder: 'Add Option',
+		displayOptions: { show: { resource: ['project'], operation: ['setLocation'] } },
+		default: {},
+		options: [
+			{
+				displayName: 'Apply Distances',
+				name: 'apply_distances',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to re-derive the crew travel time and distance from the location',
+				routing: { request: { body: { apply_distances: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Contact Person',
+				name: 'contact_person',
+				type: 'string',
+				default: '',
+				placeholder: '/contactpersons/7',
+				description: "ID or path of the contact person. Must belong to the location. Without it Rentman uses the location's default contact person.",
+				routing: { request: { body: { contact_person: `={{ ${TO_ID} }}` } } },
+			},
+			{
+				displayName: 'Copy Data',
+				name: 'copy_data',
+				type: 'boolean',
+				default: false,
+				description: "Whether to copy the location's tax schema onto the project",
+				routing: { request: { body: { copy_data: '={{ $value }}' } } },
+			},
+		],
+	},
+	{
+		displayName: 'Project Type',
+		name: 'type',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['project'], operation: ['setType'] } },
+		default: '',
+		placeholder: '/projecttypes/3',
+		description: 'ID (3) or path (/projecttypes/3) of the project type. Types are listed under Project Type → Get Many. A path is sent as its ID: Rentman answers HTTP 400 to a path here.',
+		routing: { request: { body: { type: `={{ ${TO_ID} }}` } } },
+	},
+	{
+		displayName: 'Options',
+		name: 'options',
+		type: 'collection',
+		placeholder: 'Add Option',
+		displayOptions: { show: { resource: ['project'], operation: ['setType'] } },
+		default: {},
+		options: [
+			{
+				displayName: 'Copy Terms and Conditions',
+				name: 'copy_terms_and_conditions',
+				type: 'boolean',
+				default: false,
+				description: "Whether to replace the project's terms and conditions with the type's default ones",
+				routing: { request: { body: { copy_terms_and_conditions: '={{ $value }}' } } },
+			},
+		],
 	},
 	customQueryParamsField('project'),
 ];

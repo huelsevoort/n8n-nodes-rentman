@@ -284,6 +284,42 @@ run(w1cCases);
 readBackCreates(w1bCases);
 readBackCreates(w1cCases);
 
+// ── W1d: Project/Subproject → Set Client/Location/Type (API v1.19.0) ──────────
+// Rentman answers with the record's path only; the change is read back. Uses the account's first
+// contact (not C1, which is deleted later and can't be while a project links it).
+{
+	const contactId = ref.contact.split('/')[2];
+	const cpId = api('GET', `/contacts/${contactId}/contactpersons?limit=1&fields=id`).json.data?.[0]?.id;
+	const current = api('GET', `/projects/${P1}?fields=project_type`).json.data?.project_type;
+	const typeId = api('GET', '/projecttypes?limit=10&fields=id').json.data?.map((t) => t.id).find((id) => `/projecttypes/${id}` !== current);
+	const cases = [
+		{ name: 'project.setClient', params: { resource: 'project', operation: 'setClient', projectId: P1, client: ref.contact, options: { contact_person: cpId ? `/contactpersons/${cpId}` : undefined, copy_data: true } },
+			check: () => [`/projects/${P1}`, { customer: ref.contact, ...(cpId ? { cust_contact: `/contactpersons/${cpId}` } : {}) }] },
+		{ name: 'project.setLocation', params: { resource: 'project', operation: 'setLocation', projectId: P1, location: contactId, options: { apply_distances: true, copy_data: false } },
+			check: () => [`/projects/${P1}`, { location: ref.contact }] },
+		{ name: 'project.setType', params: { resource: 'project', operation: 'setType', projectId: P1, type: String(typeId), options: { copy_terms_and_conditions: true } },
+			check: () => [`/projects/${P1}`, { project_type: `/projecttypes/${typeId}` }] },
+		{ name: 'subproject.setLocation', params: { resource: 'subproject', operation: 'setLocation', subprojectId: P1sub, location: ref.contact, options: { contact_person: cpId ? String(cpId) : undefined } },
+			check: () => [`/subprojects/${P1sub}`, { location: ref.contact, ...(cpId ? { loc_contact: `/contactpersons/${cpId}` } : {}) }] },
+	];
+	const runnableSet = cases.filter((c) => {
+		if (P1 && (c.params.resource === 'project' || P1sub) && typeId) return true;
+		results.push({ name: c.name, ok: null, error: 'prerequisite record could not be created' }); console.log(`SKIP ${c.name}: prerequisite missing`);
+		return false;
+	});
+	const res = run(runnableSet);
+	for (const c of runnableSet) {
+		const r = res[c.name];
+		const row = results.find((x) => x.name === c.name);
+		if (!r.ok) continue;
+		const [p, want] = c.check();
+		if (r.first?.path !== p) { row.ok = false; row.error = `unexpected response ${JSON.stringify(r.first)}`; console.log(`FAIL ${c.name}: ${row.error}`); continue; }
+		const rec = api('GET', `${p}?fields=${Object.keys(want).join(',')}`).json.data || {};
+		const wrong = Object.entries(want).filter(([k, v]) => rec[k] !== v).map(([k, v]) => `${k}: want ${v}, got ${rec[k]}`);
+		if (wrong.length) { row.ok = false; row.error = wrong.join('; '); console.log(`FAIL ${c.name}: ${row.error}`); }
+	}
+}
+
 // ── W2: creates that hang off W1 records ─────────────────────────────────────
 const parents = ['contacts', 'contactpersons', 'contracts', 'crew', 'equipment', 'invoices', 'projects', 'purchaseorders', 'quotes', 'repairs', 'serialnumbers', 'subrentals', 'suppliers', 'vehicles'];
 const parentIds = { contacts: C1, contactpersons: CP1, crew: ref.crew.split('/')[2], equipment: E1, projects: P1 };

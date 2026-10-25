@@ -77,6 +77,13 @@ export function withUtcOffset(value: string, timeZone: string): string {
 	return `${y}-${mo}-${d}T${h}:${mi}:${s}${frac}${sign}${hh}:${mm}`;
 }
 
+/**
+ * Expression body for link fields Rentman's module functions (API v1.18.0+) take only as an integer
+ * ID: an ID (13) or a path (/projecttemplates/13) becomes 13, anything else NaN (stopped by
+ * prepareWriteBody before it is sent as null).
+ */
+export const TO_ID = 'Number(String($value).trim().split("/").filter(Boolean).pop())';
+
 const PLAIN_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const OFFSET_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/;
 
@@ -157,6 +164,16 @@ export const REQUIRED_BODY_FIELDS: Record<string, Array<[key: string, label: str
 	],
 };
 
+/** Body keys of module functions that take a TO_ID link, keyed by resource.operation:
+ * [key, label, example path]. Optional keys are only checked when set. */
+const ID_FIELDS: Record<string, Array<[key: string, label: string, example: string]>> = {
+	'project.createFromTemplate': [['template', 'Project Template', '/projecttemplates/13']],
+	'project.setClient': [['client', 'Client', '/contacts/12'], ['contact_person', 'Contact Person', '/contactpersons/7']],
+	'project.setLocation': [['location', 'Location', '/contacts/12'], ['contact_person', 'Contact Person', '/contactpersons/7']],
+	'project.setType': [['type', 'Project Type', '/projecttypes/3']],
+	'subproject.setLocation': [['location', 'Location', '/contacts/12'], ['contact_person', 'Contact Person', '/contactpersons/7']],
+};
+
 async function prepareWriteBody(
 	this: IExecuteSingleFunctions,
 	requestOptions: IHttpRequestOptions,
@@ -171,11 +188,12 @@ async function prepareWriteBody(
 			});
 		}
 	}
-	if (operation === 'project.createFromTemplate') {
-		const template = body?.template;
-		if (typeof template !== 'number' || !Number.isInteger(template) || template <= 0) {
-			throw new NodeOperationError(this.getNode(), 'Project Template must be an ID or a path such as /projecttemplates/13', {
-				description: `Got "${String(this.getNodeParameter('template', ''))}". Templates are listed under Project Template → Get Many.`,
+	for (const [key, label, example] of ID_FIELDS[operation] ?? []) {
+		if (!body || !(key in body)) continue;
+		const id = body[key];
+		if (typeof id !== 'number' || !Number.isInteger(id) || id <= 0) {
+			throw new NodeOperationError(this.getNode(), `${label} must be an ID or a path such as ${example}`, {
+				description: `Rentman takes ${label} only as a record ID; a path is sent as its ID. Anything else would be sent as null.`,
 			});
 		}
 	}
