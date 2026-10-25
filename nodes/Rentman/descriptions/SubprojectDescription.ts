@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination, TO_ID } from './shared';
+import { customQueryParamsField, rentmanPagination, toId, ID_SEGMENT } from './shared';
 
 export const subprojectOperations: INodeProperties[] = [
 	{
@@ -136,8 +136,8 @@ export const subprojectFields: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource: ['subproject'], operation: ['setLocation'] } },
 		default: '',
-		description: 'The ID of the subproject. Rentman answers with its path, e.g. {"path": "/subprojects/42"}.',
-		routing: { request: { url: '=/subprojects/{{$value}}/:setLocation' } },
+		description: 'ID (42) or path (/subprojects/42) of the subproject',
+		routing: { request: { url: `=/subprojects/{{ ${ID_SEGMENT} }}/:setLocation` } },
 	},
 	{
 		displayName: 'Location',
@@ -148,7 +148,7 @@ export const subprojectFields: INodeProperties[] = [
 		default: '',
 		placeholder: '/contacts/12',
 		description: 'ID (12) or path (/contacts/12) of the contact to set as location. A path is sent as its ID: Rentman answers HTTP 400 to a path here.',
-		routing: { request: { body: { location: `={{ ${TO_ID} }}` } } },
+		routing: { request: { body: { location: toId('contacts') } } },
 	},
 	{
 		displayName: 'Options',
@@ -165,7 +165,7 @@ export const subprojectFields: INodeProperties[] = [
 				default: '',
 				placeholder: '/contactpersons/7',
 				description: "ID or path of the contact person. Must belong to the location. Without it Rentman uses the location's default contact person.",
-				routing: { request: { body: { contact_person: `={{ ${TO_ID} }}` } } },
+				routing: { request: { body: { contact_person: toId('contactpersons', true) } } },
 			},
 		],
 	},

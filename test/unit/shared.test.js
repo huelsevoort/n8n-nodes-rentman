@@ -130,7 +130,7 @@ test('dates from expressions (Luxon DateTime, JS Date) are converted like string
 
 test('create from template stops on a template that is not an ID or path', async () => {
 	const { hook } = writeHook();
-	for (const template of [NaN, null, undefined, 0, 1.5]) {
+	for (const template of [NaN, null, 0, 1.5]) {
 		await assert.rejects(hook.call(ctx('project', 'createFromTemplate'), { body: { template, start_date: '2027-03-01' } }), /Project Template must be an ID/);
 	}
 });
@@ -154,4 +154,17 @@ test('set client, location and type stop on an ID that is not an ID or path', as
 	await assert.rejects(hook.call(ctx('project', 'setType'), { body: { type: 0 } }), /Project Type must be an ID/);
 	await assert.rejects(hook.call(ctx('subproject', 'setLocation'), { body: { location: null } }), /Location must be an ID/);
 	await assert.doesNotReject(hook.call(ctx('subproject', 'setLocation'), { body: { location: 12, contact_person: 7 } }));
+});
+
+test('toId takes an ID or a path of its own collection only', () => {
+	// The routing expression, evaluated the way n8n does for a plain value.
+	const run = (expr, value) => new Function('$value', `return ${expr.slice(4, -3)}`)(value);
+	const { toId } = require('../../dist/nodes/Rentman/descriptions/shared.js');
+	const client = toId('contacts');
+	assert.equal(run(client, '12'), 12);
+	assert.equal(run(client, ' /contacts/12 '), 12);
+	assert.equal(run(client, 12), 12);
+	for (const bad of ['/contactpersons/7', '1e3', '0x1F', '12abc', '', '/contacts/']) assert.ok(Number.isNaN(run(client, bad)), bad);
+	assert.equal(run(toId('contactpersons', true), ''), undefined);
+	assert.equal(run(toId('contactpersons', true), '/contactpersons/7'), 7);
 });

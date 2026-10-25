@@ -78,11 +78,17 @@ export function withUtcOffset(value: string, timeZone: string): string {
 }
 
 /**
- * Expression body for link fields Rentman's module functions (API v1.18.0+) take only as an integer
- * ID: an ID (13) or a path (/projecttemplates/13) becomes 13, anything else NaN (stopped by
- * prepareWriteBody before it is sent as null).
+ * Body expression for link fields Rentman's module functions (API v1.18.0+) take only as an integer
+ * ID: an ID (13) or a path of the expected collection (/projecttemplates/13) becomes 13. Anything
+ * else, including a path of another collection, becomes NaN, which prepareWriteBody stops before
+ * it would be sent as null. An empty optional field is left out.
  */
-export const TO_ID = 'Number(String($value).trim().split("/").filter(Boolean).pop())';
+export function toId(collection: string, optional = false): string {
+	return `={{ (s => s === "" ? ${optional ? 'undefined' : 'NaN'} : /^(\\/${collection}\\/)?\\d+$/.test(s) ? Number(s.split("/").pop()) : NaN)(String($value ?? "").trim()) }}`;
+}
+
+/** URL segment for a record ID given as an ID (42) or a path (/projects/42), as Rentman returns it. */
+export const ID_SEGMENT = 'String($value).trim().split("/").filter(Boolean).pop()';
 
 const PLAIN_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const OFFSET_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/;
@@ -164,14 +170,14 @@ export const REQUIRED_BODY_FIELDS: Record<string, Array<[key: string, label: str
 	],
 };
 
-/** Body keys of module functions that take a TO_ID link, keyed by resource.operation:
- * [key, label, example path]. Optional keys are only checked when set. */
-const ID_FIELDS: Record<string, Array<[key: string, label: string, example: string]>> = {
-	'project.createFromTemplate': [['template', 'Project Template', '/projecttemplates/13']],
-	'project.setClient': [['client', 'Client', '/contacts/12'], ['contact_person', 'Contact Person', '/contactpersons/7']],
-	'project.setLocation': [['location', 'Location', '/contacts/12'], ['contact_person', 'Contact Person', '/contactpersons/7']],
-	'project.setType': [['type', 'Project Type', '/projecttypes/3']],
-	'subproject.setLocation': [['location', 'Location', '/contacts/12'], ['contact_person', 'Contact Person', '/contactpersons/7']],
+/** Body keys of module functions that take a toId() link, keyed by resource.operation:
+ * [key, label, example path, where to look the IDs up]. Optional keys are only checked when set. */
+const ID_FIELDS: Record<string, Array<[key: string, label: string, example: string, lookup: string]>> = {
+	'project.createFromTemplate': [['template', 'Project Template', '/projecttemplates/13', 'Project Template → Get Many']],
+	'project.setClient': [['client', 'Client', '/contacts/12', 'Contact → Get Many'], ['contact_person', 'Contact Person', '/contactpersons/7', 'Contact Person → Get For Parent']],
+	'project.setLocation': [['location', 'Location', '/contacts/12', 'Contact → Get Many'], ['contact_person', 'Contact Person', '/contactpersons/7', 'Contact Person → Get For Parent']],
+	'project.setType': [['type', 'Project Type', '/projecttypes/3', 'Project Type → Get Many']],
+	'subproject.setLocation': [['location', 'Location', '/contacts/12', 'Contact → Get Many'], ['contact_person', 'Contact Person', '/contactpersons/7', 'Contact Person → Get For Parent']],
 };
 
 async function prepareWriteBody(
@@ -188,12 +194,12 @@ async function prepareWriteBody(
 			});
 		}
 	}
-	for (const [key, label, example] of ID_FIELDS[operation] ?? []) {
-		if (!body || !(key in body)) continue;
+	for (const [key, label, example, lookup] of ID_FIELDS[operation] ?? []) {
+		if (body?.[key] === undefined) continue;
 		const id = body[key];
 		if (typeof id !== 'number' || !Number.isInteger(id) || id <= 0) {
 			throw new NodeOperationError(this.getNode(), `${label} must be an ID or a path such as ${example}`, {
-				description: `Rentman takes ${label} only as a record ID; a path is sent as its ID. Anything else would be sent as null.`,
+				description: `Rentman takes ${label} only as a record ID (listed under ${lookup}); a path of that collection is sent as its ID.`,
 			});
 		}
 	}

@@ -1,5 +1,8 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, rentmanPagination, TO_ID } from './shared';
+import { customQueryParamsField, rentmanPagination, toId, ID_SEGMENT } from './shared';
+
+/** Project ID of the Set operations as a URL segment: an ID (42) or a path (/projects/42). */
+const PROJECT_ID = ID_SEGMENT.replace('$value', '$parameter.projectId');
 
 export const projectOperations: INodeProperties[] = [
 	{
@@ -100,7 +103,7 @@ export const projectOperations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: '=/projects/{{$parameter.projectId}}/:setClient',
+						url: `=/projects/{{ ${PROJECT_ID} }}/:setClient`,
 					},
 					output: {
 						postReceive: [
@@ -120,7 +123,7 @@ export const projectOperations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: '=/projects/{{$parameter.projectId}}/:setLocation',
+						url: `=/projects/{{ ${PROJECT_ID} }}/:setLocation`,
 					},
 					output: {
 						postReceive: [
@@ -140,7 +143,7 @@ export const projectOperations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: '=/projects/{{$parameter.projectId}}/:setType',
+						url: `=/projects/{{ ${PROJECT_ID} }}/:setType`,
 					},
 					output: {
 						postReceive: [
@@ -190,7 +193,7 @@ export const projectFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The ID of the project. Rentman answers with its path, e.g. {"path": "/projects/42"}.',
+		description: 'ID (42) or path (/projects/42) of the project, e.g. the path Create From Template answers with',
 	},
 
 	// ─── GET ALL ─────────────────────────────────────────────────────────────
@@ -473,7 +476,7 @@ export const projectFields: INodeProperties[] = [
 		routing: {
 			request: {
 				body: {
-					template: `={{ ${TO_ID} }}`,
+					template: toId('projecttemplates'),
 				},
 			},
 		},
@@ -510,7 +513,7 @@ export const projectFields: INodeProperties[] = [
 		default: '',
 		placeholder: '/contacts/12',
 		description: 'ID (12) or path (/contacts/12) of the contact to set as client. A path is sent as its ID: Rentman answers HTTP 400 to a path here.',
-		routing: { request: { body: { client: `={{ ${TO_ID} }}` } } },
+		routing: { request: { body: { client: toId('contacts') } } },
 	},
 	{
 		displayName: 'Options',
@@ -527,7 +530,7 @@ export const projectFields: INodeProperties[] = [
 				default: '',
 				placeholder: '/contactpersons/7',
 				description: 'ID or path of the contact person. Must belong to the client.',
-				routing: { request: { body: { contact_person: `={{ ${TO_ID} }}` } } },
+				routing: { request: { body: { contact_person: toId('contactpersons', true) } } },
 			},
 			{
 				displayName: 'Copy Data',
@@ -548,7 +551,7 @@ export const projectFields: INodeProperties[] = [
 		default: '',
 		placeholder: '/contacts/12',
 		description: 'ID (12) or path (/contacts/12) of the contact to set as location. A path is sent as its ID: Rentman answers HTTP 400 to a path here.',
-		routing: { request: { body: { location: `={{ ${TO_ID} }}` } } },
+		routing: { request: { body: { location: toId('contacts') } } },
 	},
 	{
 		displayName: 'Options',
@@ -573,7 +576,7 @@ export const projectFields: INodeProperties[] = [
 				default: '',
 				placeholder: '/contactpersons/7',
 				description: "ID or path of the contact person. Must belong to the location. Without it Rentman uses the location's default contact person.",
-				routing: { request: { body: { contact_person: `={{ ${TO_ID} }}` } } },
+				routing: { request: { body: { contact_person: toId('contactpersons', true) } } },
 			},
 			{
 				displayName: 'Copy Data',
@@ -594,7 +597,7 @@ export const projectFields: INodeProperties[] = [
 		default: '',
 		placeholder: '/projecttypes/3',
 		description: 'ID (3) or path (/projecttypes/3) of the project type. Types are listed under Project Type → Get Many. A path is sent as its ID: Rentman answers HTTP 400 to a path here.',
-		routing: { request: { body: { type: `={{ ${TO_ID} }}` } } },
+		routing: { request: { body: { type: toId('projecttypes') } } },
 	},
 	{
 		displayName: 'Options',
