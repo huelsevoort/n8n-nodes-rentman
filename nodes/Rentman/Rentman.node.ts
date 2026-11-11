@@ -149,6 +149,9 @@ import {
 	purchaseOrderGlobalCostOperations,
 	extraInputFieldFields,
 	extraInputFieldOperations,
+	// ── Workspace (v1.20.0) ───────────────────────────────────────────────────
+	workspaceFields,
+	workspaceOperations,
 } from './descriptions';
 
 export class Rentman implements INodeType {
@@ -256,6 +259,7 @@ export class Rentman implements INodeType {
 					{ name: 'Project Template', value: 'projectTemplate', description: 'Project templates, used by Project → Create From Template' },
 					{ name: 'Warehouse Status', value: 'warehouseStatus', description: 'Warehouse statuses (Prepped, On Location, Returned, …)' },
 					{ name: 'Vehicle', value: 'vehicle', description: 'Vehicles' },
+					{ name: 'Workspace', value: 'workspace', description: 'Workspace information: country, time zone, currency and units' },
 				].sort((a, b) => a.name.localeCompare(b.name)),
 				default: 'contact',
 			},
@@ -416,6 +420,8 @@ export class Rentman implements INodeType {
 			...warehouseStatusFields,
 			...vehicleOperations,
 			...vehicleFields,
+			...workspaceOperations,
+			...workspaceFields,
 		])),
 	};
 }

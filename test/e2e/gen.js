@@ -27,6 +27,8 @@ function dummy(p) {
 			if (p.name === 'expand') return 'creator';
 			if (p.name === 'fields') return 'id,displayname,custom_3';
 			if (p.name === 'sort') return '+id';
+			// Project → Update stops on a number that is not all digits (Rentman would renumber the project).
+			if (p.name === 'number') return '1234';
 			return `t_${p.name}`;
 		case 'number': return 7;
 		case 'boolean': return !p.default;

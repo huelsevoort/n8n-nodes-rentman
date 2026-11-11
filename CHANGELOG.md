@@ -4,6 +4,31 @@ All notable changes to the **n8n-nodes-rentman** community node are documented i
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows a CalVer scheme `YY.Major.Minor-RentmanAPIVersion`.
 
+## [26.8.0-1.21.0] – unreleased
+
+Tracks Rentman API **v1.21.0** (covers v1.20.0 and v1.21.0). The node offers all 327 operations of Rentman's OpenAPI spec 1.21.0.
+
+### Added
+- **Project → Update** (`PUT /projects/{id}`, API v1.20.0). Update Fields: Name, Number, Custom Reference, Custom Fields, and the fields new in API v1.20.0: Account Manager, Color, Conditions, Deposit Status and Refundable Deposit. Only the fields added are sent. Project ID takes an ID or a path (`/projects/42`) like the Set operations; any other value stops before the request. Customer, location and project type stay with Set Client, Set Location and Set Type (Rentman answers HTTP 400 "You are not permitted to set the following field" to them on Update, tested with curl).
+  - Account Manager takes the crew member's ID (`33`) or path (`/crew/33`) and is sent as a path; Rentman answers an integer with HTTP 400 (tested with curl). Left empty on Update it removes the account manager (sent as `null`). Anything else stops before the request.
+  - Number must be all digits on Update. Rentman gives the project the next free number for an empty number or one with other characters, also on Update (tested with curl: `"abc"` turned project number 97945 into 240), so the node stops such a value instead of renumbering the project.
+- **Project → Create → Additional Fields**: Account Manager, Color, Conditions, Deposit Status and Refundable Deposit (API v1.20.0). Rentman stores all five on create (tested with curl).
+- **Subproject → Update** (`PUT /subprojects/{id}`, API v1.20.0) with Update Fields Name and Custom Fields, the only fields Rentman lets the API change on a subproject.
+- **Subproject → Put In Planning**, **Take Out Of Planning** and **Set In Financial** (`POST /subprojects/{id}/:putInPlanning`, `:takeOutOfPlanning`, `:setInFinancial`, API v1.20.0). Take Out Of Planning has the options Remove Planned Crew, Withdraw Invitations, Notify Crew Members, Notification Text and Cancel Subrents; without them Rentman cleans up nothing. Set In Financial has the required switch In Financial Overview. Rentman answers with the subproject's path. Subproject ID is checked like Project ID.
+- **Workspace** resource with **Get Info** (`GET /workspace/:getInfo`, API v1.20.0): workspace name, company name, country, language, time zone, currency and the units measurements are stored in.
+
+### Changed
+- Rentman API v1.20.0 and v1.21.0 changed these on Rentman's side, with no change in the node: projects, subprojects and project equipment return `equipment_status_quantities` (quantity per warehouse status, as a JSON **string** such as `"{\"3\": 52}"`, read-only); subprojects return `ready_to_pack` (read-only); `next_page_url` of sub-collections (Get For Parent) carries the parent's real ID.
+
+### Upgrading from 26.7.0
+- Workflows saved with 26.7.0 keep working: every parameter set of every 26.7.0 operation passes n8n's parameter validator on this version and keeps every value it sets. No new value is sent by default and nothing was removed.
+
+### Internal
+- `test/n8n-scan.sh` works with scanner 0.43.0, which moved its module to `dist/scanner.js`.
+
+### Testing
+- TESTING_PLACEHOLDER
+
 ## [26.7.0-1.19.0] – 2026-10-26
 
 Tracks Rentman API **v1.19.0** (covers v1.17.0, v1.18.0 and v1.19.0). The node offers all 321 operations of Rentman's OpenAPI spec 1.19.0.

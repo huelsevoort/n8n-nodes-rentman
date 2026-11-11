@@ -46,6 +46,13 @@ for (const c of cases) {
 		// Boolean filters Rentman reads as 1/0 (it takes "true" as false).
 		if (/^=\{\{\s*\$value \? 1 : 0\s*\}\}$/.test(x.expr || '')) { if (String(got) !== (x.value ? '1' : '0')) problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${x.value ? 1 : 0}`); continue; }
 		if (got && typeof got === 'object') { if (JSON.stringify(got) !== JSON.stringify(JSON.parse(x.value))) problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${x.value}`); continue; }
+		// Link fields Rentman only takes as a path (toPath): an ID or a path is sent as /collection/ID.
+		const asPath = /\? "\/(\w+)\/" \+ s\.split\("\/"\)/.exec(x.expr || '');
+		if (asPath && x.in === 'body') {
+			const want = `/${asPath[1]}/${String(x.value).split('/').filter(Boolean).pop()}`;
+			if (got !== want) problems.push(`${x.field}: sent ${JSON.stringify(got)} expected ${want}`);
+			continue;
+		}
 		// Link fields Rentman only takes as an ID: a path is sent as its last segment.
 		if (/split\("\/"\)/.test(x.expr || '') && x.in === 'body') {
 			const id = String(x.value).split('/').filter(Boolean).pop();

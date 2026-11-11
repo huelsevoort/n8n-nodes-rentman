@@ -26,8 +26,12 @@ npm install -q --no-save --no-audit --no-fund --legacy-peer-deps typescript@5.9 
 mkdir "$WORK/dist-pkg"
 tar xzf "$WORK"/n8n-nodes-rentman-*.tgz -C "$WORK/dist-pkg" --strip-components=1
 
+# The scanner module moved from scanner/scanner.mjs to dist/scanner.js in 0.43.0.
+SCANNER=./dist/scanner.js
+[ -f scanner/scanner.mjs ] && SCANNER=./scanner/scanner.mjs
+
 cat > run.mjs <<'EOF'
-import { analyzePackage, SOURCE_FILE_PATTERNS } from './scanner/scanner.mjs';
+import { analyzePackage, SOURCE_FILE_PATTERNS } from 'SCANNER_MODULE';
 const [source, dist] = process.argv.slice(2);
 let failed = false;
 for (const [label, dir, patterns] of [
@@ -41,4 +45,5 @@ for (const [label, dir, patterns] of [
 }
 process.exit(failed ? 1 : 0);
 EOF
+sed -i "s#SCANNER_MODULE#$SCANNER#" run.mjs
 node run.mjs "$REPO" "$WORK/dist-pkg"
