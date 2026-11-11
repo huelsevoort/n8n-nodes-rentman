@@ -69,6 +69,8 @@ Known Rentman-side results in the live run (not node bugs, each reproduced direc
 - Two crew availabilities for the same crew member and period are merged into one. Recurrence End Date keeps only the date, and Last Updated / Last Updater are always set by Rentman (the node does not offer them).
 - Stock Movement → API Client is always set by Rentman (`not_set:1.16.0`), so the node does not offer it.
 - Time Registration → Create without a Leave Type fails with HTTP 500. Duration is computed from start and end for worked hours, and Correction Duration is stored only on registrations with a correction leave type (whose end Rentman sets to the start).
-- Project → Create → Number is kept only when it is all digits; otherwise Rentman assigns the next number.
+- Project → Create → Number is kept only when it is all digits; otherwise Rentman assigns the next number. Project → Update does the same with an empty or non-digit number, so the node stops such a value there.
+- Project → Update → Account Manager is accepted only as a path (or a numeric string); an integer gives HTTP 400.
+- Crew → Get Many with Active = true and Expand: the cursor page after ID 246 returns crew 33 again (Return All then has one item twice). Without Expand the pages are correct.
 - Task → Time Budget is reset to 0 when Assignment Type is Creator Only.
 - Payment → Import Source "publicapi" does not appear in Rentman's responses; the accounting sources (e.g. Xero) do.
