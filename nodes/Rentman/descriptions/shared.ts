@@ -236,7 +236,12 @@ async function prepareWriteBody(
 	}
 	// Rentman gives a project the next free number for an empty number or one with other characters,
 	// on Update too: an expression that yields such a value must not renumber an existing project.
-	if (operation === 'project.update' && body?.number !== undefined && !/^\d+$/.test(String(body.number).trim())) {
+	// Rentman takes a project number only as a string (an integer from an expression is answered with
+	// HTTP 400), so it is sent trimmed as a string.
+	if ((operation === 'project.create' || operation === 'project.update') && body?.number !== undefined && body.number !== null) {
+		body.number = String(body.number).trim();
+	}
+	if (operation === 'project.update' && body?.number !== undefined && !/^\d+$/.test(String(body.number))) {
 		throw new NodeOperationError(this.getNode(), 'Number must contain digits only', {
 			description: 'Rentman would give the project the next free number instead. Remove Update Fields → Number to keep the current number.',
 		});

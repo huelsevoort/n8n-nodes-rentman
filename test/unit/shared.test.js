@@ -203,6 +203,10 @@ test('project update never sends a number Rentman would replace with the next fr
 		await assert.rejects(hook.call(ctx('project', 'update'), { url: '/projects/42', body: { number: bad } }), /Number must contain digits only/, JSON.stringify(bad));
 	}
 	await assert.doesNotReject(hook.call(ctx('project', 'update'), { url: '/projects/42', body: { number: '1234' } }));
+	// Rentman takes the number only as a string (HTTP 400 for an integer), trimmed.
+	assert.equal((await hook.call(ctx('project', 'update'), { url: '/projects/42', body: { number: 1234 } })).body.number, '1234');
+	assert.equal((await hook.call(ctx('project', 'update'), { url: '/projects/42', body: { number: ' 1234 ' } })).body.number, '1234');
+	assert.equal((await hook.call(ctx('project', 'create'), { url: '/projects', body: { name: 'x', number: 1234 } })).body.number, '1234');
 	await assert.doesNotReject(hook.call(ctx('project', 'update'), { url: '/projects/42', body: { name: 'x' } }));
 	// On Create an empty or non-digit number still lets Rentman assign the next number, as documented.
 	await assert.doesNotReject(hook.call(ctx('project', 'create'), { url: '/projects', body: { name: 'x', number: 'abc' } }));

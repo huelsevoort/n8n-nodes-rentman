@@ -190,7 +190,7 @@ function projectBodyFields(accountManagerEmpty: 'null' | 'undefined'): INodeProp
 			default: '',
 			placeholder: '/crew/33',
 			description: accountManagerEmpty === 'null'
-				? 'ID (33) or path (/crew/33) of the crew member. Leave empty to remove the account manager. An ID is sent as its path.'
+				? 'ID (33) or path (/crew/33) of the crew member. An ID is sent as its path. An empty value, also from an expression, removes the account manager.'
 				: 'ID (33) or path (/crew/33) of the crew member. An ID is sent as its path.',
 			routing: { request: { body: { account_manager: toPath('crew', accountManagerEmpty) } } },
 		},
@@ -199,7 +199,7 @@ function projectBodyFields(accountManagerEmpty: 'null' | 'undefined'): INodeProp
 			name: 'color',
 			type: 'color',
 			default: '',
-			description: 'Color of the project in the planner, e.g. #FD435D',
+			description: 'Color of the project in the planner, e.g. #FD435D. Rentman stores it without the #. An empty value is not sent, so a color cannot be removed.',
 			routing: { request: { body: { color: '={{ $value || undefined }}' } } },
 		},
 		{

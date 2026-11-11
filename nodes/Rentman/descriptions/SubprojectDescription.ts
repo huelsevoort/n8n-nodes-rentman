@@ -63,6 +63,20 @@ export const subprojectOperations: INodeProperties[] = [
 				},
 			},
 			{
+				name: 'Put In Planning',
+				value: 'putInPlanning',
+				action: 'Put a subproject into planning',
+				description: 'Put an existing subproject into planning (API v1.20.0)',
+				routing: { request: { method: 'POST', url: `=/subprojects/${SUBPROJECT_ID}/:putInPlanning` }, output: { postReceive } },
+			},
+			{
+				name: 'Set In Financial',
+				value: 'setInFinancial',
+				action: 'Set whether a subproject counts towards financials',
+				description: 'Set whether an existing subproject counts towards the financial overview (API v1.20.0)',
+				routing: { request: { method: 'POST', url: `=/subprojects/${SUBPROJECT_ID}/:setInFinancial` }, output: { postReceive } },
+			},
+			{
 				name: 'Set Location',
 				value: 'setLocation',
 				action: 'Set the location of a subproject',
@@ -73,24 +87,10 @@ export const subprojectOperations: INodeProperties[] = [
 				},
 			},
 			{
-				name: 'Put In Planning',
-				value: 'putInPlanning',
-				action: 'Put a subproject in the planning',
-				description: 'Put an existing subproject in the planning (API v1.20.0)',
-				routing: { request: { method: 'POST', url: `=/subprojects/${SUBPROJECT_ID}/:putInPlanning` }, output: { postReceive } },
-			},
-			{
-				name: 'Set In Financial',
-				value: 'setInFinancial',
-				action: 'Set whether a subproject counts in the financial overview',
-				description: 'Set whether an existing subproject counts towards the financial overview (API v1.20.0)',
-				routing: { request: { method: 'POST', url: `=/subprojects/${SUBPROJECT_ID}/:setInFinancial` }, output: { postReceive } },
-			},
-			{
-				name: 'Take Out Of Planning',
+				name: 'Take Out of Planning',
 				value: 'takeOutOfPlanning',
-				action: 'Take a subproject out of the planning',
-				description: 'Take an existing subproject out of the planning (API v1.20.0)',
+				action: 'Take a subproject out of planning',
+				description: 'Take an existing subproject out of planning (API v1.20.0)',
 				routing: { request: { method: 'POST', url: `=/subprojects/${SUBPROJECT_ID}/:takeOutOfPlanning` }, output: { postReceive } },
 			},
 			{

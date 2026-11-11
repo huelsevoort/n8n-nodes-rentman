@@ -45,5 +45,5 @@ for (const [label, dir, patterns] of [
 }
 process.exit(failed ? 1 : 0);
 EOF
-sed -i "s#SCANNER_MODULE#$SCANNER#" run.mjs
-node run.mjs "$REPO" "$WORK/dist-pkg"
+sed "s#SCANNER_MODULE#$SCANNER#" run.mjs > scan.mjs
+node scan.mjs "$REPO" "$WORK/dist-pkg"
