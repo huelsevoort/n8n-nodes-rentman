@@ -180,3 +180,42 @@ test('Set operations take a record ID only as a number or a path of its own coll
 	await assert.rejects(hook.call(ctx('project', 'setClient'), { url: '/projects/invalid-id/:setClient', body: { client: 12 } }), /must be a number or a path of its own collection/);
 	await assert.doesNotReject(hook.call(ctx('project', 'setClient'), { url: '/projects/42/:setClient', body: { client: 12 } }));
 });
+
+test('toPath sends an account manager as a path of its own collection', async () => {
+	const run = (expr, value) => new Function('$value', `return ${expr.slice(4, -3)}`)(value);
+	const { toPath } = require('../../dist/nodes/Rentman/descriptions/shared.js');
+	const update = toPath('crew', 'null');
+	assert.equal(run(update, '33'), '/crew/33');
+	assert.equal(run(update, ' /crew/33 '), '/crew/33');
+	assert.equal(run(update, 33), '/crew/33');
+	assert.equal(run(update, ''), null);
+	assert.equal(run(toPath('crew', 'undefined'), ''), undefined);
+	for (const bad of ['/contacts/33', '33x', '3.5', '/crew/']) assert.equal(run(update, bad), 'invalid-id', bad);
+	const { hook } = writeHook();
+	await assert.rejects(hook.call(ctx('project', 'update'), { url: '/projects/42', body: { account_manager: 'invalid-id' } }), /Account Manager must be an ID or a path/);
+	await assert.rejects(hook.call(ctx('project', 'create'), { url: '/projects', body: { name: 'x', account_manager: 'invalid-id' } }), /Account Manager must be an ID or a path/);
+	await assert.doesNotReject(hook.call(ctx('project', 'update'), { url: '/projects/42', body: { account_manager: null } }));
+});
+
+test('project update never sends a number Rentman would replace with the next free number', async () => {
+	const { hook } = writeHook();
+	for (const bad of ['', 'abc', '12a', ' ']) {
+		await assert.rejects(hook.call(ctx('project', 'update'), { url: '/projects/42', body: { number: bad } }), /Number must contain digits only/, JSON.stringify(bad));
+	}
+	await assert.doesNotReject(hook.call(ctx('project', 'update'), { url: '/projects/42', body: { number: '1234' } }));
+	// Rentman takes the number only as a string (HTTP 400 for an integer), trimmed.
+	assert.equal((await hook.call(ctx('project', 'update'), { url: '/projects/42', body: { number: 1234 } })).body.number, '1234');
+	assert.equal((await hook.call(ctx('project', 'update'), { url: '/projects/42', body: { number: ' 1234 ' } })).body.number, '1234');
+	assert.equal((await hook.call(ctx('project', 'create'), { url: '/projects', body: { name: 'x', number: 1234 } })).body.number, '1234');
+	await assert.doesNotReject(hook.call(ctx('project', 'update'), { url: '/projects/42', body: { name: 'x' } }));
+	// On Create an empty or non-digit number still lets Rentman assign the next number, as documented.
+	await assert.doesNotReject(hook.call(ctx('project', 'create'), { url: '/projects', body: { name: 'x', number: 'abc' } }));
+});
+
+test('subproject update and planning operations stop on an ID that is not an ID or path', async () => {
+	const { hook } = writeHook();
+	for (const op of ['update', 'putInPlanning', 'takeOutOfPlanning', 'setInFinancial']) {
+		await assert.rejects(hook.call(ctx('subproject', op), { url: `/subprojects/invalid-id${op === 'update' ? '' : '/:' + op}`, body: {} }), /must be a number or a path/, op);
+	}
+	assert.equal((await hook.call(ctx('subproject', 'putInPlanning'), { url: '/subprojects/42/:putInPlanning', body: {} })).body, '{}');
+});

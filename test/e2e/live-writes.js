@@ -170,7 +170,8 @@ const w1cases = [
 	{ name: 'leaveMutation.create.full', track: ['leavemutation', false], params: { resource: 'leaveMutation', operation: 'create', crewmember: ref.inactiveCrew, leavetype: ref.leavetype, duration: 1, mutation_date: '2027-03-01T00:00:00', additionalFields: { remark: T } } },
 	{ name: 'leaveRequest.create.full', track: ['leaverequest', false], params: { resource: 'leaveRequest', operation: 'create', requested_for: ref.crew, approval_status: 'pending', additionalFields: { description: T, reviewed_on: '2027-02-01T09:00:00', reviewer: ref.crew } } },
 	{ name: 'leaveRequest.create[to reject]', track: ['leaverequest', false], params: { resource: 'leaveRequest', operation: 'create', requested_for: ref.crew, approval_status: 'pending', additionalFields: { description: `${T} to reject` } } },
-	{ name: 'project.create.full', track: ['projects', false], params: { resource: 'project', operation: 'create', name: `${T} project`, additionalFields: { custom: '{}', reference: 'E2E-REF', number: String(90000 + (Date.now() % 10000)) } } },
+	{ name: 'project.create.full', track: ['projects', false], params: { resource: 'project', operation: 'create', name: `${T} project`, additionalFields: { custom: '{}', reference: 'E2E-REF', number: String(90000 + (Date.now() % 10000)),
+		account_manager: ref.crew, color: '#00AA00', conditions: 'n8n-e2e conditions', deposit_status: 'deposit_paid', refundabledeposit: 12.5 } } },
 	{ name: 'projectRequest.create.min', track: ['projectrequests', true], params: { resource: 'projectRequest', operation: 'create', name: `${T} request min`, additionalFields: { planperiod_start: d1, planperiod_end: d2 } } },
 	{ name: 'projectRequest.create.full', track: ['projectrequests', true], params: { resource: 'projectRequest', operation: 'create', name: `${T} request full`, additionalFields: { planperiod_start: d1, planperiod_end: d2, customer: ref.contact, remark: 'e2e',
 		contact_mailing_city: 'Berlin', contact_mailing_country: 'de', contact_mailing_number: '1', contact_mailing_postalcode: '10115', contact_mailing_street: 'Teststr.', contact_name: `${T} req contact`,
@@ -321,6 +322,49 @@ readBackCreates(w1cCases);
 		const rec = api('GET', `${p}?fields=${Object.keys(want).join(',')}`).json.data || {};
 		const wrong = Object.entries(want).filter(([k, v]) => rec[k] !== v).map(([k, v]) => `${k}: want ${v}, got ${rec[k]}`);
 		if (wrong.length) { row.ok = false; row.error = wrong.join('; '); console.log(`FAIL ${c.name}: ${row.error}`); }
+	}
+}
+
+// ── W1e: Project/Subproject → Update, planning and financial (API v1.20.0) ───
+// Update is read back like every update; the planning and financial functions answer with the
+// subproject's path only, so in_planning / in_financial are read back.
+{
+	const otherCrew = api('GET', '/crew?limit=2&sort=%2Bid&fields=id').json.data?.map((c) => `/crew/${c.id}`).find((c) => c !== ref.crew);
+	const upd = [
+		// Project ID as the path Rentman answers with, Account Manager as an ID (sent as its path).
+		{ name: 'project.update.full', coll: 'projects', id: P1, params: { resource: 'project', operation: 'update', projectId: `/projects/${P1}`, updateFields: {
+			name: `${T} project upd`, reference: 'E2E-REF-UPD', number: String(80000 + (Date.now() % 10000)), account_manager: otherCrew, color: '#123456', conditions: 'n8n-e2e conditions upd',
+			deposit_status: 'deposit_returned', refundabledeposit: 7.25, custom: '{}' } } },
+		{ name: 'project.update[clear account manager]', coll: 'projects', id: P1, params: { resource: 'project', operation: 'update', projectId: P1, updateFields: { account_manager: '' } },
+			check: () => [`/projects/${P1}`, { account_manager: null }] },
+		{ name: 'project.update[account manager as ID]', coll: 'projects', id: P1, params: { resource: 'project', operation: 'update', projectId: P1, updateFields: { account_manager: ref.crew.split('/')[2] } },
+			check: () => [`/projects/${P1}`, { account_manager: ref.crew }] },
+		{ name: 'subproject.update.full', coll: 'subprojects', id: P1sub, params: { resource: 'subproject', operation: 'update', subprojectId: `/subprojects/${P1sub}`, updateFields: { name: `${T} subproject upd`, custom: '{}' } } },
+	];
+	const fn = (name, params, want) => ({ name, params: { resource: 'subproject', subprojectId: P1sub, ...params }, check: () => [`/subprojects/${P1sub}`, want] });
+	const flow = [
+		fn('subproject.takeOutOfPlanning.min', { operation: 'takeOutOfPlanning' }, { in_planning: false }),
+		fn('subproject.putInPlanning', { operation: 'putInPlanning' }, { in_planning: true }),
+		fn('subproject.takeOutOfPlanning.full', { operation: 'takeOutOfPlanning', options: { cancel_subrents: false, notification_text: 'n8n-e2e', notify_crew_members: false, remove_planned_crew: false, withdraw_invitations: false } }, { in_planning: false }),
+		fn('subproject.putInPlanning[again]', { operation: 'putInPlanning' }, { in_planning: true }),
+		fn('subproject.setInFinancial[false]', { operation: 'setInFinancial', inFinancial: false }, { in_financial: false }),
+		fn('subproject.setInFinancial[true]', { operation: 'setInFinancial', inFinancial: true }, { in_financial: true }),
+	];
+	if (!P1 || !P1sub) {
+		for (const c of [...upd, ...flow]) { results.push({ name: c.name, ok: null, error: 'prerequisite record could not be created' }); console.log(`SKIP ${c.name}: prerequisite missing`); }
+	} else {
+		// One case per workflow run: the order matters (each step reads back the state the one before left).
+		for (const c of [...upd, ...flow]) {
+			const r = run([c])[c.name];
+			const row = results.find((x) => x.name === c.name);
+			if (!r.ok) continue;
+			if (c.coll && !c.check) { readBack(c.name, c.coll, c.id, c.params); continue; }
+			const [p, want] = c.check();
+			if (c.coll ? String(r.first?.id) !== String(c.id) : r.first?.path !== p) { row.ok = false; row.error = `unexpected response ${JSON.stringify(r.first)}`; console.log(`FAIL ${c.name}: ${row.error}`); continue; }
+			const rec = api('GET', `${p}?fields=${Object.keys(want).join(',')}`).json.data || {};
+			const wrong = Object.entries(want).filter(([k, v]) => rec[k] !== v).map(([k, v]) => `${k}: want ${v}, got ${rec[k]}`);
+			if (wrong.length) { row.ok = false; row.error = wrong.join('; '); console.log(`FAIL ${c.name}: ${row.error}`); }
+		}
 	}
 }
 

@@ -13,6 +13,7 @@ export { quoteOperations, quoteFields } from './QuoteDescription';
 export { stockMovementOperations, stockMovementFields } from './StockMovementDescription';
 export { subprojectOperations, subprojectFields } from './SubprojectDescription';
 export { timeRegistrationOperations, timeRegistrationFields } from './TimeRegistrationDescription';
+export { workspaceOperations, workspaceFields } from './WorkspaceDescription';
 
 // ─── NEW: CONTACTS ────────────────────────────────────────────────────────────
 export { contactPersonOperations, contactPersonFields } from './ContactPersonDescription';

@@ -1,6 +1,10 @@
 import type { INodeProperties } from 'n8n-workflow';
 import { customQueryParamsField, idSegment, rentmanPagination, toId } from './shared';
 
+/** Subproject ID of the API v1.20.0 operations as a URL segment: an ID (42) or a path (/subprojects/42). */
+const SUBPROJECT_ID = idSegment('subprojects', 'subprojectId');
+const postReceive = [{ type: 'rootProperty' as const, properties: { property: 'data' } }];
+
 export const subprojectOperations: INodeProperties[] = [
 	{
 		displayName: 'Operation',
@@ -59,6 +63,20 @@ export const subprojectOperations: INodeProperties[] = [
 				},
 			},
 			{
+				name: 'Put In Planning',
+				value: 'putInPlanning',
+				action: 'Put a subproject into planning',
+				description: 'Put an existing subproject into planning (API v1.20.0)',
+				routing: { request: { method: 'POST', url: `=/subprojects/${SUBPROJECT_ID}/:putInPlanning` }, output: { postReceive } },
+			},
+			{
+				name: 'Set In Financial',
+				value: 'setInFinancial',
+				action: 'Set whether a subproject counts towards financials',
+				description: 'Set whether an existing subproject counts towards the financial overview (API v1.20.0)',
+				routing: { request: { method: 'POST', url: `=/subprojects/${SUBPROJECT_ID}/:setInFinancial` }, output: { postReceive } },
+			},
+			{
 				name: 'Set Location',
 				value: 'setLocation',
 				action: 'Set the location of a subproject',
@@ -67,6 +85,20 @@ export const subprojectOperations: INodeProperties[] = [
 					request: { method: 'POST' },
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'data' } }] },
 				},
+			},
+			{
+				name: 'Take Out of Planning',
+				value: 'takeOutOfPlanning',
+				action: 'Take a subproject out of planning',
+				description: 'Take an existing subproject out of planning (API v1.20.0)',
+				routing: { request: { method: 'POST', url: `=/subprojects/${SUBPROJECT_ID}/:takeOutOfPlanning` }, output: { postReceive } },
+			},
+			{
+				name: 'Update',
+				value: 'update',
+				action: 'Update a subproject',
+				description: 'Update the name or custom fields of an existing subproject (API v1.20.0)',
+				routing: { request: { method: 'PUT', url: `=/subprojects/${SUBPROJECT_ID}` }, output: { postReceive } },
 			},
 		],
 		default: 'getAll',
@@ -166,6 +198,105 @@ export const subprojectFields: INodeProperties[] = [
 				placeholder: '/contactpersons/7',
 				description: "ID or path of the contact person. Must belong to the location. Without it Rentman uses the location's default contact person.",
 				routing: { request: { body: { contact_person: toId('contactpersons', true) } } },
+			},
+		],
+	},
+	// ─── UPDATE / PLANNING / FINANCIAL (API v1.20.0) ─────────────────────────
+	{
+		displayName: 'Subproject ID',
+		name: 'subprojectId',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { resource: ['subproject'], operation: ['putInPlanning', 'setInFinancial', 'takeOutOfPlanning', 'update'] } },
+		default: '',
+		description: 'ID (42) or path (/subprojects/42) of the subproject',
+	},
+	{
+		displayName: 'Update Fields',
+		name: 'updateFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: { show: { resource: ['subproject'], operation: ['update'] } },
+		default: {},
+		description: 'Only the fields added here are changed. Rentman lets the API change only the name and custom fields of a subproject.',
+		options: [
+			{
+				displayName: 'Custom Fields',
+				name: 'custom',
+				type: 'json',
+				default: '{}',
+				description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
+				routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
+			},
+			{
+				displayName: 'Name',
+				name: 'name',
+				type: 'string',
+				default: '',
+				description: 'Name of the subproject',
+				routing: { request: { body: { name: '={{ $value }}' } } },
+			},
+		],
+	},
+	{
+		displayName: 'In Financial Overview',
+		name: 'inFinancial',
+		type: 'boolean',
+		required: true,
+		displayOptions: { show: { resource: ['subproject'], operation: ['setInFinancial'] } },
+		default: true,
+		description: 'Whether the subproject counts towards the financial overview',
+		routing: { request: { body: { in_financial: '={{ $value }}' } } },
+	},
+	{
+		displayName: 'Options',
+		name: 'options',
+		type: 'collection',
+		placeholder: 'Add Option',
+		displayOptions: { show: { resource: ['subproject'], operation: ['takeOutOfPlanning'] } },
+		default: {},
+		description: 'Without options Rentman cleans up nothing: planned crew, invitations and connected subrents stay, but no longer count',
+		options: [
+			{
+				displayName: 'Cancel Subrents',
+				name: 'cancel_subrents',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to set every subrent connected to the subproject to cancelled',
+				routing: { request: { body: { cancel_subrents: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Notification Text',
+				name: 'notification_text',
+				type: 'string',
+				typeOptions: { rows: 3 },
+				default: '',
+				description: 'Extra text for the email to the crew members (with Notify Crew Members)',
+				routing: { request: { body: { notification_text: '={{ $value || undefined }}' } } },
+			},
+			{
+				displayName: 'Notify Crew Members',
+				name: 'notify_crew_members',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to email the removed crew members their changed schedule. Only together with Remove Planned Crew.',
+				routing: { request: { body: { notify_crew_members: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Remove Planned Crew',
+				name: 'remove_planned_crew',
+				type: 'boolean',
+				default: false,
+				description: "Whether to delete the crew and transport planning of the subproject's functions",
+				routing: { request: { body: { remove_planned_crew: '={{ $value }}' } } },
+			},
+			{
+				displayName: 'Withdraw Invitations',
+				name: 'withdraw_invitations',
+				type: 'boolean',
+				default: false,
+				description: "Whether to expire the open invitations of the subproject's functions and delete the ones not sent yet",
+				routing: { request: { body: { withdraw_invitations: '={{ $value }}' } } },
 			},
 		],
 	},

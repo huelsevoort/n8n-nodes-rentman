@@ -1,7 +1,7 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { customQueryParamsField, idSegment, rentmanPagination, toId } from './shared';
+import { customQueryParamsField, idSegment, rentmanPagination, sortByDisplayName, toId, toPath } from './shared';
 
-/** Project ID of the Set operations as a URL segment: an ID (42) or a path (/projects/42). */
+/** Project ID of the Set and Update operations as a URL segment: an ID (42) or a path (/projects/42). */
 const PROJECT_ID = idSegment('projects', 'projectId');
 
 export const projectOperations: INodeProperties[] = [
@@ -155,10 +155,111 @@ export const projectOperations: INodeProperties[] = [
 					},
 				},
 			},
+			{
+				name: 'Update',
+				value: 'update',
+				action: 'Update a project',
+				description: 'Update an existing project (API v1.20.0)',
+				routing: {
+					request: {
+						method: 'PUT',
+						url: `=/projects/${PROJECT_ID}`,
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: { property: 'data' },
+							},
+						],
+					},
+				},
+			},
 		],
 		default: 'getAll',
 	},
 ];
+
+/** Project body fields Rentman accepts since API v1.20.0, on Create and Update. */
+function projectBodyFields(accountManagerEmpty: 'null' | 'undefined'): INodeProperties[] {
+	return [
+		{
+			displayName: 'Account Manager',
+			name: 'account_manager',
+			type: 'string',
+			default: '',
+			placeholder: '/crew/33',
+			description: accountManagerEmpty === 'null'
+				? 'ID (33) or path (/crew/33) of the crew member. An ID is sent as its path. An empty value, also from an expression, removes the account manager.'
+				: 'ID (33) or path (/crew/33) of the crew member. An ID is sent as its path.',
+			routing: { request: { body: { account_manager: toPath('crew', accountManagerEmpty) } } },
+		},
+		{
+			displayName: 'Color',
+			name: 'color',
+			type: 'color',
+			default: '',
+			description: 'Color of the project in the planner, e.g. #FD435D. Rentman stores it without the #. An empty value is not sent, so a color cannot be removed.',
+			routing: { request: { body: { color: '={{ $value || undefined }}' } } },
+		},
+		{
+			displayName: 'Conditions',
+			name: 'conditions',
+			type: 'string',
+			typeOptions: { rows: 4 },
+			default: '',
+			description: 'Terms and conditions of the project, as HTML',
+			routing: { request: { body: { conditions: '={{ $value }}' } } },
+		},
+		{
+			displayName: 'Deposit Status',
+			name: 'deposit_status',
+			type: 'options',
+			options: [
+				{ name: 'Deposit Paid', value: 'deposit_paid' },
+				{ name: 'Deposit Returned', value: 'deposit_returned' },
+				{ name: 'No Deposit Paid', value: 'no_deposit_paid' },
+			],
+			default: 'no_deposit_paid',
+			routing: { request: { body: { deposit_status: '={{ $value }}' } } },
+		},
+		{
+			displayName: 'Refundable Deposit',
+			name: 'refundabledeposit',
+			type: 'number',
+			typeOptions: { minValue: 0, numberPrecision: 2 },
+			default: 0,
+			description: 'Amount of the refundable deposit',
+			routing: { request: { body: { refundabledeposit: '={{ $value }}' } } },
+		},
+	];
+}
+
+/** Body fields Create (as Additional Fields, 26.6.0) and Update share. */
+const customField: INodeProperties = {
+	displayName: 'Custom Fields',
+	name: 'custom',
+	type: 'json',
+	default: '{}',
+	description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
+	routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
+};
+const referenceField: INodeProperties = {
+	displayName: 'Custom Reference',
+	name: 'reference',
+	type: 'string',
+	default: '',
+	description: 'Custom reference field for the project',
+	routing: { request: { body: { reference: '={{ $value }}' } } },
+};
+const numberField: INodeProperties = {
+	displayName: 'Number',
+	name: 'number',
+	type: 'string',
+	default: '',
+	description: 'Project number, digits only. Leave empty to let Rentman assign the next number; Rentman also does that for a number with other characters.',
+	routing: { request: { body: { number: '={{ $value }}' } } },
+};
 
 export const projectFields: INodeProperties[] = [
 	// ─── GET / ───────────────────────────────────────────────────────────────
@@ -189,7 +290,7 @@ export const projectFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['project'],
-				operation: ['setClient', 'setLocation', 'setType'],
+				operation: ['setClient', 'setLocation', 'setType', 'update'],
 			},
 		},
 		default: '',
@@ -429,33 +530,33 @@ export const projectFields: INodeProperties[] = [
 			},
 		},
 		default: {},
-		description: 'Rentman accepts only name, reference and number when creating a project. Customer, status, project type and similar fields are managed in Rentman itself and are rejected by the API.',
-		options: [
+		description: 'Customer, location, project type and status are not set here: use Set Client, Set Location and Set Type, or Rentman itself',
+		options: sortByDisplayName([customField, referenceField, numberField, ...projectBodyFields('undefined')]),
+	},
+
+	// ─── UPDATE (API v1.20.0) ────────────────────────────────────────────────
+	{
+		displayName: 'Update Fields',
+		name: 'updateFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		displayOptions: { show: { resource: ['project'], operation: ['update'] } },
+		default: {},
+		description: 'Only the fields added here are changed. Customer, location and project type are changed with Set Client, Set Location and Set Type.',
+		options: sortByDisplayName([
+			customField,
+			referenceField,
 			{
-				displayName: 'Custom Fields',
-				name: 'custom',
-				type: 'json',
-				default: '{}',
-				description: 'Custom fields as JSON object, e.g. {"custom_1": "text", "custom_2": 5}. The field names are listed under Extra Input Field.',
-				routing: { request: { body: { custom: "={{ typeof $value === 'string' ? JSON.parse($value || '{}') : $value }}" } } },
-			},
-			{
-				displayName: 'Custom Reference',
-				name: 'reference',
+				displayName: 'Name',
+				name: 'name',
 				type: 'string',
 				default: '',
-				description: 'Custom reference field for the project',
-				routing: { request: { body: { reference: '={{ $value }}' } } },
+				description: 'Name of the project',
+				routing: { request: { body: { name: '={{ $value }}' } } },
 			},
-			{
-				displayName: 'Number',
-				name: 'number',
-				type: 'string',
-				default: '',
-				description: 'Project number, digits only. Leave empty to let Rentman assign the next number; Rentman also does that for a number with other characters.',
-				routing: { request: { body: { number: '={{ $value }}' } } },
-			},
-		],
+			{ ...numberField, description: 'Project number, digits only. Anything else is stopped: Rentman would give the project the next free number.' },
+			...projectBodyFields('null'),
+		]),
 	},
 
 	// ─── CREATE FROM TEMPLATE (API v1.18.0) ──────────────────────────────────

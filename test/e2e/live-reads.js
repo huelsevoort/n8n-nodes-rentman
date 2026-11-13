@@ -74,6 +74,11 @@ for (const r of resources) {
 			const idProp = props.find((p) => p.required && p.routing?.request?.url);
 			const collUrl = op.routing?.request?.url || idProp?.routing.request.url;
 
+			// Workspace → Get Info (API v1.20.0): a single record without an ID.
+			if (op.value === 'getInfo') {
+				cases.push({ name: `${r.value}.${op.value}`, params: base, check: 'info' });
+				continue;
+			}
 			if (op.value === 'getForParent') {
 				const parents = props.find((p) => p.name === 'parentResource').options.map((o) => o.value);
 				for (const parent of parents) {
@@ -157,6 +162,10 @@ for (const c of cases) {
 	if (!problem && c.check === 'match') {
 		const wrong = o.all.find((i) => c.field in i && (typeof c.value === 'boolean' ? Boolean(i[c.field]) !== c.value : i[c.field] !== c.value));
 		if (wrong) problem = `filter ${c.field}=${c.value} returned record ${wrong.id} with ${c.field}=${JSON.stringify(wrong[c.field])}`;
+	}
+	if (!problem && c.check === 'info') {
+		const want = api('/workspace/:getInfo').data;
+		if (JSON.stringify(o.first) !== JSON.stringify(want)) problem = `expected ${JSON.stringify(want)}, got ${JSON.stringify(o.first)}`;
 	}
 	if (!problem && c.notId !== undefined && o.first && o.first.id === c.notId) problem = 'offset ignored';
 	report.push({ name: c.name, ok: !problem, problem, items: o.items, params: c.params, applied: c.applied });

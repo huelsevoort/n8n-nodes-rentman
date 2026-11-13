@@ -100,6 +100,16 @@ export function idSegment(collection: string, parameter: string): string {
 	return `{{ (s => /^(\\/${collection}\\/)?\\d+$/.test(s) ? s.split("/").pop() : "${INVALID_ID}")(String($parameter.${parameter} ?? "").trim()) }}`;
 }
 
+/**
+ * Body expression for link fields Rentman takes only as a path (PUT /projects account_manager,
+ * API v1.20.0: an integer is answered with HTTP 400): an ID (33) or a path of the expected
+ * collection (/crew/33) becomes /crew/33. Anything else becomes INVALID_ID, which prepareWriteBody
+ * stops. An empty field becomes `empty` (null clears the link, undefined leaves it out).
+ */
+export function toPath(collection: string, empty: 'null' | 'undefined'): string {
+	return `={{ (s => s === "" ? ${empty} : /^(\\/${collection}\\/)?\\d+$/.test(s) ? "/${collection}/" + s.split("/").pop() : "${INVALID_ID}")(String($value ?? "").trim()) }}`;
+}
+
 const PLAIN_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const OFFSET_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/;
 
@@ -190,6 +200,12 @@ const ID_FIELDS: Record<string, Array<[key: string, label: string, example: stri
 	'subproject.setLocation': [['location', 'Location', '/contacts/12', 'Contact → Get Many'], ['contact_person', 'Contact Person', '/contactpersons/7', 'Contact Person → Get For Parent']],
 };
 
+/** Body keys that take a toPath() link, keyed by resource.operation: [key, label, example path, lookup]. */
+const PATH_FIELDS: Record<string, Array<[key: string, label: string, example: string, lookup: string]>> = {
+	'project.create': [['account_manager', 'Account Manager', '/crew/33', 'Crew → Get Many']],
+	'project.update': [['account_manager', 'Account Manager', '/crew/33', 'Crew → Get Many']],
+};
+
 async function prepareWriteBody(
 	this: IExecuteSingleFunctions,
 	requestOptions: IHttpRequestOptions,
@@ -217,6 +233,24 @@ async function prepareWriteBody(
 				description: `Rentman takes ${label} only as a record ID (listed under ${lookup}); a path of that collection is sent as its ID.`,
 			});
 		}
+	}
+	// Rentman gives a project the next free number for an empty number or one with other characters,
+	// on Update too: an expression that yields such a value must not renumber an existing project.
+	// Rentman takes a project number only as a string (an integer from an expression is answered with
+	// HTTP 400), so it is sent trimmed as a string.
+	if ((operation === 'project.create' || operation === 'project.update') && body?.number !== undefined && body.number !== null) {
+		body.number = String(body.number).trim();
+	}
+	if (operation === 'project.update' && body?.number !== undefined && !/^\d+$/.test(String(body.number))) {
+		throw new NodeOperationError(this.getNode(), 'Number must contain digits only', {
+			description: 'Rentman would give the project the next free number instead. Remove Update Fields → Number to keep the current number.',
+		});
+	}
+	for (const [key, label, example, lookup] of PATH_FIELDS[operation] ?? []) {
+		if (body?.[key] !== INVALID_ID) continue;
+		throw new NodeOperationError(this.getNode(), `${label} must be an ID or a path such as ${example}`, {
+			description: `Rentman takes ${label} as a path of that collection (IDs are listed under ${lookup}); an ID is sent as its path.`,
+		});
 	}
 	if (body && typeof body === 'object' && !Array.isArray(body)) {
 		const timeZone = this.getTimezone();
