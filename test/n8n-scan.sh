@@ -26,12 +26,19 @@ npm install -q --no-save --no-audit --no-fund --legacy-peer-deps typescript@5.9 
 mkdir "$WORK/dist-pkg"
 tar xzf "$WORK"/n8n-nodes-rentman-*.tgz -C "$WORK/dist-pkg" --strip-components=1
 
-# The scanner module moved from scanner/scanner.mjs to dist/scanner.js in 0.43.0.
+# The scanner module moved from scanner/scanner.mjs to dist/scanner.js in 0.43.0, and
+# 0.44.0 renamed analyzePackage(dir, patterns) to lintDirectory(dir, patterns).
 SCANNER=./dist/scanner.js
 [ -f scanner/scanner.mjs ] && SCANNER=./scanner/scanner.mjs
 
 cat > run.mjs <<'EOF'
-import { analyzePackage, SOURCE_FILE_PATTERNS } from 'SCANNER_MODULE';
+import * as scanner from 'SCANNER_MODULE';
+const { SOURCE_FILE_PATTERNS } = scanner;
+const analyzePackage = scanner.lintDirectory ?? scanner.analyzePackage;
+if (typeof analyzePackage !== 'function' || !SOURCE_FILE_PATTERNS) {
+	console.error('Scanner API changed: lintDirectory/analyzePackage or SOURCE_FILE_PATTERNS not found');
+	process.exit(1);
+}
 const [source, dist] = process.argv.slice(2);
 let failed = false;
 for (const [label, dir, patterns] of [
